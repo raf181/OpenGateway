@@ -1,6 +1,34 @@
 # GeoCustody - Full-Stack Demo
 
-GeoCustody is a personnel and inventory tracking + authorization system that enforces chain-of-custody and verified on-site actions using Telefónica Open Gateway network APIs (mocked for this demo).
+GeoCustody is a personnel and inventory tracking + authorization system that enforces chain-of-custody and verified on-site actions using **Telefónica Open Gateway** network APIs.
+
+## 🌐 Telefónica Open Gateway Integration
+
+This demo integrates with the [Telefónica Open Gateway](https://developers.opengateway.telefonica.com/) APIs for network-based verification:
+
+| API | Endpoint | Purpose |
+|-----|----------|---------|
+| **Number Verification** | `POST /number-verification/v0/verify` | Verify device phone number matches claimed identity |
+| **Location Verification** | `POST /location/v0/verify` | Verify device is within authorized geofence |
+| **SIM Swap Check** | `POST /sim-swap/v0/check` | Detect recent SIM card changes (fraud signal) |
+| **Device Swap Check** | `POST /device-swap/v0.1/check` | Detect recent device changes (fraud signal) |
+
+### Gateway Modes
+
+The system supports three operation modes:
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `mock` | Local mock using frontend panel | Development & demos |
+| `sandbox` | Telefónica Sandbox APIs | Testing with real API structure |
+| `production` | Telefónica Production APIs | Live deployment |
+
+Configure via environment variable:
+```bash
+GATEWAY_MODE=mock  # or "sandbox" or "production"
+```
+
+For sandbox/production, get credentials from the [Telefónica Developer Portal](https://developers.opengateway.telefonica.com/docs/sandbox).
 
 ## Project Structure
 
@@ -13,17 +41,22 @@ GeoCustody is a personnel and inventory tracking + authorization system that enf
 │   │   ├── models/         # SQLAlchemy models
 │   │   ├── schemas/        # Pydantic schemas
 │   │   └── services/       # Business logic
+│   │       ├── telefonica_gateway.py  # Open Gateway client
+│   │       ├── policy_engine.py       # Authorization rules
+│   │       └── custody_service.py     # Custody workflows
 │   ├── data/               # SQLite database (auto-created)
 │   ├── main.py             # FastAPI application entry
-│   └── requirements.txt
+│   ├── requirements.txt
+│   └── .env.example        # Environment configuration template
 ├── frontend/               # React + Vite frontend
 │   ├── src/
 │   │   ├── components/     # Reusable components
-│   │   ├── contexts/       # React contexts
+│   │   ├── contexts/       # React contexts (Auth, MockNetwork)
 │   │   ├── pages/          # Page components
-│   │   └── utils/          # Utilities
+│   │   └── utils/          # API utilities
 │   ├── package.json
 │   └── vite.config.js
+├── API-Docs/               # Telefónica API documentation
 └── README.md
 ```
 

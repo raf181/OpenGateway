@@ -9,7 +9,7 @@ from app.models.site import Site
 from app.models.user import User
 from app.models.approval import ApprovalRequest, ApprovalStatus
 from app.schemas.custody import MockNetworkContext, VerificationResult, CustodyActionResponse
-from app.services.open_gateway_mock import OpenGatewayMock
+from app.services.telefonica_gateway import TelefonicaGateway, GatewayMode
 from app.services.policy_engine import policy_engine, PolicyDecision
 from app.services.audit_service import AuditService
 
@@ -48,13 +48,37 @@ class CustodyService:
         site: Site,
         mock_context: Optional[MockNetworkContext]
     ) -> dict:
-        """Perform Open Gateway verification checks."""
-        gateway = OpenGatewayMock(mock_context)
+        """
+        Perform Telefónica Open Gateway verification checks.
         
-        return gateway.perform_full_verification(
-            claimed_phone=user.phone_number,
-            site_lat=site.latitude,
-            site_lon=site.longitude,
+        Uses the TelefonicaGateway client which supports:
+        - Mock mode: Uses frontend panel mock data
+        - Sandbox mode: Calls Telefónica sandbox APIs
+        - Production mode: Calls Telefónica production APIs
+        """
+        # Convert Pydantic model to dict for gateway
+        mock_data = None
+        if mock_context:
+            mock_data = {
+                "claimed_phone": mock_context.claimed_phone,
+                "network_phone": mock_context.network_phone,
+                "network_lat": mock_context.network_lat,
+                "network_lon": mock_context.network_lon,
+                "sim_swap_recent": mock_context.sim_swap_recent,
+                "device_swap_recent": mock_context.device_swap_recent,
+            }
+        
+        # Create gateway client (defaults to mock mode)
+        gateway = TelefonicaGateway(
+            mode=GatewayMode.MOCK,  # Change to SANDBOX or PRODUCTION for real API calls
+            mock_context=mock_data
+        )
+        
+        # Use sync version for mock mode
+        return gateway.perform_full_verification_sync(
+            phone_number=user.phone_number,
+            site_latitude=site.latitude,
+            site_longitude=site.longitude,
             site_radius=site.geofence_radius_m
         )
     
