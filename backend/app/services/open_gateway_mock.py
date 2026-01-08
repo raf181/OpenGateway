@@ -66,30 +66,31 @@ class OpenGatewayMock:
         """
         Mock Number Verification API.
         
-        Compares the claimed phone number against the "network" phone number.
-        In production, this would query the actual network for the device's number.
+        In the mock, we compare the mock_context's claimed_phone against network_phone.
+        The claimed_phone parameter (user's actual phone) is ignored in favor of
+        the mock panel settings to allow testing different scenarios.
         """
-        # Use claimed phone from context if not provided
-        claimed = claimed_phone or self.mock_context.claimed_phone
+        # Use mock context values for the simulation
+        claimed = self.mock_context.claimed_phone
         network = self.mock_context.network_phone
         
-        # If no mock data provided, default to matching
-        if not claimed and not network:
+        # If mock context not configured, default to matching (verification passes)
+        if not claimed or not network:
             return NumberVerificationResult(
                 verified=True,
-                claimed_number=None,
-                network_number=None,
+                claimed_number=claimed_phone or claimed,
+                network_number=network,
                 match=True
             )
         
-        # Check if numbers match
-        match = claimed == network if (claimed and network) else False
+        # Check if the mock claimed phone matches the mock network phone
+        match = claimed == network
         
         return NumberVerificationResult(
             verified=True,
             claimed_number=claimed,
             network_number=network,
-            match=match if (claimed and network) else True  # Default to match if not configured
+            match=match
         )
     
     def verify_location(
