@@ -5,6 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    host: true,
+    allowedHosts: ['owg.raf-181.org', 'localhost'],
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
