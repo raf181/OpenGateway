@@ -5,6 +5,7 @@ from sqlalchemy import func
 
 from app.core.database import get_db
 from app.core.security import require_role, get_current_user
+from app.core.config import settings
 from app.models.user import User
 from app.models.asset import Asset, AssetStatus
 from app.models.site import Site
@@ -99,4 +100,40 @@ async def get_dashboard_stats(
         "events": {
             "last_24h": recent_events
         }
+    }
+
+
+@router.get("/gateway-status")
+async def get_gateway_status(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get the current Telefónica Open Gateway configuration status.
+    
+    Returns the current mode (mock/sandbox/production) and whether
+    credentials are configured.
+    """
+    mode = settings.GATEWAY_MODE or "mock"
+    has_credentials = bool(settings.GATEWAY_CLIENT_ID and settings.GATEWAY_CLIENT_SECRET)
+    
+    # Determine base URL based on mode
+    if mode == "sandbox":
+        base_url = settings.GATEWAY_BASE_URL or "https://sandbox.opengateway.telefonica.com/apigateway"
+    elif mode == "production":
+        base_url = settings.GATEWAY_BASE_URL or "https://opengateway.telefonica.com/apigateway"
+    else:
+        base_url = None
+    
+    return {
+        "mode": mode,
+        "has_credentials": has_credentials,
+        "base_url": base_url,
+        "features": {
+            "number_verification": True,
+            "location_verification": True,
+            "sim_swap_check": True,
+            "device_swap_check": True,
+            "roaming_status": True
+        },
+        "documentation_url": "https://developers.opengateway.telefonica.com/reference"
     }

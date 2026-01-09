@@ -26,7 +26,7 @@ async def checkout_asset(
     """Check out an asset to the current user."""
     try:
         service = CustodyService(db)
-        return service.checkout(
+        return await service.checkout(
             asset_id=request.asset_id,
             site_id=request.site_id,
             user=current_user,
@@ -48,7 +48,7 @@ async def return_asset(
     """Return a checked-out asset."""
     try:
         service = CustodyService(db)
-        return service.return_asset(
+        return await service.return_asset(
             asset_id=request.asset_id,
             site_id=request.site_id,
             user=current_user,
@@ -70,7 +70,7 @@ async def transfer_asset(
     """Transfer asset custody to another user."""
     try:
         service = CustodyService(db)
-        return service.transfer(
+        return await service.transfer(
             asset_id=request.asset_id,
             site_id=request.site_id,
             user=current_user,
@@ -93,7 +93,7 @@ async def inventory_close(
     """Close inventory cycle for an asset."""
     try:
         service = CustodyService(db)
-        return service.inventory_close(
+        return await service.inventory_close(
             asset_id=request.asset_id,
             site_id=request.site_id,
             user=current_user,

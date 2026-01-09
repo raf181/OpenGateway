@@ -1,5 +1,7 @@
 """Custody service for managing asset custody transactions."""
 import json
+import asyncio
+import logging
 from typing import Optional
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -9,9 +11,13 @@ from app.models.site import Site
 from app.models.user import User
 from app.models.approval import ApprovalRequest, ApprovalStatus
 from app.schemas.custody import MockNetworkContext, VerificationResult, CustodyActionResponse
-from app.services.telefonica_gateway import TelefonicaGateway, GatewayMode
+from app.services.telefonica_gateway import TelefonicaGateway, GatewayMode, TelefonicaGatewayError
 from app.services.policy_engine import policy_engine, PolicyDecision
 from app.services.audit_service import AuditService
+from app.core.config import settings
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 class CustodyService:
@@ -42,7 +48,7 @@ class CustodyService:
             raise ValueError(f"User with ID {user_id} not found")
         return user
     
-    def _perform_verification(
+    async def _perform_verification(
         self,
         user: User,
         site: Site,
@@ -53,10 +59,17 @@ class CustodyService:
         
         Uses the TelefonicaGateway client which supports:
         - Mock mode: Uses frontend panel mock data
-        - Sandbox mode: Calls Telefónica sandbox APIs
-        - Production mode: Calls Telefónica production APIs
+        - Sandbox mode: Calls Telefónica sandbox APIs with CIBA OAuth
+        - Production mode: Calls Telefónica production APIs with CIBA OAuth
+        
+        The mode is determined by the GATEWAY_MODE environment variable.
         """
-        # Convert Pydantic model to dict for gateway
+        # Determine gateway mode from settings
+        gateway_mode = GatewayMode(settings.GATEWAY_MODE or "mock")
+        
+        logger.info(f"Performing verification in {gateway_mode.value} mode for user {user.id}")
+        
+        # Convert Pydantic model to dict for gateway (used in mock mode)
         mock_data = None
         if mock_context:
             mock_data = {
@@ -68,19 +81,80 @@ class CustodyService:
                 "device_swap_recent": mock_context.device_swap_recent,
             }
         
-        # Create gateway client (defaults to mock mode)
-        gateway = TelefonicaGateway(
-            mode=GatewayMode.MOCK,  # Change to SANDBOX or PRODUCTION for real API calls
-            mock_context=mock_data
-        )
-        
-        # Use sync version for mock mode
-        return gateway.perform_full_verification_sync(
-            phone_number=user.phone_number,
-            site_latitude=site.latitude,
-            site_longitude=site.longitude,
-            site_radius=site.geofence_radius_m
-        )
+        try:
+            # Create gateway client with configured mode
+            gateway = TelefonicaGateway(
+                mode=gateway_mode,
+                mock_context=mock_data
+            )
+            
+            if gateway_mode == GatewayMode.MOCK:
+                # Use sync version for mock mode
+                return gateway.perform_full_verification_sync(
+                    phone_number=user.phone_number,
+                    site_latitude=site.latitude,
+                    site_longitude=site.longitude,
+                    site_radius=site.geofence_radius_m
+                )
+            else:
+                # Use async version for real API calls (sandbox/production)
+                result = await gateway.perform_full_verification(
+                    phone_number=user.phone_number,
+                    site_latitude=site.latitude,
+                    site_longitude=site.longitude,
+                    site_radius=site.geofence_radius_m
+                )
+                return result
+                    
+        except TelefonicaGatewayError as e:
+            logger.error(f"Gateway error during verification: {e.message}")
+            # Return a safe fallback result on gateway errors
+            return {
+                "number_verification": {
+                    "verified": False,
+                    "match": False,
+                    "error": e.message
+                },
+                "location_verification": {
+                    "verified": False,
+                    "verification_result": "UNDETERMINED",
+                    "inside_geofence": False,
+                    "match_rate": 0,
+                    "error": e.message
+                },
+                "risk_signals": {
+                    "sim_swap_recent": False,
+                    "device_swap_recent": False,
+                    "latest_sim_change": None,
+                    "latest_device_change": None,
+                    "error": e.message
+                },
+                "gateway_error": e.message
+            }
+        except Exception as e:
+            logger.exception(f"Unexpected error during verification: {str(e)}")
+            return {
+                "number_verification": {
+                    "verified": False,
+                    "match": False,
+                    "error": str(e)
+                },
+                "location_verification": {
+                    "verified": False,
+                    "verification_result": "UNDETERMINED",
+                    "inside_geofence": False,
+                    "match_rate": 0,
+                    "error": str(e)
+                },
+                "risk_signals": {
+                    "sim_swap_recent": False,
+                    "device_swap_recent": False,
+                    "latest_sim_change": None,
+                    "latest_device_change": None,
+                    "error": str(e)
+                },
+                "gateway_error": str(e)
+            }
     
     def _create_verification_result(self, verification_summary: dict) -> VerificationResult:
         """Create VerificationResult from summary dict."""
@@ -123,7 +197,7 @@ class CustodyService:
         self.db.refresh(approval)
         return approval
     
-    def checkout(
+    async def checkout(
         self,
         asset_id: int,
         site_id: int,
@@ -157,7 +231,7 @@ class CustodyService:
             )
         
         # Perform verification
-        verification_summary = self._perform_verification(user, site, mock_context)
+        verification_summary = await self._perform_verification(user, site, mock_context)
         verification_result = self._create_verification_result(verification_summary)
         
         # Evaluate policy
@@ -246,7 +320,7 @@ class CustodyService:
                 message="Checkout denied"
             )
     
-    def return_asset(
+    async def return_asset(
         self,
         asset_id: int,
         site_id: int,
@@ -296,7 +370,7 @@ class CustodyService:
             )
         
         # Perform verification
-        verification_summary = self._perform_verification(user, site, mock_context)
+        verification_summary = await self._perform_verification(user, site, mock_context)
         verification_result = self._create_verification_result(verification_summary)
         
         # Evaluate policy
@@ -382,7 +456,7 @@ class CustodyService:
                 message="Return denied"
             )
     
-    def transfer(
+    async def transfer(
         self,
         asset_id: int,
         site_id: int,
@@ -434,7 +508,7 @@ class CustodyService:
             )
         
         # Perform verification
-        verification_summary = self._perform_verification(user, site, mock_context)
+        verification_summary = await self._perform_verification(user, site, mock_context)
         verification_result = self._create_verification_result(verification_summary)
         
         # Evaluate policy
@@ -522,7 +596,7 @@ class CustodyService:
                 message="Transfer denied"
             )
     
-    def inventory_close(
+    async def inventory_close(
         self,
         asset_id: int,
         site_id: int,
@@ -536,7 +610,7 @@ class CustodyService:
         site = self._get_site(site_id)
         
         # Perform verification
-        verification_summary = self._perform_verification(user, site, mock_context)
+        verification_summary = await self._perform_verification(user, site, mock_context)
         verification_result = self._create_verification_result(verification_summary)
         
         # Evaluate policy
