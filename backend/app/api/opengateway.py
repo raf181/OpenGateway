@@ -183,8 +183,8 @@ def run_async(coro):
 # ==================== API Endpoints ====================
 
 @router.get("/status", response_model=GatewayStatusResponse)
-async def get_gateway_status(current_user: User = Depends(get_current_user)):
-    """Get the current Open Gateway configuration status."""
+async def get_gateway_status():
+    """Get the current Open Gateway configuration status (public endpoint)."""
     mode = settings.GATEWAY_MODE or "mock"
     gateway = get_gateway()
     
