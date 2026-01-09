@@ -15,7 +15,9 @@ services:
       - DATABASE_URL=sqlite:///./data/geocustody.db
       - CORS_ORIGINS=["http://localhost:8080","http://127.0.0.1:8080","https://${TUNNEL_HOSTNAME:-localhost}"]
     volumes:
-      - geocustody-data:/app/data
+      # Persistent data stored in deploy/data directory
+      # :Z flag for SELinux relabeling in rootless Podman
+      - ./data:/app/data:Z
     networks:
       - geocustody-net
     healthcheck:
@@ -47,9 +49,6 @@ services:
     command: tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
       - frontend
-
-volumes:
-  geocustody-data:
 
 networks:
   geocustody-net:
