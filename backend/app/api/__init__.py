@@ -9,6 +9,7 @@ from app.api.custody import router as custody_router
 from app.api.approvals import router as approvals_router
 from app.api.audit import router as audit_router
 from app.api.dashboard import router as dashboard_router
+from app.api.opengateway import router as opengateway_router
 
 api_router = APIRouter(prefix="/api")
 
@@ -20,5 +21,6 @@ api_router.include_router(custody_router)
 api_router.include_router(approvals_router)
 api_router.include_router(audit_router)
 api_router.include_router(dashboard_router)
+api_router.include_router(opengateway_router)
 
 __all__ = ["api_router"]

@@ -5,6 +5,37 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useMockNetwork } from '../../../contexts/MockNetworkContext';
 import Modal from '../../../components/Modal';
 
+// Component to show expandable raw API response
+function RawResponseViewer({ data, title }) {
+  const [expanded, setExpanded] = useState(false);
+  
+  if (!data) return null;
+  
+  return (
+    <div className="mt-3 border-t pt-3">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+      >
+        <svg 
+          className={`w-3 h-3 transition-transform ${expanded ? 'rotate-90' : ''}`} 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+        {title || 'View Raw Response'}
+      </button>
+      {expanded && (
+        <pre className="mt-2 p-2 bg-gray-900 text-green-400 rounded text-xs overflow-x-auto max-h-64 overflow-y-auto">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+}
+
 export default function AssetDetail() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -339,25 +370,97 @@ export default function AssetDetail() {
 
             {actionResult.verification && (
               <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Verification Results</h4>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Verification Results</h4>
+                
+                {/* Summary Grid */}
+                <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                   <div className="flex items-center gap-1">
-                    {actionResult.verification.number_verified ? '✓' : '✗'}
+                    <span className={actionResult.verification.number_verified ? 'text-green-600' : 'text-red-600'}>
+                      {actionResult.verification.number_verified ? '✓' : '✗'}
+                    </span>
                     <span>Number Verified</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    {actionResult.verification.inside_geofence ? '✓' : '✗'}
+                    <span className={actionResult.verification.inside_geofence ? 'text-green-600' : 'text-red-600'}>
+                      {actionResult.verification.inside_geofence ? '✓' : '✗'}
+                    </span>
                     <span>Inside Geofence</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    {!actionResult.verification.sim_swap_detected ? '✓' : '⚠'}
+                    <span className={!actionResult.verification.sim_swap_detected ? 'text-green-600' : 'text-yellow-600'}>
+                      {!actionResult.verification.sim_swap_detected ? '✓' : '⚠'}
+                    </span>
                     <span>SIM Swap: {actionResult.verification.sim_swap_detected ? 'Detected' : 'None'}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    {!actionResult.verification.device_swap_detected ? '✓' : '⚠'}
+                    <span className={!actionResult.verification.device_swap_detected ? 'text-green-600' : 'text-yellow-600'}>
+                      {!actionResult.verification.device_swap_detected ? '✓' : '⚠'}
+                    </span>
                     <span>Device Swap: {actionResult.verification.device_swap_detected ? 'Detected' : 'None'}</span>
                   </div>
                 </div>
+
+                {/* Detailed API Response */}
+                {actionResult.verification.details && (
+                  <div className="space-y-2 text-xs border-t pt-3">
+                    <h5 className="font-medium text-gray-600">API Details</h5>
+                    
+                    {/* Location Details */}
+                    {actionResult.verification.details.location_verification && (
+                      <div className="bg-white rounded p-2 border">
+                        <div className="font-medium text-gray-700 mb-1">📍 Location Verification</div>
+                        <div className="text-gray-600 space-y-0.5">
+                          <p>Result: <span className="font-mono">{actionResult.verification.details.location_verification.verification_result}</span></p>
+                          {actionResult.verification.details.location_verification.match_rate !== null && (
+                            <p>Match Rate: <span className="font-mono">{actionResult.verification.details.location_verification.match_rate}%</span></p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* SIM Swap Details */}
+                    {actionResult.verification.details.risk_signals && (
+                      <div className="bg-white rounded p-2 border">
+                        <div className="font-medium text-gray-700 mb-1">🔐 Risk Signals</div>
+                        <div className="text-gray-600 space-y-0.5">
+                          <p>SIM Swap: <span className={`font-mono ${actionResult.verification.details.risk_signals.sim_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {actionResult.verification.details.risk_signals.sim_swap_recent ? 'Yes' : 'No'}
+                          </span></p>
+                          {actionResult.verification.details.risk_signals.latest_sim_change && (
+                            <p className="text-gray-500">Last SIM change: {new Date(actionResult.verification.details.risk_signals.latest_sim_change).toLocaleString()}</p>
+                          )}
+                          <p>Device Swap: <span className={`font-mono ${actionResult.verification.details.risk_signals.device_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {actionResult.verification.details.risk_signals.device_swap_recent ? 'Yes' : 'No'}
+                          </span></p>
+                          {actionResult.verification.details.risk_signals.latest_device_change && (
+                            <p className="text-gray-500">Last device change: {new Date(actionResult.verification.details.risk_signals.latest_device_change).toLocaleString()}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Number Verification Details */}
+                    {actionResult.verification.details.number_verification && (
+                      <div className="bg-white rounded p-2 border">
+                        <div className="font-medium text-gray-700 mb-1">📱 Number Verification</div>
+                        <div className="text-gray-600 space-y-0.5">
+                          <p>Match: <span className={`font-mono ${actionResult.verification.details.number_verification.match ? 'text-green-600' : 'text-red-600'}`}>
+                            {actionResult.verification.details.number_verification.match ? 'Yes' : 'No'}
+                          </span></p>
+                          {actionResult.verification.details.number_verification.note && (
+                            <p className="text-gray-500 italic">{actionResult.verification.details.number_verification.note}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Raw JSON Response Toggle */}
+                <RawResponseViewer 
+                  data={actionResult.verification.details} 
+                  title="View Raw API Response" 
+                />
               </div>
             )}
 

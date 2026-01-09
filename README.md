@@ -6,12 +6,54 @@ GeoCustody is a personnel and inventory tracking + authorization system that enf
 
 This demo integrates with the [Telefónica Open Gateway](https://developers.opengateway.telefonica.com/) APIs for network-based verification:
 
-| API | Endpoint | Purpose |
-|-----|----------|---------|
-| **Number Verification** | `POST /number-verification/v0/verify` | Verify device phone number matches claimed identity |
-| **Location Verification** | `POST /location/v0/verify` | Verify device is within authorized geofence |
-| **SIM Swap Check** | `POST /sim-swap/v0/check` | Detect recent SIM card changes (fraud signal) |
-| **Device Swap Check** | `POST /device-swap/v0.1/check` | Detect recent device changes (fraud signal) |
+| API | Endpoint | Purpose | Status |
+|-----|----------|---------|--------|
+| **SIM Swap Check** | `POST /sim-swap/v0/check` | Detect recent SIM card changes (fraud signal) | ✅ Working |
+| **SIM Swap Retrieve** | `POST /sim-swap/v0/retrieve-date` | Get last SIM swap date | ✅ Working |
+| **Device Swap Check** | `POST /device-swap/v0.1/check` | Detect recent device changes (fraud signal) | ✅ Working |
+| **Device Swap Retrieve** | `POST /device-swap/v0.1/retrieve-date` | Get last device swap date | ✅ Working |
+| **Location Verification** | `POST /location/v0/verify` | Verify device is within authorized geofence | ✅ Working |
+| **QoD Profiles** | `GET /qod/v0/qos-profiles` | Get available Quality on Demand profiles | ✅ Working |
+| **Number Verification** | `POST /number-verification/v0/verify` | Verify device phone number matches claimed identity | ⚠️ Requires Frontend Auth |
+| **Roaming Status** | `POST /device-status/v0/roaming` | Check if device is roaming | ⚠️ Scope Not Enabled |
+
+### API Test Results (Sandbox)
+
+```
+============================================================
+TELEFONICA OPENGATEWAY API TEST SUMMARY
+============================================================
+
+1. SIM Swap Check         ✅ Working - Returns swap status
+2. SIM Swap Retrieve      ✅ Working - Returns last swap date
+3. Device Swap Check      ✅ Working - Returns swap status  
+4. Device Swap Retrieve   ✅ Working - Returns last swap date
+5. Location Verification  ✅ Working - Verifies device in area (max 200m accuracy)
+6. QoD Profiles          ✅ Working - Returns available profiles
+7. Number Verification   ⚠️ Requires mobile network authentication (frontend flow)
+8. Roaming Status        ⚠️ Scope may need to be enabled in Developer Portal
+============================================================
+```
+
+### OpenGateway REST API Endpoints
+
+The backend exposes these endpoints at `/api/opengateway/`:
+
+```
+GET  /api/opengateway/status              - Gateway status and mode
+POST /api/opengateway/sim-swap/check      - Check for recent SIM swap
+POST /api/opengateway/sim-swap/retrieve   - Get last SIM swap date
+POST /api/opengateway/device-swap/check   - Check for recent device swap
+POST /api/opengateway/device-swap/retrieve - Get last device swap date
+POST /api/opengateway/location/verify     - Verify device location
+POST /api/opengateway/number/verify       - Verify phone number
+POST /api/opengateway/roaming/status      - Get roaming status
+GET  /api/opengateway/qod/profiles        - List QoS profiles
+POST /api/opengateway/qod/sessions        - Create QoD session
+GET  /api/opengateway/qod/sessions/{id}   - Get session details
+POST /api/opengateway/qod/sessions/{id}/extend - Extend session
+DELETE /api/opengateway/qod/sessions/{id} - Delete session
+```
 
 ### Gateway Modes
 
@@ -24,11 +66,38 @@ The system supports three operation modes:
 | `production` | Telefónica Production APIs | Live deployment |
 
 Configure via environment variable:
+
 ```bash
 GATEWAY_MODE=mock  # or "sandbox" or "production"
 ```
 
-For sandbox/production, get credentials from the [Telefónica Developer Portal](https://developers.opengateway.telefonica.com/docs/sandbox).
+### Sandbox Configuration
+
+To use the Telefónica Sandbox APIs, create a `.env` file in the `backend/` directory:
+
+```bash
+# Gateway Mode
+GATEWAY_MODE=sandbox
+
+# Telefónica OpenGateway Credentials (from Developer Portal)
+GATEWAY_CLIENT_ID=your-client-id-here
+GATEWAY_CLIENT_SECRET=your-client-secret-here
+
+# Optional: Override base URL (defaults to sandbox URL)
+# GATEWAY_BASE_URL=https://sandbox.opengateway.telefonica.com/apigateway
+```
+
+Get your credentials from the [Telefónica Developer Portal](https://developers.opengateway.telefonica.com/docs/sandbox).
+
+### Authentication Flow (CIBA)
+
+The integration uses **Client-Initiated Backchannel Authentication (CIBA)** OAuth flow:
+
+1. `POST /bc-authorize` with `login_hint=tel:+<phone>` and scope
+2. `POST /token` with `auth_req_id` to get access token
+3. Use Bearer token for API calls
+
+This allows backend authentication without requiring the end-user's browser.
 
 ## Project Structure
 
@@ -240,3 +309,8 @@ All custody events are stored with a tamper-evident hash chain:
 ## License
 
 Demo project - Not for production use.
+
+```sh
+npm run dev
+python3 -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
