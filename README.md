@@ -1,6 +1,119 @@
+> **Note:**
+> This README was generated with GitHub Copilot. It may not always be up to date or fully accurate—please verify details before relying on it for production or critical use.
+
 # GeoCustody - Full-Stack Demo
 
 GeoCustody is a personnel and inventory tracking + authorization system that enforces chain-of-custody and verified on-site actions using **Telefónica Open Gateway** network APIs.
+
+## Process Overview
+```mermaid
+graph TD
+
+    subgraph base.cv::frontend_boundary["**OpenGateway Frontend System**<br>[External]"]
+        subgraph base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"]
+            base.cv::react_app["**React Application**<br>frontend/App.jsx `function App()`, frontend/main.jsx `ReactDOM.createRoot`"]
+            base.cv::router_component["**Router Component**<br>frontend/main.jsx `BrowserRouter`, frontend/src/components/layouts/AppLayout.jsx, frontend/src/components/layouts/MarketingLayout.jsx"]
+            base.cv::auth_context["**Auth Context**<br>frontend/src/contexts/AuthContext.jsx `AuthContext`"]
+            base.cv::mock_network_context["**Mock Network Context**<br>frontend/src/contexts/MockNetworkContext.jsx `MockNetworkContext`"]
+            base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"]
+            base.cv::page_components["**Page Components**<br>frontend/src/pages/app/Login.jsx, frontend/src/pages/marketing/Landing.jsx, frontend/src/pages/app/admin/Users.jsx"]
+            base.cv::shared_ui_components["**Shared UI Components**<br>frontend/src/components/Modal.jsx, frontend/src/components/MockNetworkPanel.jsx, frontend/src/components/layouts/AppLayout.jsx"]
+            %% Edges at this level (grouped by source)
+            base.cv::react_app["**React Application**<br>frontend/App.jsx `function App()`, frontend/main.jsx `ReactDOM.createRoot`"] -->|"Uses"| base.cv::router_component["**Router Component**<br>frontend/main.jsx `BrowserRouter`, frontend/src/components/layouts/AppLayout.jsx, frontend/src/components/layouts/MarketingLayout.jsx"]
+            base.cv::router_component["**Router Component**<br>frontend/main.jsx `BrowserRouter`, frontend/src/components/layouts/AppLayout.jsx, frontend/src/components/layouts/MarketingLayout.jsx"] -->|"Renders"| base.cv::page_components["**Page Components**<br>frontend/src/pages/app/Login.jsx, frontend/src/pages/marketing/Landing.jsx, frontend/src/pages/app/admin/Users.jsx"]
+            base.cv::page_components["**Page Components**<br>frontend/src/pages/app/Login.jsx, frontend/src/pages/marketing/Landing.jsx, frontend/src/pages/app/admin/Users.jsx"] -->|"Uses"| base.cv::shared_ui_components["**Shared UI Components**<br>frontend/src/components/Modal.jsx, frontend/src/components/MockNetworkPanel.jsx, frontend/src/components/layouts/AppLayout.jsx"]
+            base.cv::page_components["**Page Components**<br>frontend/src/pages/app/Login.jsx, frontend/src/pages/marketing/Landing.jsx, frontend/src/pages/app/admin/Users.jsx"] -->|"Consumes"| base.cv::auth_context["**Auth Context**<br>frontend/src/contexts/AuthContext.jsx `AuthContext`"]
+            base.cv::page_components["**Page Components**<br>frontend/src/pages/app/Login.jsx, frontend/src/pages/marketing/Landing.jsx, frontend/src/pages/app/admin/Users.jsx"] -->|"Consumes"| base.cv::mock_network_context["**Mock Network Context**<br>frontend/src/contexts/MockNetworkContext.jsx `MockNetworkContext`"]
+            base.cv::page_components["**Page Components**<br>frontend/src/pages/app/Login.jsx, frontend/src/pages/marketing/Landing.jsx, frontend/src/pages/app/admin/Users.jsx"] -->|"Makes Requests via"| base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"]
+            base.cv::shared_ui_components["**Shared UI Components**<br>frontend/src/components/Modal.jsx, frontend/src/components/MockNetworkPanel.jsx, frontend/src/components/layouts/AppLayout.jsx"] -->|"Consumes"| base.cv::auth_context["**Auth Context**<br>frontend/src/contexts/AuthContext.jsx `AuthContext`"]
+            base.cv::shared_ui_components["**Shared UI Components**<br>frontend/src/components/Modal.jsx, frontend/src/components/MockNetworkPanel.jsx, frontend/src/components/layouts/AppLayout.jsx"] -->|"Consumes"| base.cv::mock_network_context["**Mock Network Context**<br>frontend/src/contexts/MockNetworkContext.jsx `MockNetworkContext`"]
+        end
+        subgraph base.cv::backend_boundary["**OpenGateway Backend System**<br>[External]"]
+            base.cv::user["**End User**<br>[External]"]
+            base.cv::frontend["**OpenGateway Frontend**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"]
+            base.cv::backend["**OpenGateway Backend**<br>backend/main.py `app = FastAPI()`"]
+            base.cv::telefonica_gateway["**Telefonica Gateway**<br>backend/app/services/telefonica_gateway.py `httpx.AsyncClient`"]
+            subgraph base.cv::database["**Database**<br>backend/app/core/database.py `create_engine`"]
+                base.cv::db_engine["**Database Engine**<br>backend/app/core/database.py `create_engine`"]
+                base.cv::orm_models["**ORM Models**<br>backend/app/models/approval.py `Base`, backend/app/models/asset.py `Base`, backend/app/models/audit.py `Base`, backend/app/models/site.py `Base`, backend/app/models/user.py `Base`"]
+                base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+                %% Edges at this level (grouped by source)
+                base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"] -->|"Connects to"| base.cv::db_engine["**Database Engine**<br>backend/app/core/database.py `create_engine`"]
+                base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"] -->|"Uses"| base.cv::orm_models["**ORM Models**<br>backend/app/models/approval.py `Base`, backend/app/models/asset.py `Base`, backend/app/models/audit.py `Base`, backend/app/models/site.py `Base`, backend/app/models/user.py `Base`"]
+            end
+            subgraph base.cv::fastapi_app["**FastAPI Application**<br>backend/main.py `app = FastAPI()`, backend/app/core/config.py `settings`"]
+                base.cv::api_router_users["**Users API Router**<br>backend/app/api/users.py `router`"]
+                base.cv::api_router_approvals["**Approvals API Router**<br>backend/app/api/approvals.py `router`"]
+                base.cv::api_router_assets["**Assets API Router**<br>backend/app/api/assets.py `router`"]
+                base.cv::api_router_audit["**Audit API Router**<br>backend/app/api/audit.py `router`"]
+                base.cv::api_router_auth["**Auth API Router**<br>backend/app/api/auth.py `router`"]
+                base.cv::api_router_custody["**Custody API Router**<br>backend/app/api/custody.py `router`"]
+                base.cv::api_router_dashboard["**Dashboard API Router**<br>backend/app/api/dashboard.py `router`"]
+                base.cv::api_router_opengateway["**OpenGateway API Router**<br>backend/app/api/opengateway.py `router`"]
+                base.cv::api_router_sites["**Sites API Router**<br>backend/app/api/sites.py `router`"]
+                base.cv::audit_service["**Audit Service**<br>backend/app/services/audit_service.py"]
+                base.cv::custody_service["**Custody Service**<br>backend/app/services/custody_service.py"]
+                base.cv::open_gateway_mock_service["**OpenGateway Mock Service**<br>backend/app/services/open_gateway_mock.py"]
+                base.cv::policy_engine_service["**Policy Engine Service**<br>backend/app/services/policy_engine.py"]
+                base.cv::telefonica_gateway_service["**Telefonica Gateway Service**<br>backend/app/services/telefonica_gateway.py"]
+                base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::config_manager["**Configuration Manager**<br>backend/app/core/config.py `settings`"]
+                %% Edges at this level (grouped by source)
+                base.cv::api_router_users["**Users API Router**<br>backend/app/api/users.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::api_router_approvals["**Approvals API Router**<br>backend/app/api/approvals.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::api_router_assets["**Assets API Router**<br>backend/app/api/assets.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::api_router_audit["**Audit API Router**<br>backend/app/api/audit.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::api_router_audit["**Audit API Router**<br>backend/app/api/audit.py `router`"] -->|"Calls"| base.cv::audit_service["**Audit Service**<br>backend/app/services/audit_service.py"]
+                base.cv::api_router_auth["**Auth API Router**<br>backend/app/api/auth.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::api_router_custody["**Custody API Router**<br>backend/app/api/custody.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::api_router_custody["**Custody API Router**<br>backend/app/api/custody.py `router`"] -->|"Calls"| base.cv::custody_service["**Custody Service**<br>backend/app/services/custody_service.py"]
+                base.cv::api_router_dashboard["**Dashboard API Router**<br>backend/app/api/dashboard.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::api_router_opengateway["**OpenGateway API Router**<br>backend/app/api/opengateway.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::api_router_opengateway["**OpenGateway API Router**<br>backend/app/api/opengateway.py `router`"] -->|"Calls"| base.cv::open_gateway_mock_service["**OpenGateway Mock Service**<br>backend/app/services/open_gateway_mock.py"]
+                base.cv::api_router_opengateway["**OpenGateway API Router**<br>backend/app/api/opengateway.py `router`"] -->|"Calls"| base.cv::telefonica_gateway_service["**Telefonica Gateway Service**<br>backend/app/services/telefonica_gateway.py"]
+                base.cv::api_router_sites["**Sites API Router**<br>backend/app/api/sites.py `router`"] -->|"Uses"| base.cv::auth_manager["**Authentication/Authorization Manager**<br>backend/app/core/security.py `require_role`, backend/app/core/security.py `get_password_hash`"]
+                base.cv::telefonica_gateway_service["**Telefonica Gateway Service**<br>backend/app/services/telefonica_gateway.py"] -->|"Uses"| base.cv::config_manager["**Configuration Manager**<br>backend/app/core/config.py `settings`"]
+            end
+            %% Edges at this level (grouped by source)
+            base.cv::telefonica_gateway_service["**Telefonica Gateway Service**<br>backend/app/services/telefonica_gateway.py"] -->|"Makes API calls to"| base.cv::telefonica_gateway["**Telefonica Gateway**<br>backend/app/services/telefonica_gateway.py `httpx.AsyncClient`"]
+            base.cv::telefonica_gateway_service["**Telefonica Gateway Service**<br>backend/app/services/telefonica_gateway.py"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_users["**Users API Router**<br>backend/app/api/users.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_approvals["**Approvals API Router**<br>backend/app/api/approvals.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_assets["**Assets API Router**<br>backend/app/api/assets.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_audit["**Audit API Router**<br>backend/app/api/audit.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_auth["**Auth API Router**<br>backend/app/api/auth.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_custody["**Custody API Router**<br>backend/app/api/custody.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_dashboard["**Dashboard API Router**<br>backend/app/api/dashboard.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_opengateway["**OpenGateway API Router**<br>backend/app/api/opengateway.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::api_router_sites["**Sites API Router**<br>backend/app/api/sites.py `router`"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::audit_service["**Audit Service**<br>backend/app/services/audit_service.py"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::custody_service["**Custody Service**<br>backend/app/services/custody_service.py"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+            base.cv::policy_engine_service["**Policy Engine Service**<br>backend/app/services/policy_engine.py"] -->|"Uses"| base.cv::session_manager["**Session Manager**<br>backend/app/core/database.py `SessionLocal`, backend/app/core/database.py `get_db`"]
+        end
+        %% Edges at this level (grouped by source)
+        base.cv::user["**End User**<br>[External]"] -->|"Uses"| base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"]
+        base.cv::user["**End User**<br>[External]"] -->|"Uses"| base.cv::react_app["**React Application**<br>frontend/App.jsx `function App()`, frontend/main.jsx `ReactDOM.createRoot`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_users["**Users API Router**<br>backend/app/api/users.py `router`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_approvals["**Approvals API Router**<br>backend/app/api/approvals.py `router`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_assets["**Assets API Router**<br>backend/app/api/assets.py `router`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_audit["**Audit API Router**<br>backend/app/api/audit.py `router`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_auth["**Auth API Router**<br>backend/app/api/auth.py `router`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_custody["**Custody API Router**<br>backend/app/api/custody.py `router`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_dashboard["**Dashboard API Router**<br>backend/app/api/dashboard.py `router`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_opengateway["**OpenGateway API Router**<br>backend/app/api/opengateway.py `router`"]
+        base.cv::spa["**Single Page Application**<br>frontend/App.jsx `App`, frontend/main.jsx `ReactDOM.createRoot`, frontend/index.html `<div id="root"></div>`"] -->|"Makes API calls to"| base.cv::api_router_sites["**Sites API Router**<br>backend/app/api/sites.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_users["**Users API Router**<br>backend/app/api/users.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_approvals["**Approvals API Router**<br>backend/app/api/approvals.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_assets["**Assets API Router**<br>backend/app/api/assets.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_audit["**Audit API Router**<br>backend/app/api/audit.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_auth["**Auth API Router**<br>backend/app/api/auth.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_custody["**Custody API Router**<br>backend/app/api/custody.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_dashboard["**Dashboard API Router**<br>backend/app/api/dashboard.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_opengateway["**OpenGateway API Router**<br>backend/app/api/opengateway.py `router`"]
+        base.cv::api_client["**API Client**<br>frontend/src/utils/api.js `fetch`"] -->|"Makes API calls to"| base.cv::api_router_sites["**Sites API Router**<br>backend/app/api/sites.py `router`"]
+    end
+
+```
 
 ## 🌐 Telefónica Open Gateway Integration
 
@@ -305,6 +418,19 @@ All custody events are stored with a tamper-evident hash chain:
 
 - `GET /api/audit/events` - List audit events
 - `GET /api/audit/verify-chain` - Verify chain integrity
+
+## 🚦 Current Integrations Status
+
+| Integration                | Status      | Notes |
+|---------------------------|-------------|-------|
+| **SIM Swap Check/Retrieve**    | ✅ Working  | Real Telefónica API (sandbox) |
+| **Device Swap Check/Retrieve** | ✅ Working  | Real Telefónica API (sandbox) |
+| **Location Verification**      | ✅ Working  | Real Telefónica API (sandbox, max 200m accuracy) |
+| **QoD Profiles**               | ✅ Working  | Real Telefónica API (sandbox) |
+| **Number Verification**        | ⚠️ Skipped  | Requires mobile network auth (frontend flow only) |
+| **Roaming Status**             | ⚠️ Not enabled | Scope not available in sandbox app |
+
+All working integrations use Telefónica's sandbox API endpoints. Number Verification and Roaming require additional setup or frontend user authentication.
 
 ## License
 
