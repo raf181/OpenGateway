@@ -25,6 +25,7 @@ backend/data/
 .env
 .env.local
 .env.*.local
+deploy/.env
 
 # IDE
 .vscode/
