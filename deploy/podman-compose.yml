@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/backend.Containerfile
+    container_name: geocustody-backend
+    restart: unless-stopped
+    environment:
+      - GATEWAY_MODE=${GATEWAY_MODE:-sandbox}
+      - GATEWAY_CLIENT_ID=${GATEWAY_CLIENT_ID}
+      - GATEWAY_CLIENT_SECRET=${GATEWAY_CLIENT_SECRET}
+      - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
+      - DATABASE_URL=sqlite:///./data/geocustody.db
+      - CORS_ORIGINS=["http://localhost:8080","http://127.0.0.1:8080","https://${TUNNEL_HOSTNAME:-localhost}"]
+    volumes:
+      - geocustody-data:/app/data
+    networks:
+      - geocustody-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/frontend.Containerfile
+    container_name: geocustody-frontend
+    restart: unless-stopped
+    ports:
+      # Only bind to localhost - not accessible from LAN
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend
+    networks:
+      - geocustody-net
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: geocustody-tunnel
+    restart: unless-stopped
+    # Use host network so cloudflared can reach localhost:8080
+    network_mode: host
+    command: tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - frontend
+
+volumes:
+  geocustody-data:
+
+networks:
+  geocustody-net:
+    driver: bridge
