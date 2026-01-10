@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { login as apiLogin } from '../../utils/api';
+import { useI18n } from '../../i18n';
 
 export default function Login() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -52,7 +54,7 @@ export default function Login() {
           </div>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-          Sign in to GeoCustody
+          {t('login')}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Demo application - Use credentials below
@@ -82,7 +84,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="label">Password</label>
+              <label htmlFor="password" className="label">{t('password') || 'Password'}</label>
               <input
                 id="password"
                 type="password"
@@ -99,7 +101,7 @@ export default function Login() {
               disabled={loading}
               className="btn-primary w-full disabled:opacity-50"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? t('loading') || 'Loading...' : t('login')}
             </button>
           </form>
 
