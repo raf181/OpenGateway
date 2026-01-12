@@ -59,5 +59,40 @@ The API will be available at http://localhost:8000
 - Run server: `uvicorn main:app --reload --port 8000`
 - Run tests: `pytest`
 
+## Podman Deployment
+
+This repository includes `deploy/deploy.sh` to manage Podman containers for the backend and frontend services. Use `podman-compose` (or equivalent) to run the stack.
+
+- Start services with Podman Compose:
+
+```bash
+cd deploy
+./deploy.sh start
+```
+
+- Stop services:
+
+```bash
+./deploy.sh stop
+```
+
+- Use the built-in Podman restart policy commands (no systemd required):
+
+```bash
+# Set restart=always on all currently running containers
+./deploy.sh enable-autorestart
+
+# Clear restart policy (restart=no) on all currently running containers
+./deploy.sh disable-autorestart
+```
+
+Notes:
+- The `enable-autorestart` and `disable-autorestart` commands use `podman update --restart=...` (with a fallback to `podman container update`) to set the container restart policy. Behavior depends on your Podman version.
+- In some environments you may also want to enable lingering for your user so that user-managed Podman processes persist across reboots:
+
+```bash
+sudo loginctl enable-linger $USER
+```
+
 ## License
 Demo project. Not for production use.

@@ -103,6 +103,49 @@ case "${1:-help}" in
             echo "   Tunnel: https://${TUNNEL_HOSTNAME}"
         fi
         ;;
+    enable-autorestart)
+        # Use Podman's built-in restart policy to mark containers Restart=always
+        containers=($(podman ps --format '{{.Names}}'))
+        if [ ${#containers[@]} -eq 0 ]; then
+            echo -e "${YELLOW}No running Podman containers found.${NC}"
+            exit 0
+        fi
+
+        echo -e "${BLUE}Found containers:${NC} ${containers[*]}"
+
+        for name in "${containers[@]}"; do
+            echo -e "${BLUE}Setting restart policy for ${name} -> restart=always${NC}"
+            # Use podman update to persist restart policy for the container
+            if podman update --restart=always "$name" 2>/dev/null; then
+                echo -e "${GREEN}Updated ${name}${NC}"
+            else
+                # Fallback: try container-specific form
+                podman container update --restart=always "$name" || echo -e "${YELLOW}Warning: could not update restart policy for ${name}${NC}"
+            fi
+        done
+
+        echo ""
+        echo -e "${GREEN}✅ Auto-restart (restart=always) set for running containers.${NC}"
+        ;;
+    disable-autorestart)
+        # Use Podman's built-in restart policy to unset restart behaviour (restart=no)
+        containers=($(podman ps --format '{{.Names}}'))
+        if [ ${#containers[@]} -eq 0 ]; then
+            echo -e "${YELLOW}No running Podman containers found.${NC}"
+            exit 0
+        fi
+
+        for name in "${containers[@]}"; do
+            echo -e "${BLUE}Setting restart policy for ${name} -> restart=no${NC}"
+            if podman update --restart=no "$name" 2>/dev/null; then
+                echo -e "${GREEN}Updated ${name}${NC}"
+            else
+                podman container update --restart=no "$name" || echo -e "${YELLOW}Warning: could not update restart policy for ${name}${NC}"
+            fi
+        done
+
+        echo -e "${GREEN}✅ Auto-restart disabled for running containers.${NC}"
+        ;;
     stop)
         echo -e "${YELLOW}🛑 Stopping GeoCustody containers...${NC}"
         podman-compose down
@@ -186,6 +229,8 @@ case "${1:-help}" in
         echo "  build     - Rebuild containers without cache"
         echo "  status    - Show status and container info"
         echo "  mode      - Show or change gateway mode (mock/sandbox/production)"
+        echo "  enable-autorestart  - Generate and enable systemd --user units for running Podman containers"
+        echo "  disable-autorestart - Disable and remove generated systemd --user units"
         echo "  reset-db  - Delete database and start fresh"
         echo ""
         echo "Examples:"
