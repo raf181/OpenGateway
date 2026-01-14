@@ -45,3 +45,4 @@ npm-debug.log*
 frontend/dist/
 
 API-Docs/*
+DESIGN_SYSTEM.md

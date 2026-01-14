@@ -1,0 +1,10 @@
+:root {
+  --bg-0: #0b0d10;
+  --accent: #c6ff3a;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-0: #f6f7f8;
+  }
+}

@@ -7,47 +7,24 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Segoe UI', 'Helvetica Neue', 'sans-serif'],
-        display: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Segoe UI', 'Helvetica Neue', 'sans-serif'],
+        display: ['Unbounded', 'ui-sans-serif', 'system-ui'],
+        ui: ['Inter', 'ui-sans-serif', 'system-ui'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas'],
       },
       colors: {
-        // Apple color palette
-        primary: {
-          50: '#f5f5f7',
-          100: '#ebebf0',
-          200: '#d5d5e3',
-          300: '#c0c0d0',
-          400: '#a6a6b8',
-          500: '#8b8b9e',
-          600: '#6e6e82',
-          700: '#535363',
-          800: '#424245',
-          900: '#1d1d1f',
-        },
-        // Apple accent - system blue
-        accent: {
-          50: '#f0f7ff',
-          100: '#e0efff',
-          200: '#c0dfff',
-          300: '#a0cfff',
-          400: '#5ba3ff',
-          500: '#0a84ff',
-          600: '#0071e3',
-          700: '#0066cc',
-          800: '#004fb8',
-          900: '#003d9a',
-        },
-        // Apple grays
-        gray: {
-          50: '#f9f9fb',
-          100: '#f5f5f7',
-          200: '#ebebf0',
-          300: '#d5d5e3',
-          400: '#c0c0d0',
-          500: '#8b8b9e',
-          600: '#6e6e82',
-          700: '#535363',
-          800: '#2a2a2e',
+        'bg-0': 'var(--bg-0)',
+        'bg-1': 'var(--bg-1)',
+        'fg-0': 'var(--fg-0)',
+        'fg-1': 'var(--fg-1)',
+        'border': 'var(--border)',
+        'accent': 'var(--accent)',
+        'accent-alt': 'var(--accent2)',
+      },
+    },
+  },
+  plugins: [],
+}
+
           900: '#1d1d1f',
         },
       },

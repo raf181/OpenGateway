@@ -44,85 +44,270 @@ export default function Login() {
   ];
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: 'var(--bg-0)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      padding: 'var(--space-4)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
       {/* Background decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-accent-100 rounded-full mix-blend-multiply filter blur-3xl opacity-10 -z-10" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10 -z-10" />
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width: '384px',
+        height: '384px',
+        backgroundColor: 'var(--accent)',
+        borderRadius: '50%',
+        filter: 'blur(96px)',
+        opacity: 0.05,
+        zIndex: -1,
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '384px',
+        height: '384px',
+        backgroundColor: 'var(--accent2)',
+        borderRadius: '50%',
+        filter: 'blur(96px)',
+        opacity: 0.05,
+        zIndex: -1,
+      }} />
 
-      <div className="relative sm:mx-auto sm:w-full sm:max-w-md">
-        {/* Logo - Apple Style */}
-        <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-16 h-16 bg-accent-600 rounded-apple-2xl flex items-center justify-center shadow-apple">
-            <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="currentColor">
+      <div style={{
+        position: 'relative',
+        margin: '0 auto',
+        width: '100%',
+        maxWidth: '448px',
+      }}>
+        {/* Logo */}
+        <Link to="/" style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 'var(--space-3)',
+          marginBottom: 'var(--space-8)',
+          textDecoration: 'none',
+        }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            backgroundColor: 'var(--accent)',
+            borderRadius: 'var(--radius-2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: 'var(--shadow-2)',
+          }}>
+            <svg viewBox="0 0 24 24" style={{
+              width: '40px',
+              height: '40px',
+              color: 'var(--bg-0)',
+            }} fill="currentColor">
               <path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" />
             </svg>
           </div>
         </Link>
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        <div style={{
+          textAlign: 'center',
+          marginBottom: 'var(--space-8)',
+        }}>
+          <h1 style={{
+            fontSize: 'clamp(2rem, 5vw, 2.25rem)',
+            fontWeight: 700,
+            color: 'var(--fg-0)',
+            marginBottom: 'var(--space-2)',
+            fontFamily: 'var(--font-display)',
+          }}>
             {t('login') || 'Welcome'}
           </h1>
-          <p className="text-base text-gray-600">
+          <p style={{
+            fontSize: '16px',
+            color: 'var(--fg-1)',
+            fontFamily: 'var(--font-ui)',
+          }}>
             Sign in to GeoCustody to manage your assets
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-apple-2xl shadow-apple border border-gray-100 p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Error Alert - Apple Style */}
+        <div style={{
+          backgroundColor: 'var(--bg-1)',
+          borderRadius: 'var(--radius-2)',
+          boxShadow: 'var(--shadow-2)',
+          border: `1px solid var(--border)`,
+          padding: 'var(--space-6)',
+        }}>
+          <form onSubmit={handleSubmit} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-5)',
+          }}>
+            {/* Error Alert */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-apple px-4 py-3 flex items-start gap-3">
-                <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <div style={{
+                backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                border: '1px solid rgba(220, 38, 38, 0.3)',
+                borderRadius: 'var(--radius-1)',
+                padding: 'var(--space-3) var(--space-4)',
+                display: 'flex',
+                gap: 'var(--space-3)',
+                alignItems: 'flex-start',
+              }}>
+                <svg style={{
+                  width: '20px',
+                  height: '20px',
+                  color: '#dc2626',
+                  flexShrink: 0,
+                  marginTop: '2px',
+                }} fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-                <p className="text-sm text-red-700 font-medium">{error}</p>
+                <p style={{
+                  fontSize: '14px',
+                  color: '#dc2626',
+                  fontWeight: 500,
+                  margin: 0,
+                }}>{error}</p>
               </div>
             )}
 
-            {/* Email Field - Apple Style */}
+            {/* Email Field */}
             <div>
-              <label htmlFor="email" className="label">Email address</label>
+              <label htmlFor="email" style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: 'var(--fg-0)',
+                marginBottom: 'var(--space-2)',
+                fontFamily: 'var(--font-ui)',
+              }}>Email address</label>
               <input
                 id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input"
                 placeholder="name@company.com"
                 autoComplete="email"
+                style={{
+                  width: '100%',
+                  padding: `var(--space-3) var(--space-4)`,
+                  backgroundColor: 'var(--bg-0)',
+                  border: `1px solid var(--border)`,
+                  borderRadius: 'var(--radius-1)',
+                  color: 'var(--fg-0)',
+                  fontSize: '14px',
+                  fontFamily: 'var(--font-ui)',
+                  transition: 'all var(--dur-2) var(--ease-out)',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--accent)';
+                  e.target.style.boxShadow = 'var(--shadow-focus)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--border)';
+                  e.target.style.boxShadow = 'none';
+                }}
               />
             </div>
 
-            {/* Password Field - Apple Style */}
+            {/* Password Field */}
             <div>
-              <label htmlFor="password" className="label">{t('password') || 'Password'}</label>
+              <label htmlFor="password" style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: 'var(--fg-0)',
+                marginBottom: 'var(--space-2)',
+                fontFamily: 'var(--font-ui)',
+              }}>{t('password') || 'Password'}</label>
               <input
                 id="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input"
                 placeholder="••••••••"
                 autoComplete="current-password"
+                style={{
+                  width: '100%',
+                  padding: `var(--space-3) var(--space-4)`,
+                  backgroundColor: 'var(--bg-0)',
+                  border: `1px solid var(--border)`,
+                  borderRadius: 'var(--radius-1)',
+                  color: 'var(--fg-0)',
+                  fontSize: '14px',
+                  fontFamily: 'var(--font-ui)',
+                  transition: 'all var(--dur-2) var(--ease-out)',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--accent)';
+                  e.target.style.boxShadow = 'var(--shadow-focus)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--border)';
+                  e.target.style.boxShadow = 'none';
+                }}
               />
             </div>
 
-            {/* Sign In Button - Apple Style */}
+            {/* Sign In Button */}
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary btn-lg w-full mt-8"
+              style={{
+                marginTop: 'var(--space-8)',
+                padding: `var(--space-4) var(--space-5)`,
+                backgroundColor: 'var(--accent)',
+                color: 'var(--bg-0)',
+                border: 'none',
+                borderRadius: 'var(--radius-1)',
+                fontSize: '15px',
+                fontWeight: 700,
+                fontFamily: 'var(--font-ui)',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                transition: 'all var(--dur-2) var(--ease-out)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--space-2)',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = 'var(--shadow-2)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
             >
               {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="loading w-4 h-4" />
+                <>
+                  <span style={{
+                    display: 'inline-block',
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: `2px solid rgba(11, 13, 16, 0.3)`,
+                    borderTopColor: 'var(--bg-0)',
+                    animation: 'spin 0.6s linear infinite',
+                  }} />
                   {t('loading') || 'Signing in...'}
-                </span>
+                </>
               ) : (
                 t('login') || 'Sign In'
               )}
@@ -130,17 +315,43 @@ export default function Login() {
           </form>
 
           {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+          <div style={{
+            position: 'relative',
+            margin: `var(--space-8) 0`,
+          }}>
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+            }}>
+              <div style={{
+                width: '100%',
+                height: '1px',
+                backgroundColor: 'var(--border)',
+              }} />
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white text-gray-500 font-medium">Demo Credentials</span>
+            <div style={{
+              position: 'relative',
+              display: 'flex',
+              justifyContent: 'center',
+              fontSize: '13px',
+            }}>
+              <span style={{
+                padding: `0 var(--space-3)`,
+                backgroundColor: 'var(--bg-1)',
+                color: 'var(--fg-1)',
+                fontWeight: 500,
+              }}>Demo Credentials</span>
             </div>
           </div>
 
-          {/* Demo Credentials - Apple Style */}
-          <div className="space-y-2">
+          {/* Demo Credentials */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-2)',
+          }}>
             {demoCredentials.map((cred) => (
               <button
                 key={cred.role}
@@ -149,22 +360,72 @@ export default function Login() {
                   setEmail(cred.email);
                   setPassword(cred.password);
                 }}
-                className="card-interactive w-full flex flex-col items-start p-3 mb-0 hover:bg-gray-50"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  padding: 'var(--space-3)',
+                  marginBottom: 0,
+                  backgroundColor: 'transparent',
+                  border: `1px solid var(--border)`,
+                  borderRadius: 'var(--radius-1)',
+                  cursor: 'pointer',
+                  transition: 'all var(--dur-2) var(--ease-out)',
+                  fontFamily: 'var(--font-ui)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = 'var(--bg-0)';
+                  e.target.style.borderColor = 'var(--accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.borderColor = 'var(--border)';
+                }}
               >
-                <span className="font-semibold text-gray-900 text-sm">{cred.role}</span>
-                <span className="text-xs text-gray-500 mt-1">{cred.email}</span>
+                <span style={{
+                  fontWeight: 600,
+                  color: 'var(--fg-0)',
+                  fontSize: '14px',
+                }}>{cred.role}</span>
+                <span style={{
+                  fontSize: '12px',
+                  color: 'var(--fg-1)',
+                  marginTop: 'var(--space-1)',
+                }}>{cred.email}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Footer Link - Apple Style */}
-        <p className="mt-8 text-center text-sm text-gray-600">
-          <Link to="/" className="text-accent-600 hover:text-accent-700 font-medium transition-colors">
+        {/* Footer Link */}
+        <p style={{
+          marginTop: 'var(--space-8)',
+          textAlign: 'center',
+          fontSize: '14px',
+          color: 'var(--fg-1)',
+          margin: `var(--space-8) 0 0`,
+        }}>
+          <Link to="/" style={{
+            color: 'var(--accent)',
+            fontWeight: 600,
+            transition: 'color var(--dur-2) var(--ease-out)',
+            textDecoration: 'none',
+          }} onMouseEnter={(e) => {
+            e.target.style.opacity = '0.8';
+          }} onMouseLeave={(e) => {
+            e.target.style.opacity = '1';
+          }}>
             ← Back to home
           </Link>
         </p>
       </div>
+
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
