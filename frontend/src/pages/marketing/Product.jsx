@@ -1,5 +1,44 @@
 import { useOutletContext } from 'react-router-dom';
 
+const Icon = ({ type, className = 'w-5 h-5 text-primary-600' }) => {
+  switch (type) {
+    case 'lock':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <rect x="6" y="10" width="12" height="10" rx="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 10V7a3 3 0 016 0v3" />
+        </svg>
+      );
+    case 'box':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 7l9-4 9 4-9 4-9-4z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10l9 4 9-4V7" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 11v10" />
+        </svg>
+      );
+    case 'clipboard':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 4h6a2 2 0 012 2v12a2 2 0 01-2 2H9a2 2 0 01-2-2V6a2 2 0 012-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 4a2 2 0 012-2h2a2 2 0 012 2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 9h6M9 13h6" />
+        </svg>
+      );
+    case 'antenna':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <circle cx="12" cy="6" r="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v12m-4 0h8" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 11c1.5-2 4-3 7-3s5.5 1 7 3" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 9c2-2.5 5.5-4 9-4s7 1.5 9 4" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+};
+
 export default function Product() {
   const { setDemoModalOpen, setPricingModalOpen } = useOutletContext();
 
@@ -122,7 +161,10 @@ export default function Product() {
           
           <div className="grid md:grid-cols-2 gap-8">
             <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">🔐 Policy Engine</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <Icon type="lock" className="w-5 h-5 text-primary-600" />
+                <h3 className="text-xl font-semibold text-gray-900">Policy Engine</h3>
+              </div>
               <p className="text-gray-600 mb-4">
                 Evaluates verification results against configurable rules to make authorization decisions.
               </p>
@@ -136,7 +178,10 @@ export default function Product() {
             </div>
 
             <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">📦 Custody Service</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <Icon type="box" className="w-5 h-5 text-primary-600" />
+                <h3 className="text-xl font-semibold text-gray-900">Custody Service</h3>
+              </div>
               <p className="text-gray-600 mb-4">
                 Manages the full lifecycle of asset custody transactions.
               </p>
@@ -149,7 +194,10 @@ export default function Product() {
             </div>
 
             <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">📋 Audit Service</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <Icon type="clipboard" className="w-5 h-5 text-primary-600" />
+                <h3 className="text-xl font-semibold text-gray-900">Audit Service</h3>
+              </div>
               <p className="text-gray-600 mb-4">
                 Maintains a tamper-evident log of all custody events.
               </p>
@@ -162,7 +210,10 @@ export default function Product() {
             </div>
 
             <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">📡 Open Gateway Integration</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <Icon type="antenna" className="w-5 h-5 text-primary-600" />
+                <h3 className="text-xl font-semibold text-gray-900">Open Gateway Integration</h3>
+              </div>
               <p className="text-gray-600 mb-4">
                 Leverages Telefónica's network APIs for verification.
               </p>

@@ -5,6 +5,53 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useMockNetwork } from '../../../contexts/MockNetworkContext';
 import Modal from '../../../components/Modal';
 
+const StatusIcon = ({ type, className = 'w-4 h-4' }) => {
+  switch (type) {
+    case 'success':
+      return (
+        <svg className={className} viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.42L8.5 12.086l6.793-6.796a1 1 0 011.411 0z" clipRule="evenodd" />
+        </svg>
+      );
+    case 'error':
+      return (
+        <svg className={className} viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.536-11.536a1 1 0 00-1.414-1.414L10 7.172 7.879 5.05a1 1 0 10-1.415 1.415L8.586 8.586 6.464 10.707a1 1 0 101.415 1.415L10 10l2.121 2.122a1 1 0 001.415-1.415L11.414 8.586l2.122-2.122z" clipRule="evenodd" />
+        </svg>
+      );
+    case 'warning':
+      return (
+        <svg className={className} viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.721-1.36 3.486 0l6.518 11.593C19.02 16.345 18.18 18 16.518 18H3.482c-1.662 0-2.502-1.655-1.743-3.308L8.257 3.1zM10 13a1 1 0 100 2 1 1 0 000-2zm-.75-6.5a.75.75 0 011.5 0v4a.75.75 0 01-1.5 0v-4z" clipRule="evenodd" />
+        </svg>
+      );
+    case 'location':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c4-4.667 6-8 6-11a6 6 0 10-12 0c0 3 2 6.333 6 11z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+      );
+    case 'lock':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <rect x="6" y="10" width="12" height="10" rx="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 10V7a3 3 0 016 0v3" />
+        </svg>
+      );
+    case 'phone':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M16 2H8a2 2 0 00-2 2v16a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 18h6" />
+          <circle cx="12" cy="5" r="1" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+};
+
 // Component to show expandable raw API response
 function RawResponseViewer({ data, title }) {
   const [expanded, setExpanded] = useState(false);
@@ -308,10 +355,28 @@ export default function AssetDetail() {
           <div className="card bg-orange-50 border-orange-200">
             <h3 className="text-sm font-semibold text-orange-800 mb-2">Mock Network Status</h3>
             <div className="text-xs text-orange-700 space-y-1">
-              <p>Phone: {mockContext.claimed_phone === mockContext.network_phone ? '✓ Match' : '✗ Mismatch'}</p>
+              <p className="flex items-center gap-2">
+                <StatusIcon
+                  type={mockContext.claimed_phone === mockContext.network_phone ? 'success' : 'error'}
+                  className={`w-4 h-4 ${mockContext.claimed_phone === mockContext.network_phone ? 'text-green-600' : 'text-red-600'}`}
+                />
+                <span>Phone: {mockContext.claimed_phone === mockContext.network_phone ? 'Match' : 'Mismatch'}</span>
+              </p>
               <p>Location: {mockContext.network_lat.toFixed(4)}, {mockContext.network_lon.toFixed(4)}</p>
-              <p>SIM Swap: {mockContext.sim_swap_recent ? '⚠ Recent' : '✓ None'}</p>
-              <p>Device Swap: {mockContext.device_swap_recent ? '⚠ Recent' : '✓ None'}</p>
+              <p className="flex items-center gap-2">
+                <StatusIcon
+                  type={mockContext.sim_swap_recent ? 'warning' : 'success'}
+                  className={`w-4 h-4 ${mockContext.sim_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}
+                />
+                <span>SIM Swap: {mockContext.sim_swap_recent ? 'Recent' : 'None'}</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <StatusIcon
+                  type={mockContext.device_swap_recent ? 'warning' : 'success'}
+                  className={`w-4 h-4 ${mockContext.device_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}
+                />
+                <span>Device Swap: {mockContext.device_swap_recent ? 'Recent' : 'None'}</span>
+              </p>
             </div>
           </div>
         </div>
@@ -375,27 +440,31 @@ export default function AssetDetail() {
                 {/* Summary Grid */}
                 <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                   <div className="flex items-center gap-1">
-                    <span className={actionResult.verification.number_verified ? 'text-green-600' : 'text-red-600'}>
-                      {actionResult.verification.number_verified ? '✓' : '✗'}
-                    </span>
+                    <StatusIcon
+                      type={actionResult.verification.number_verified ? 'success' : 'error'}
+                      className={`w-4 h-4 ${actionResult.verification.number_verified ? 'text-green-600' : 'text-red-600'}`}
+                    />
                     <span>Number Verified</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className={actionResult.verification.inside_geofence ? 'text-green-600' : 'text-red-600'}>
-                      {actionResult.verification.inside_geofence ? '✓' : '✗'}
-                    </span>
+                    <StatusIcon
+                      type={actionResult.verification.inside_geofence ? 'success' : 'error'}
+                      className={`w-4 h-4 ${actionResult.verification.inside_geofence ? 'text-green-600' : 'text-red-600'}`}
+                    />
                     <span>Inside Geofence</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className={!actionResult.verification.sim_swap_detected ? 'text-green-600' : 'text-yellow-600'}>
-                      {!actionResult.verification.sim_swap_detected ? '✓' : '⚠'}
-                    </span>
+                    <StatusIcon
+                      type={!actionResult.verification.sim_swap_detected ? 'success' : 'warning'}
+                      className={`w-4 h-4 ${!actionResult.verification.sim_swap_detected ? 'text-green-600' : 'text-yellow-600'}`}
+                    />
                     <span>SIM Swap: {actionResult.verification.sim_swap_detected ? 'Detected' : 'None'}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className={!actionResult.verification.device_swap_detected ? 'text-green-600' : 'text-yellow-600'}>
-                      {!actionResult.verification.device_swap_detected ? '✓' : '⚠'}
-                    </span>
+                    <StatusIcon
+                      type={!actionResult.verification.device_swap_detected ? 'success' : 'warning'}
+                      className={`w-4 h-4 ${!actionResult.verification.device_swap_detected ? 'text-green-600' : 'text-yellow-600'}`}
+                    />
                     <span>Device Swap: {actionResult.verification.device_swap_detected ? 'Detected' : 'None'}</span>
                   </div>
                 </div>
@@ -408,7 +477,10 @@ export default function AssetDetail() {
                     {/* Location Details */}
                     {actionResult.verification.details.location_verification && (
                       <div className="bg-white rounded p-2 border">
-                        <div className="font-medium text-gray-700 mb-1">📍 Location Verification</div>
+                        <div className="font-medium text-gray-700 mb-1 flex items-center gap-2">
+                          <StatusIcon type="location" className="w-4 h-4 text-primary-600" />
+                          <span>Location Verification</span>
+                        </div>
                         <div className="text-gray-600 space-y-0.5">
                           <p>Result: <span className="font-mono">{actionResult.verification.details.location_verification.verification_result}</span></p>
                           {actionResult.verification.details.location_verification.match_rate !== null && (
@@ -421,7 +493,10 @@ export default function AssetDetail() {
                     {/* SIM Swap Details */}
                     {actionResult.verification.details.risk_signals && (
                       <div className="bg-white rounded p-2 border">
-                        <div className="font-medium text-gray-700 mb-1">🔐 Risk Signals</div>
+                        <div className="font-medium text-gray-700 mb-1 flex items-center gap-2">
+                          <StatusIcon type="lock" className="w-4 h-4 text-primary-600" />
+                          <span>Risk Signals</span>
+                        </div>
                         <div className="text-gray-600 space-y-0.5">
                           <p>SIM Swap: <span className={`font-mono ${actionResult.verification.details.risk_signals.sim_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}>
                             {actionResult.verification.details.risk_signals.sim_swap_recent ? 'Yes' : 'No'}
@@ -442,7 +517,10 @@ export default function AssetDetail() {
                     {/* Number Verification Details */}
                     {actionResult.verification.details.number_verification && (
                       <div className="bg-white rounded p-2 border">
-                        <div className="font-medium text-gray-700 mb-1">📱 Number Verification</div>
+                        <div className="font-medium text-gray-700 mb-1 flex items-center gap-2">
+                          <StatusIcon type="phone" className="w-4 h-4 text-primary-600" />
+                          <span>Number Verification</span>
+                        </div>
                         <div className="text-gray-600 space-y-0.5">
                           <p>Match: <span className={`font-mono ${actionResult.verification.details.number_verification.match ? 'text-green-600' : 'text-red-600'}`}>
                             {actionResult.verification.details.number_verification.match ? 'Yes' : 'No'}

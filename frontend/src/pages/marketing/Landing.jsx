@@ -1,5 +1,79 @@
 import { useOutletContext } from 'react-router-dom';
 
+const Icon = ({ type, className = 'w-10 h-10 text-primary-600' }) => {
+  switch (type) {
+    case 'location':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c4-4.667 6-8 6-11a6 6 0 10-12 0c0 3 2 6.333 6 11z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+      );
+    case 'phone':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M16 2H8a2 2 0 00-2 2v16a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 18h6" />
+          <circle cx="12" cy="5" r="1" />
+        </svg>
+      );
+    case 'shield':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c6-2.5 8-6.5 8-11.5V6l-8-3-8 3v3.5C4 14.5 6 18.5 12 21z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" />
+        </svg>
+      );
+    case 'clipboard':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 4h6a2 2 0 012 2v12a2 2 0 01-2 2H9a2 2 0 01-2-2V6a2 2 0 012-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 4a2 2 0 012-2h2a2 2 0 012 2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 9h6" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6" />
+        </svg>
+      );
+    case 'antenna':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <circle cx="12" cy="6" r="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v12m-4 0h8" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 11c1.5-2 4-3 7-3s5.5 1 7 3" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 9c2-2.5 5.5-4 9-4s7 1.5 9 4" />
+        </svg>
+      );
+    case 'lock':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <rect x="6" y="10" width="12" height="10" rx="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 10V7a3 3 0 016 0v3" />
+        </svg>
+      );
+    case 'link':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l-2 2a3 3 0 104.243 4.243l2-2M14 10l2-2a3 3 0 10-4.243-4.243l-2 2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 11l-2 2" />
+        </svg>
+      );
+    case 'chart':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13h3v6H5zM10.5 9H14v10h-3.5zM16 5h3v14h-3z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 21h16" />
+        </svg>
+      );
+    case 'check':
+      return (
+        <svg className={className} viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.42L8.5 12.086l6.793-6.796a1 1 0 011.411 0z" clipRule="evenodd" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+};
+
 export default function Landing() {
   const { setDemoModalOpen, setPricingModalOpen } = useOutletContext();
 
@@ -60,13 +134,15 @@ export default function Landing() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: 'Verified on-site actions', icon: '📍', desc: 'Network-based location verification confirms physical presence at authorized sites.' },
-              { title: 'Employee-to-number binding', icon: '📱', desc: 'Bind employee sessions to verified mobile numbers for identity assurance.' },
-              { title: 'Fraud-aware approvals', icon: '🛡️', desc: 'Detect SIM swaps and device changes to prevent unauthorized access.' },
-              { title: 'Immutable audit trail', icon: '📋', desc: 'Tamper-evident logging of all custody events with hash-chain verification.' },
+              { title: 'Verified on-site actions', icon: 'location', desc: 'Network-based location verification confirms physical presence at authorized sites.' },
+              { title: 'Employee-to-number binding', icon: 'phone', desc: 'Bind employee sessions to verified mobile numbers for identity assurance.' },
+              { title: 'Fraud-aware approvals', icon: 'shield', desc: 'Detect SIM swaps and device changes to prevent unauthorized access.' },
+              { title: 'Immutable audit trail', icon: 'clipboard', desc: 'Tamper-evident logging of all custody events with hash-chain verification.' },
             ].map((feature, i) => (
               <div key={i} className="card text-center">
-                <div className="text-4xl mb-4">{feature.icon}</div>
+                <div className="flex items-center justify-center mb-4">
+                  <Icon type={feature.icon} />
+                </div>
                 <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
                 <p className="text-sm text-gray-600">{feature.desc}</p>
               </div>
@@ -188,26 +264,20 @@ export default function Landing() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="card text-center">
-              <div className="text-2xl mb-2">📡</div>
-              <h3 className="font-semibold text-gray-900">Telefónica Open Gateway</h3>
-              <p className="text-xs text-gray-500 mt-1">Number Verification, Device Location, SIM Swap, Device Swap</p>
-            </div>
-            <div className="card text-center">
-              <div className="text-2xl mb-2">🔐</div>
-              <h3 className="font-semibold text-gray-900">SSO Providers</h3>
-              <p className="text-xs text-gray-500 mt-1">Azure AD, Okta, Google Workspace, Keycloak</p>
-            </div>
-            <div className="card text-center">
-              <div className="text-2xl mb-2">🔗</div>
-              <h3 className="font-semibold text-gray-900">Webhooks & API</h3>
-              <p className="text-xs text-gray-500 mt-1">REST API, Webhook notifications</p>
-            </div>
-            <div className="card text-center">
-              <div className="text-2xl mb-2">📊</div>
-              <h3 className="font-semibold text-gray-900">Enterprise Systems</h3>
-              <p className="text-xs text-gray-500 mt-1">ServiceNow, SAP, Intune (optional)</p>
-            </div>
+            {[
+              { title: 'Telefónica Open Gateway', icon: 'antenna', desc: 'Number Verification, Device Location, SIM Swap, Device Swap' },
+              { title: 'SSO Providers', icon: 'lock', desc: 'Azure AD, Okta, Google Workspace, Keycloak' },
+              { title: 'Webhooks & API', icon: 'link', desc: 'REST API, Webhook notifications' },
+              { title: 'Enterprise Systems', icon: 'chart', desc: 'ServiceNow, SAP, Intune (optional)' },
+            ].map((item, i) => (
+              <div key={i} className="card text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Icon type={item.icon} className="w-8 h-8 text-primary-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -228,21 +298,35 @@ export default function Landing() {
             <div>
               <h3 className="text-xl font-semibold mb-4">Security</h3>
               <ul className="space-y-2 text-gray-300">
-                <li>✓ End-to-end encryption</li>
-                <li>✓ SOC 2 Type II compliant infrastructure</li>
-                <li>✓ Role-based access control</li>
-                <li>✓ Audit logging with tamper detection</li>
-                <li>✓ Regular penetration testing</li>
+                {[
+                  'End-to-end encryption',
+                  'SOC 2 Type II compliant infrastructure',
+                  'Role-based access control',
+                  'Audit logging with tamper detection',
+                  'Regular penetration testing'
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-2">
+                    <Icon type="check" className="w-4 h-4 text-primary-200" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-4">Privacy</h3>
               <ul className="space-y-2 text-gray-300">
-                <li>✓ No continuous location tracking</li>
-                <li>✓ Transaction-based verification only</li>
-                <li>✓ Configurable data retention</li>
-                <li>✓ GDPR compliant</li>
-                <li>✓ Data processing agreements available</li>
+                {[
+                  'No continuous location tracking',
+                  'Transaction-based verification only',
+                  'Configurable data retention',
+                  'GDPR compliant',
+                  'Data processing agreements available'
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-2">
+                    <Icon type="check" className="w-4 h-4 text-primary-200" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>

@@ -47,60 +47,66 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform`}>
+      {/* Sidebar - Apple Style */}
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300`}>
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center gap-2 p-4 border-b border-gray-100">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
+          {/* Logo - Apple Style */}
+          <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-200">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-accent-600 rounded-apple flex items-center justify-center flex-shrink-0 shadow-apple">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
                   <path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" />
                 </svg>
               </div>
-              <span className="text-lg font-bold text-gray-900">GeoCustody</span>
+              <div>
+                <span className="text-sm font-semibold text-gray-900">GeoCustody</span>
+                <p className="text-xs text-gray-500">Asset Management</p>
+              </div>
             </Link>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          {/* Navigation - Apple Style */}
+          <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
             {filteredNav.map(item => {
               const isActive = location.pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   to={item.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-apple text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-primary-50 text-primary-700 font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-accent-600 text-white shadow-apple'
+                      : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     {getIcon(item.icon)}
                   </svg>
-                  {item.label}
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          {/* User info */}
-          <div className="p-4 border-t border-gray-100">
+          {/* Divider */}
+          <div className="px-4 py-2">
+            <div className="h-px bg-gray-200" />
+          </div>
+
+          {/* User info - Apple Style */}
+          <div className="px-4 py-4 border-t border-gray-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                <span className="text-primary-700 font-medium">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </span>
+              <div className="w-10 h-10 bg-accent-100 rounded-apple-lg flex items-center justify-center flex-shrink-0 font-semibold text-accent-600">
+                {user?.name?.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.role}</p>
+                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-400 hover:text-gray-600"
+                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-apple transition-colors"
                 title="Logout"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,17 +121,17 @@ export default function AppLayout() {
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-apple lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
-        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-4">
+        {/* Top bar - Apple Style */}
+        <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 flex items-center gap-4 shadow-apple-xs">
           <button
-            className="lg:hidden p-2 -ml-2"
+            className="lg:hidden p-2 -ml-2 text-gray-700 hover:bg-gray-100 rounded-apple transition-colors"
             onClick={() => setSidebarOpen(true)}
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,14 +139,16 @@ export default function AppLayout() {
             </svg>
           </button>
           <div className="flex-1" />
-          <span className="text-sm text-gray-500 hidden sm:block">
+          <span className="text-sm text-gray-600 hidden sm:block font-medium">
             {user?.email}
           </span>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
-          <Outlet />
+        {/* Page content - Apple Style */}
+        <main className="flex-1 p-4 lg:p-8 overflow-auto">
+          <div className="max-w-7xl mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
 
