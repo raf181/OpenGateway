@@ -17,16 +17,15 @@ export default function AdminUsers() {
     password: '',
   });
 
+  const [addHovered, setAddHovered] = useState(false);
+
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
     try {
-      const [usersData, sitesData] = await Promise.all([
-        getUsers(),
-        getSites()
-      ]);
+      const [usersData, sitesData] = await Promise.all([getUsers(), getSites()]);
       setUsers(usersData);
       setSites(sitesData);
     } catch (err) {
@@ -90,91 +89,98 @@ export default function AdminUsers() {
     }
   };
 
-  const getRoleBadge = (role) => {
-    const styles = {
-      ADMIN: 'bg-purple-100 text-purple-700',
-      MANAGER: 'bg-blue-100 text-blue-700',
-      EMPLOYEE: 'bg-gray-100 text-gray-700',
-    };
-    return styles[role] || styles.EMPLOYEE;
+  const getRoleBadgeStyle = (role) => {
+    const base = { padding: '4px 10px', borderRadius: '9999px', fontSize: '12px', fontWeight: 500 };
+    if (role === 'ADMIN') return { ...base, backgroundColor: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' };
+    if (role === 'MANAGER') return { ...base, backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' };
+    return { ...base, backgroundColor: 'rgba(107, 114, 128, 0.15)', color: 'var(--fg-1)' };
+  };
+
+  const cardStyle = {
+    backgroundColor: 'var(--bg-1)',
+    borderRadius: 'var(--radius-2)',
+    border: '1px solid var(--border)',
+    overflow: 'hidden',
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '10px 14px',
+    backgroundColor: 'var(--bg-0)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-1)',
+    color: 'var(--fg-0)',
+    fontSize: '14px',
+    fontFamily: 'var(--font-ui)',
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
+          border: '2px solid rgba(242, 245, 247, 0.3)',
+          borderTopColor: 'var(--accent)',
+          animation: 'spin 0.6s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--bg-0)', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-500">Manage team members and their access</p>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--fg-0)', margin: 0, fontFamily: 'var(--font-display)' }}>User Management</h1>
+          <p style={{ color: 'var(--fg-1)', fontSize: '14px', marginTop: '4px' }}>Manage team members and their access</p>
         </div>
-        <button onClick={openCreateModal} className="btn-primary">
+        <button
+          onClick={openCreateModal}
+          onMouseEnter={() => setAddHovered(true)}
+          onMouseLeave={() => setAddHovered(false)}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: addHovered ? '#d4ff5a' : 'var(--accent)',
+            border: 'none',
+            borderRadius: 'var(--radius-1)',
+            color: '#0b0d10',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            fontFamily: 'var(--font-ui)',
+          }}
+        >
           Add User
         </button>
       </div>
 
       {/* Users Table */}
-      <div className="card overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Home Site</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+      <div style={cardStyle}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: 'var(--bg-0)' }}>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Phone</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Role</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Home Site</th>
+              <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
-            {users.map(user => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                      <span className="text-primary-600 font-medium text-sm">
-                        {user.full_name.split(' ').map(n => n[0]).join('')}
-                      </span>
-                    </div>
-                    <span className="font-medium text-gray-900">{user.full_name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                  {user.email}
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">
-                  {user.phone_number}
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs rounded-full ${getRoleBadge(user.role)}`}>
-                    {user.role}
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                  {user.home_site?.name || 'Unknown'}
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap text-right">
-                  <button
-                    onClick={() => openEditModal(user)}
-                    className="text-primary-600 hover:text-primary-800 mr-3"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    className="text-red-600 hover:text-red-800"
-                    disabled={user.role === 'ADMIN'}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
+          <tbody>
+            {users.map((user, index) => (
+              <UserRow
+                key={user.id}
+                user={user}
+                index={index}
+                getRoleBadgeStyle={getRoleBadgeStyle}
+                onEdit={() => openEditModal(user)}
+                onDelete={() => handleDelete(user.id)}
+              />
             ))}
           </tbody>
         </table>
@@ -182,56 +188,54 @@ export default function AdminUsers() {
 
       {/* Create/Edit Modal */}
       <Modal
-        isOpen={showModal}
+        open={showModal}
         onClose={() => setShowModal(false)}
         title={editingUser ? 'Edit User' : 'Add New User'}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Full Name</label>
             <input
               type="text"
               value={formData.full_name}
               onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-              className="input"
+              style={inputStyle}
               placeholder="John Doe"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Email</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="input"
+              style={inputStyle}
               placeholder="john@example.com"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Phone Number</label>
             <input
               type="tel"
               value={formData.phone_number}
               onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-              className="input font-mono"
+              style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }}
               placeholder="+1234567890"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Used for Open Gateway number verification
-            </p>
+            <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginTop: '4px' }}>Used for Open Gateway number verification</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="input"
+              style={inputStyle}
             >
               <option value="EMPLOYEE">Employee - Basic checkout access</option>
               <option value="MANAGER">Manager - Can approve step-up requests</option>
@@ -240,11 +244,11 @@ export default function AdminUsers() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Home Site</label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Home Site</label>
             <select
               value={formData.home_site_id}
               onChange={(e) => setFormData({ ...formData, home_site_id: parseInt(e.target.value) })}
-              className="input"
+              style={inputStyle}
               required
             >
               {sites.map(site => (
@@ -254,27 +258,52 @@ export default function AdminUsers() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>
               {editingUser ? 'New Password (leave blank to keep current)' : 'Password'}
             </label>
             <input
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="input"
+              style={inputStyle}
               placeholder="••••••••"
               required={!editingUser}
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <button type="submit" className="btn-primary flex-1">
+          <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
+            <button
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                backgroundColor: 'var(--accent)',
+                border: 'none',
+                borderRadius: 'var(--radius-1)',
+                color: '#0b0d10',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-ui)',
+              }}
+            >
               {editingUser ? 'Save Changes' : 'Create User'}
             </button>
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="btn-secondary flex-1"
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                backgroundColor: 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-1)',
+                color: 'var(--fg-0)',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-ui)',
+              }}
             >
               Cancel
             </button>
@@ -282,5 +311,74 @@ export default function AdminUsers() {
         </form>
       </Modal>
     </div>
+  );
+}
+
+function UserRow({ user, index, getRoleBadgeStyle, onEdit, onDelete }) {
+  const [editHovered, setEditHovered] = useState(false);
+  const [deleteHovered, setDeleteHovered] = useState(false);
+  
+  return (
+    <tr style={{ borderTop: index > 0 ? '1px solid var(--border)' : 'none' }}>
+      <td style={{ padding: '12px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            backgroundColor: 'rgba(198, 255, 58, 0.15)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <span style={{ color: 'var(--accent)', fontWeight: 500, fontSize: '13px' }}>
+              {user.full_name.split(' ').map(n => n[0]).join('')}
+            </span>
+          </div>
+          <span style={{ fontWeight: 500, color: 'var(--fg-0)', fontSize: '14px' }}>{user.full_name}</span>
+        </div>
+      </td>
+      <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--fg-1)' }}>{user.email}</td>
+      <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--fg-1)', fontFamily: 'var(--font-mono)' }}>{user.phone_number}</td>
+      <td style={{ padding: '12px 16px' }}>
+        <span style={getRoleBadgeStyle(user.role)}>{user.role}</span>
+      </td>
+      <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--fg-1)' }}>{user.home_site?.name || 'Unknown'}</td>
+      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+        <button
+          onClick={onEdit}
+          onMouseEnter={() => setEditHovered(true)}
+          onMouseLeave={() => setEditHovered(false)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: editHovered ? '#d4ff5a' : 'var(--accent)',
+            cursor: 'pointer',
+            marginRight: '12px',
+            fontSize: '14px',
+            fontFamily: 'var(--font-ui)',
+          }}
+        >
+          Edit
+        </button>
+        <button
+          onClick={onDelete}
+          onMouseEnter={() => setDeleteHovered(true)}
+          onMouseLeave={() => setDeleteHovered(false)}
+          disabled={user.role === 'ADMIN'}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: deleteHovered && user.role !== 'ADMIN' ? '#fca5a5' : '#f87171',
+            cursor: user.role === 'ADMIN' ? 'not-allowed' : 'pointer',
+            opacity: user.role === 'ADMIN' ? 0.5 : 1,
+            fontSize: '14px',
+            fontFamily: 'var(--font-ui)',
+          }}
+        >
+          Delete
+        </button>
+      </td>
+    </tr>
   );
 }

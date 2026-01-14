@@ -8,10 +8,11 @@ export default function Audit() {
   const [verifying, setVerifying] = useState(false);
   const [filters, setFilters] = useState({
     event_type: '',
-    user_id: '',
-    asset_id: '',
     decision: '',
   });
+
+  const [verifyHovered, setVerifyHovered] = useState(false);
+  const [applyHovered, setApplyHovered] = useState(false);
 
   useEffect(() => {
     loadEvents();
@@ -46,101 +47,131 @@ export default function Audit() {
   };
 
   const getEventIcon = (type) => {
+    const style = { width: '16px', height: '16px' };
     switch (type) {
       case 'CHECKOUT':
         return (
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
         );
       case 'RETURN':
         return (
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
           </svg>
         );
       case 'TRANSFER':
         return (
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
           </svg>
         );
       default:
         return (
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         );
     }
   };
 
-  const getDecisionColor = (decision) => {
-    switch (decision) {
-      case 'ALLOW':
-        return 'bg-green-100 text-green-700';
-      case 'DENY':
-        return 'bg-red-100 text-red-700';
-      case 'STEP_UP':
-        return 'bg-yellow-100 text-yellow-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
+  const getDecisionBadgeStyle = (decision) => {
+    const base = { padding: '2px 8px', borderRadius: '9999px', fontSize: '12px', fontWeight: 500 };
+    if (decision === 'ALLOW') return { ...base, backgroundColor: 'rgba(22, 163, 74, 0.15)', color: '#4ade80' };
+    if (decision === 'DENY') return { ...base, backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#f87171' };
+    if (decision === 'STEP_UP') return { ...base, backgroundColor: 'rgba(202, 138, 4, 0.15)', color: '#fbbf24' };
+    return { ...base, backgroundColor: 'rgba(107, 114, 128, 0.15)', color: 'var(--fg-1)' };
   };
 
-  const getEventColor = (type) => {
-    switch (type) {
-      case 'CHECKOUT':
-        return 'bg-yellow-100 text-yellow-600';
-      case 'RETURN':
-        return 'bg-green-100 text-green-600';
-      case 'TRANSFER':
-        return 'bg-blue-100 text-blue-600';
-      default:
-        return 'bg-gray-100 text-gray-600';
-    }
+  const getEventIconStyle = (type) => {
+    const base = { width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
+    if (type === 'CHECKOUT') return { ...base, backgroundColor: 'rgba(202, 138, 4, 0.15)', color: '#fbbf24' };
+    if (type === 'RETURN') return { ...base, backgroundColor: 'rgba(22, 163, 74, 0.15)', color: '#4ade80' };
+    if (type === 'TRANSFER') return { ...base, backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' };
+    return { ...base, backgroundColor: 'rgba(107, 114, 128, 0.15)', color: 'var(--fg-1)' };
+  };
+
+  const cardStyle = {
+    backgroundColor: 'var(--bg-1)',
+    borderRadius: 'var(--radius-2)',
+    border: '1px solid var(--border)',
+    padding: '20px',
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '8px 12px',
+    backgroundColor: 'var(--bg-0)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-1)',
+    color: 'var(--fg-0)',
+    fontSize: '14px',
+    fontFamily: 'var(--font-ui)',
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
+          border: '2px solid rgba(242, 245, 247, 0.3)',
+          borderTopColor: 'var(--accent)',
+          animation: 'spin 0.6s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-start mb-6">
+    <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--bg-0)', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Audit Trail</h1>
-          <p className="text-gray-500">Complete custody history with tamper-evident chain</p>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--fg-0)', margin: 0, fontFamily: 'var(--font-display)' }}>Audit Trail</h1>
+          <p style={{ color: 'var(--fg-1)', fontSize: '14px', marginTop: '4px' }}>Complete custody history with tamper-evident chain</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {chainValid !== null && (
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-              chainValid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}>
-              {chainValid ? (
-                <>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm font-medium">Chain Valid</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm font-medium">Chain Invalid</span>
-                </>
-              )}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              borderRadius: 'var(--radius-1)',
+              backgroundColor: chainValid ? 'rgba(22, 163, 74, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: chainValid ? '#4ade80' : '#f87171',
+            }}>
+              <svg style={{ width: '20px', height: '20px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {chainValid ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                )}
+              </svg>
+              <span style={{ fontSize: '14px', fontWeight: 500 }}>{chainValid ? 'Chain Valid' : 'Chain Invalid'}</span>
             </div>
           )}
           <button
             onClick={handleVerifyChain}
             disabled={verifying}
-            className="btn-secondary"
+            onMouseEnter={() => setVerifyHovered(true)}
+            onMouseLeave={() => setVerifyHovered(false)}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: verifyHovered && !verifying ? 'var(--bg-0)' : 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-1)',
+              color: 'var(--fg-0)',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: verifying ? 'not-allowed' : 'pointer',
+              opacity: verifying ? 0.6 : 1,
+              transition: 'background-color 0.2s',
+              fontFamily: 'var(--font-ui)',
+            }}
           >
             {verifying ? 'Verifying...' : 'Verify Chain'}
           </button>
@@ -148,15 +179,15 @@ export default function Audit() {
       </div>
 
       {/* Filters */}
-      <div className="card mb-6">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">Filters</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div style={{ ...cardStyle, marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '12px' }}>Filters</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', alignItems: 'end' }}>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Event Type</label>
+            <label style={{ display: 'block', fontSize: '12px', color: 'var(--fg-1)', marginBottom: '6px' }}>Event Type</label>
             <select
               value={filters.event_type}
               onChange={(e) => setFilters({ ...filters, event_type: e.target.value })}
-              className="input text-sm"
+              style={inputStyle}
             >
               <option value="">All Types</option>
               <option value="CHECKOUT">Checkout</option>
@@ -166,11 +197,11 @@ export default function Audit() {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Decision</label>
+            <label style={{ display: 'block', fontSize: '12px', color: 'var(--fg-1)', marginBottom: '6px' }}>Decision</label>
             <select
               value={filters.decision}
               onChange={(e) => setFilters({ ...filters, decision: e.target.value })}
-              className="input text-sm"
+              style={inputStyle}
             >
               <option value="">All Decisions</option>
               <option value="ALLOW">Allow</option>
@@ -178,8 +209,24 @@ export default function Audit() {
               <option value="STEP_UP">Step Up</option>
             </select>
           </div>
-          <div className="md:col-span-2 flex items-end">
-            <button onClick={loadEvents} className="btn-primary text-sm">
+          <div>
+            <button
+              onClick={loadEvents}
+              onMouseEnter={() => setApplyHovered(true)}
+              onMouseLeave={() => setApplyHovered(false)}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: applyHovered ? '#d4ff5a' : 'var(--accent)',
+                border: 'none',
+                borderRadius: 'var(--radius-1)',
+                color: '#0b0d10',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+                fontFamily: 'var(--font-ui)',
+              }}
+            >
               Apply Filters
             </button>
           </div>
@@ -187,14 +234,20 @@ export default function Audit() {
       </div>
 
       {/* Chain Explanation */}
-      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-        <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-purple-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div style={{
+        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+        border: '1px solid rgba(168, 85, 247, 0.25)',
+        borderRadius: 'var(--radius-2)',
+        padding: '16px',
+        marginBottom: '24px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <svg style={{ width: '20px', height: '20px', color: '#a855f7', marginTop: '2px', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
           </svg>
           <div>
-            <h3 className="font-medium text-purple-900">Tamper-Evident Hash Chain</h3>
-            <p className="text-sm text-purple-700 mt-1">
+            <h3 style={{ fontWeight: 500, color: '#c084fc', margin: 0, fontSize: '14px' }}>Tamper-Evident Hash Chain</h3>
+            <p style={{ fontSize: '13px', color: '#d8b4fe', marginTop: '6px', lineHeight: 1.5 }}>
               Each audit event contains a hash of the previous event, creating an immutable chain. 
               If any historical record is modified, the chain verification will fail, ensuring 
               complete audit integrity for compliance and legal purposes.
@@ -205,76 +258,94 @@ export default function Audit() {
 
       {/* Events Timeline */}
       {events.length === 0 ? (
-        <div className="card text-center py-12">
-          <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div style={{ ...cardStyle, textAlign: 'center', padding: '48px 24px' }}>
+          <svg style={{ width: '48px', height: '48px', margin: '0 auto 16px', color: 'var(--fg-1)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <p className="text-gray-500">No audit events found</p>
+          <p style={{ color: 'var(--fg-1)' }}>No audit events found</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {events.map((event, index) => (
-            <div key={event.id} className="card">
-              <div className="flex items-start gap-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {events.map((event) => (
+            <div key={event.id} style={cardStyle}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
                 {/* Event Icon */}
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getEventColor(event.event_type)}`}>
+                <div style={getEventIconStyle(event.event_type)}>
                   {getEventIcon(event.event_type)}
                 </div>
 
                 {/* Event Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-2">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                     <div>
-                      <span className="font-semibold text-gray-900">{event.event_type}</span>
-                      <span className="text-gray-500 mx-2">•</span>
-                      <span className="text-gray-700">{event.asset?.name || 'Unknown Asset'}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--fg-0)', fontSize: '14px' }}>{event.event_type}</span>
+                      <span style={{ color: 'var(--fg-1)', margin: '0 8px' }}>•</span>
+                      <span style={{ color: 'var(--fg-0)', fontSize: '14px' }}>{event.asset?.name || 'Unknown Asset'}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 text-xs rounded-full ${getDecisionColor(event.decision)}`}>
-                        {event.decision}
-                      </span>
-                      <span className="text-xs text-gray-400">#{event.id}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={getDecisionBadgeStyle(event.decision)}>{event.decision}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--fg-1)' }}>#{event.id}</span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', fontSize: '13px', marginBottom: '12px' }}>
                     <div>
-                      <p className="text-xs text-gray-500">Actor</p>
-                      <p className="text-gray-900">{event.actor?.full_name || 'System'}</p>
+                      <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actor</p>
+                      <p style={{ color: 'var(--fg-0)', margin: 0 }}>{event.actor?.full_name || 'System'}</p>
                     </div>
                     {event.target_user && (
                       <div>
-                        <p className="text-xs text-gray-500">Target User</p>
-                        <p className="text-gray-900">{event.target_user.full_name}</p>
+                        <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Target User</p>
+                        <p style={{ color: 'var(--fg-0)', margin: 0 }}>{event.target_user.full_name}</p>
                       </div>
                     )}
                     <div>
-                      <p className="text-xs text-gray-500">Site</p>
-                      <p className="text-gray-900">{event.site?.name || 'N/A'}</p>
+                      <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Site</p>
+                      <p style={{ color: 'var(--fg-0)', margin: 0 }}>{event.site?.name || 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Timestamp</p>
-                      <p className="text-gray-900">{new Date(event.timestamp).toLocaleString()}</p>
+                      <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Timestamp</p>
+                      <p style={{ color: 'var(--fg-0)', margin: 0 }}>{new Date(event.timestamp).toLocaleString()}</p>
                     </div>
                   </div>
 
                   {/* Verification Results */}
                   {event.verification_results && Object.keys(event.verification_results).length > 0 && (
-                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                      <p className="text-xs text-gray-500 mb-2">Verification Results</p>
-                      <div className="flex flex-wrap gap-2">
+                    <div style={{
+                      backgroundColor: 'var(--bg-0)',
+                      borderRadius: 'var(--radius-1)',
+                      padding: '12px',
+                      marginBottom: '12px',
+                      border: '1px solid var(--border)',
+                    }}>
+                      <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Verification Results</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {Object.entries(event.verification_results).map(([key, value]) => (
                           <span
                             key={key}
-                            className={`px-2 py-1 text-xs rounded ${
-                              value === true || value === 'VERIFIED'
-                                ? 'bg-green-100 text-green-700'
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '12px',
+                              borderRadius: 'var(--radius-1)',
+                              backgroundColor: value === true || value === 'VERIFIED'
+                                ? 'rgba(22, 163, 74, 0.15)'
                                 : value === false
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-gray-200 text-gray-700'
-                            }`}
+                                ? 'rgba(239, 68, 68, 0.15)'
+                                : 'rgba(107, 114, 128, 0.15)',
+                              color: value === true || value === 'VERIFIED'
+                                ? '#4ade80'
+                                : value === false
+                                ? '#f87171'
+                                : 'var(--fg-1)',
+                            }}
                           >
-                            {key}: {typeof value === 'boolean' ? (value ? '✓' : '✗') : String(value)}
+                            {key}: {typeof value === 'boolean' ? (
+                              value ? (
+                                <svg style={{ width: 12, height: 12, display: 'inline', verticalAlign: 'middle' }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                              ) : (
+                                <svg style={{ width: 12, height: 12, display: 'inline', verticalAlign: 'middle' }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
+                              )
+                            ) : String(value)}
                           </span>
                         ))}
                       </div>
@@ -282,19 +353,19 @@ export default function Audit() {
                   )}
 
                   {/* Hash Info */}
-                  <div className="flex items-center gap-4 text-xs">
-                    <div className="flex items-center gap-1 text-gray-400">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--fg-1)' }}>
+                      <svg style={{ width: '12px', height: '12px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                       </svg>
-                      <span className="font-mono truncate max-w-xs" title={event.event_hash}>
+                      <span style={{ fontFamily: 'var(--font-mono)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={event.event_hash}>
                         {event.event_hash?.substring(0, 16)}...
                       </span>
                     </div>
                     {event.prev_hash && (
-                      <div className="flex items-center gap-1 text-gray-400">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--fg-1)' }}>
                         <span>← prev:</span>
-                        <span className="font-mono truncate max-w-xs" title={event.prev_hash}>
+                        <span style={{ fontFamily: 'var(--font-mono)', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={event.prev_hash}>
                           {event.prev_hash.substring(0, 8)}...
                         </span>
                       </div>

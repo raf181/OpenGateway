@@ -9,11 +9,12 @@ export default function AdminSites() {
   const [editingSite, setEditingSite] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    address: '',
     latitude: '',
     longitude: '',
-    geofence_radius_m: 100,
+    geofence_radius_meters: 500,
   });
+
+  const [addHovered, setAddHovered] = useState(false);
 
   useEffect(() => {
     loadSites();
@@ -34,10 +35,9 @@ export default function AdminSites() {
     setEditingSite(null);
     setFormData({
       name: '',
-      address: '',
       latitude: '',
       longitude: '',
-      geofence_radius_m: 100,
+      geofence_radius_meters: 500,
     });
     setShowModal(true);
   };
@@ -46,10 +46,9 @@ export default function AdminSites() {
     setEditingSite(site);
     setFormData({
       name: site.name,
-      address: site.address || '',
-      latitude: site.latitude.toString(),
-      longitude: site.longitude.toString(),
-      geofence_radius_m: site.geofence_radius_m,
+      latitude: site.latitude || '',
+      longitude: site.longitude || '',
+      geofence_radius_meters: site.geofence_radius_meters || 500,
     });
     setShowModal(true);
   };
@@ -59,10 +58,11 @@ export default function AdminSites() {
     try {
       const payload = {
         ...formData,
-        latitude: parseFloat(formData.latitude),
-        longitude: parseFloat(formData.longitude),
-        geofence_radius_m: parseInt(formData.geofence_radius_m),
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        geofence_radius_meters: parseInt(formData.geofence_radius_meters),
       };
+      
       if (editingSite) {
         await updateSite(editingSite.id, payload);
       } else {
@@ -85,207 +85,299 @@ export default function AdminSites() {
     }
   };
 
+  const cardStyle = {
+    backgroundColor: 'var(--bg-1)',
+    borderRadius: 'var(--radius-2)',
+    border: '1px solid var(--border)',
+    overflow: 'hidden',
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '10px 14px',
+    backgroundColor: 'var(--bg-0)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-1)',
+    color: 'var(--fg-0)',
+    fontSize: '14px',
+    fontFamily: 'var(--font-ui)',
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
+          border: '2px solid rgba(242, 245, 247, 0.3)',
+          borderTopColor: 'var(--accent)',
+          animation: 'spin 0.6s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--bg-0)', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Site Management</h1>
-          <p className="text-gray-500">Configure sites and geofence boundaries</p>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--fg-0)', margin: 0, fontFamily: 'var(--font-display)' }}>Site Management</h1>
+          <p style={{ color: 'var(--fg-1)', fontSize: '14px', marginTop: '4px' }}>Manage warehouse locations and geofences</p>
         </div>
-        <button onClick={openCreateModal} className="btn-primary">
+        <button
+          onClick={openCreateModal}
+          onMouseEnter={() => setAddHovered(true)}
+          onMouseLeave={() => setAddHovered(false)}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: addHovered ? '#d4ff5a' : 'var(--accent)',
+            border: 'none',
+            borderRadius: 'var(--radius-1)',
+            color: '#0b0d10',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            fontFamily: 'var(--font-ui)',
+          }}
+        >
           Add Site
         </button>
       </div>
 
       {/* Sites Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px' }}>
         {sites.map(site => (
-          <div key={site.id} className="card">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 text-lg">{site.name}</h3>
-                <p className="text-sm text-gray-500">{site.address}</p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => openEditModal(site)}
-                  className="text-primary-600 hover:text-primary-800 text-sm"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(site.id)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-
-            {/* Simple SVG Map Placeholder */}
-            <div className="relative bg-gray-100 rounded-lg h-48 mb-4 overflow-hidden">
-              <svg viewBox="0 0 400 200" className="w-full h-full">
-                {/* Grid lines */}
-                <defs>
-                  <pattern id={`grid-${site.id}`} width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="0.5" />
-                  </pattern>
-                </defs>
-                <rect width="400" height="200" fill={`url(#grid-${site.id})`} />
-                
-                {/* Geofence circle */}
-                <circle
-                  cx="200"
-                  cy="100"
-                  r={Math.min(80, site.geofence_radius_m / 5)}
-                  fill="rgba(99, 102, 241, 0.1)"
-                  stroke="rgba(99, 102, 241, 0.5)"
-                  strokeWidth="2"
-                  strokeDasharray="5,5"
-                />
-                
-                {/* Center marker */}
-                <circle cx="200" cy="100" r="6" fill="#6366f1" />
-                <circle cx="200" cy="100" r="3" fill="white" />
-                
-                {/* Coordinates label */}
-                <text x="200" y="150" textAnchor="middle" className="text-xs" fill="#6b7280">
-                  {site.latitude.toFixed(4)}, {site.longitude.toFixed(4)}
-                </text>
-              </svg>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500">Latitude</p>
-                <p className="font-mono">{site.latitude.toFixed(6)}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Longitude</p>
-                <p className="font-mono">{site.longitude.toFixed(6)}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Geofence Radius</p>
-                <p className="font-semibold">{site.geofence_radius_m} meters</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Assets</p>
-                <p className="font-semibold">{site.asset_count || 0}</p>
-              </div>
-            </div>
-          </div>
+          <SiteCard
+            key={site.id}
+            site={site}
+            cardStyle={cardStyle}
+            onEdit={() => openEditModal(site)}
+            onDelete={() => handleDelete(site.id)}
+          />
         ))}
       </div>
 
-      {sites.length === 0 && (
-        <div className="card text-center py-12">
-          <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          </svg>
-          <p className="text-gray-500">No sites configured yet</p>
-          <button onClick={openCreateModal} className="btn-primary mt-4">
-            Add Your First Site
-          </button>
-        </div>
-      )}
-
       {/* Create/Edit Modal */}
       <Modal
-        isOpen={showModal}
+        open={showModal}
         onClose={() => setShowModal(false)}
         title={editingSite ? 'Edit Site' : 'Add New Site'}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Site Name</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="input"
-              placeholder="e.g., Main Warehouse"
+              style={inputStyle}
+              placeholder="Main Warehouse"
               required
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-            <input
-              type="text"
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="input"
-              placeholder="123 Main St, City, State"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+              <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Latitude</label>
               <input
                 type="number"
                 step="any"
                 value={formData.latitude}
                 onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                className="input"
+                style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }}
                 placeholder="40.7128"
-                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+              <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Longitude</label>
               <input
                 type="number"
                 step="any"
                 value={formData.longitude}
                 onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                className="input"
+                style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }}
                 placeholder="-74.0060"
-                required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Geofence Radius (meters)
-            </label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Geofence Radius (meters)</label>
             <input
               type="number"
-              value={formData.geofence_radius_m}
-              onChange={(e) => setFormData({ ...formData, geofence_radius_m: e.target.value })}
-              className="input"
-              min="10"
+              value={formData.geofence_radius_meters}
+              onChange={(e) => setFormData({ ...formData, geofence_radius_meters: e.target.value })}
+              style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }}
+              placeholder="500"
+              min="50"
               max="10000"
-              required
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Device must be within this radius for location verification to pass
-            </p>
+            <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginTop: '4px' }}>Used for Open Gateway location verification</p>
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <button type="submit" className="btn-primary flex-1">
+          {/* Map Preview Placeholder */}
+          <div style={{
+            backgroundColor: 'var(--bg-0)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-1)',
+            height: '160px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--fg-1)',
+            fontSize: '13px',
+          }}>
+            <svg style={{ width: 24, height: 24, marginRight: 8, opacity: 0.5 }} fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            Map preview would appear here
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
+            <button
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                backgroundColor: 'var(--accent)',
+                border: 'none',
+                borderRadius: 'var(--radius-1)',
+                color: '#0b0d10',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-ui)',
+              }}
+            >
               {editingSite ? 'Save Changes' : 'Create Site'}
             </button>
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="btn-secondary flex-1"
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                backgroundColor: 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-1)',
+                color: 'var(--fg-0)',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-ui)',
+              }}
             >
               Cancel
             </button>
           </div>
         </form>
       </Modal>
+    </div>
+  );
+}
+
+function SiteCard({ site, cardStyle, onEdit, onDelete }) {
+  const [editHovered, setEditHovered] = useState(false);
+  const [deleteHovered, setDeleteHovered] = useState(false);
+
+  return (
+    <div style={cardStyle}>
+      {/* Map placeholder */}
+      <div style={{
+        height: '120px',
+        backgroundColor: 'var(--bg-0)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderBottom: '1px solid var(--border)',
+      }}>
+        <svg style={{ width: 40, height: 40, color: 'var(--fg-1)', opacity: 0.3 }} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--fg-0)', margin: 0 }}>{site.name}</h3>
+            <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {site.latitude && site.longitude ? (
+                <span style={{ fontSize: '13px', color: 'var(--fg-1)', fontFamily: 'var(--font-mono)' }}>
+                  {site.latitude.toFixed(4)}, {site.longitude.toFixed(4)}
+                </span>
+              ) : (
+                <span style={{ fontSize: '13px', color: 'var(--fg-1)', fontStyle: 'italic' }}>No coordinates set</span>
+              )}
+              <span style={{ fontSize: '12px', color: 'var(--fg-1)' }}>
+                Geofence: {site.geofence_radius_meters || 500}m radius
+              </span>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={onEdit}
+              onMouseEnter={() => setEditHovered(true)}
+              onMouseLeave={() => setEditHovered(false)}
+              style={{
+                width: '32px',
+                height: '32px',
+                backgroundColor: editHovered ? 'rgba(198, 255, 58, 0.2)' : 'rgba(198, 255, 58, 0.1)',
+                border: 'none',
+                borderRadius: 'var(--radius-1)',
+                color: 'var(--accent)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.2s',
+              }}
+            >
+              <svg style={{ width: 14, height: 14 }} fill="currentColor" viewBox="0 0 20 20">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+              </svg>
+            </button>
+            <button
+              onClick={onDelete}
+              onMouseEnter={() => setDeleteHovered(true)}
+              onMouseLeave={() => setDeleteHovered(false)}
+              style={{
+                width: '32px',
+                height: '32px',
+                backgroundColor: deleteHovered ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
+                border: 'none',
+                borderRadius: 'var(--radius-1)',
+                color: '#f87171',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background-color 0.2s',
+              }}
+            >
+              <svg style={{ width: 14, height: 14 }} fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)', display: 'flex', gap: '24px' }}>
+          <div>
+            <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--fg-0)' }}>{site.user_count || 0}</span>
+            <span style={{ fontSize: '12px', color: 'var(--fg-1)', marginLeft: '4px' }}>Users</span>
+          </div>
+          <div>
+            <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--fg-0)' }}>{site.asset_count || 0}</span>
+            <span style={{ fontSize: '12px', color: 'var(--fg-1)', marginLeft: '4px' }}>Assets</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

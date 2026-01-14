@@ -1,119 +1,304 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAssetByTag } from '../../../utils/api';
 
-export default function Scan() {
-  const [tagId, setTagId] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+export default function EmployeeScan() {
+  const [scanning, setScanning] = useState(false);
+  const [manualCode, setManualCode] = useState('');
+  const [error, setError] = useState(null);
+  const [cameraPermission, setCameraPermission] = useState(null);
+  const videoRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleScan = async (e) => {
-    e.preventDefault();
-    if (!tagId.trim()) return;
+  const [scanHovered, setScanHovered] = useState(false);
+  const [manualHovered, setManualHovered] = useState(false);
 
-    setLoading(true);
-    setError('');
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
 
+  const startCamera = async () => {
     try {
-      const asset = await getAssetByTag(tagId.trim());
-      navigate(`/app/employee/assets/${asset.id}`);
+      setScanning(true);
+      setError(null);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setCameraPermission(true);
     } catch (err) {
-      setError('Asset not found with that tag ID');
-    } finally {
-      setLoading(false);
+      console.error('Camera error:', err);
+      setCameraPermission(false);
+      setError('Unable to access camera. Please check permissions.');
+      setScanning(false);
     }
   };
 
-  const sampleTags = [
-    { id: 'TOOL-001', name: 'Power Drill', sensitivity: 'LOW' },
-    { id: 'EQUIP-001', name: 'Diagnostic Scanner', sensitivity: 'MEDIUM' },
-    { id: 'DEVICE-001', name: 'Network Analyzer', sensitivity: 'HIGH' },
-  ];
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+    }
+    setScanning(false);
+  };
+
+  const handleManualSubmit = (e) => {
+    e.preventDefault();
+    if (!manualCode.trim()) return;
+    // In a real app, this would look up the asset by barcode
+    // For demo, redirect to assets page
+    navigate('/app/assets?barcode=' + encodeURIComponent(manualCode.trim()));
+  };
+
+  const simulateScan = () => {
+    // Simulate a successful scan for demo purposes
+    stopCamera();
+    navigate('/app/assets/1');
+  };
+
+  const cardStyle = {
+    backgroundColor: 'var(--bg-1)',
+    borderRadius: 'var(--radius-2)',
+    border: '1px solid var(--border)',
+    padding: '24px',
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 16px',
+    backgroundColor: 'var(--bg-0)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-1)',
+    color: 'var(--fg-0)',
+    fontSize: '16px',
+    fontFamily: 'var(--font-mono)',
+  };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Scan Asset</h1>
-        <p className="text-gray-500">Scan a QR code or enter a tag ID manually</p>
-      </div>
+    <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--bg-0)', minHeight: '100vh' }}>
+      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--fg-0)', margin: 0, fontFamily: 'var(--font-display)' }}>Scan Asset</h1>
+          <p style={{ color: 'var(--fg-1)', fontSize: '14px', marginTop: '8px' }}>Scan a barcode or QR code to quickly find an asset</p>
+        </div>
 
-      {/* Manual Entry */}
-      <div className="card mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Enter Tag ID</h2>
-        
-        <form onSubmit={handleScan} className="space-y-4">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
+        {/* Camera Preview */}
+        <div style={{ ...cardStyle, marginBottom: '20px' }}>
+          {!scanning ? (
+            <div style={{
+              height: '280px',
+              backgroundColor: 'var(--bg-0)',
+              borderRadius: 'var(--radius-1)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '16px',
+            }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                backgroundColor: 'rgba(198, 255, 58, 0.1)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <svg style={{ width: 40, height: 40, color: 'var(--accent)' }} fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                  <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <p style={{ color: 'var(--fg-1)', fontSize: '14px', margin: 0 }}>Camera is not active</p>
+              <button
+                onClick={startCamera}
+                onMouseEnter={() => setScanHovered(true)}
+                onMouseLeave={() => setScanHovered(false)}
+                style={{
+                  padding: '12px 32px',
+                  backgroundColor: scanHovered ? '#d4ff5a' : 'var(--accent)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-1)',
+                  color: '#0b0d10',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
+                  fontFamily: 'var(--font-ui)',
+                }}
+              >
+                Start Scanning
+              </button>
+            </div>
+          ) : (
+            <div style={{ position: 'relative' }}>
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '280px',
+                  backgroundColor: '#000',
+                  borderRadius: 'var(--radius-1)',
+                  objectFit: 'cover',
+                }}
+              />
+              
+              {/* Scan overlay */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+              }}>
+                <div style={{
+                  width: '200px',
+                  height: '200px',
+                  border: '2px solid var(--accent)',
+                  borderRadius: '16px',
+                  boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
+                }}>
+                  {/* Corner markers */}
+                  <div style={{ position: 'absolute', top: -4, left: -4, width: 24, height: 24, borderTop: '4px solid var(--accent)', borderLeft: '4px solid var(--accent)', borderRadius: '4px 0 0 0' }} />
+                  <div style={{ position: 'absolute', top: -4, right: -4, width: 24, height: 24, borderTop: '4px solid var(--accent)', borderRight: '4px solid var(--accent)', borderRadius: '0 4px 0 0' }} />
+                  <div style={{ position: 'absolute', bottom: -4, left: -4, width: 24, height: 24, borderBottom: '4px solid var(--accent)', borderLeft: '4px solid var(--accent)', borderRadius: '0 0 0 4px' }} />
+                  <div style={{ position: 'absolute', bottom: -4, right: -4, width: 24, height: 24, borderBottom: '4px solid var(--accent)', borderRight: '4px solid var(--accent)', borderRadius: '0 0 4px 0' }} />
+                </div>
+              </div>
+
+              <div style={{ 
+                position: 'absolute', 
+                bottom: '12px', 
+                left: '50%', 
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                gap: '8px',
+              }}>
+                <button
+                  onClick={simulateScan}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: 'var(--accent)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-1)',
+                    color: '#0b0d10',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-ui)',
+                  }}
+                >
+                  Simulate Scan
+                </button>
+                <button
+                  onClick={stopCamera}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-1)',
+                    color: '#fff',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    backdropFilter: 'blur(8px)',
+                    fontFamily: 'var(--font-ui)',
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
 
-          <div>
+          {error && (
+            <div style={{
+              marginTop: '12px',
+              padding: '12px',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 'var(--radius-1)',
+              color: '#f87171',
+              fontSize: '13px',
+              textAlign: 'center',
+            }}>
+              {error}
+            </div>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '16px',
+          margin: '24px 0',
+        }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border)' }} />
+          <span style={{ color: 'var(--fg-1)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>or</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border)' }} />
+        </div>
+
+        {/* Manual Entry */}
+        <div style={cardStyle}>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--fg-0)', margin: '0 0 16px' }}>Enter Code Manually</h3>
+          <form onSubmit={handleManualSubmit} style={{ display: 'flex', gap: '12px' }}>
             <input
               type="text"
-              value={tagId}
-              onChange={(e) => setTagId(e.target.value.toUpperCase())}
-              placeholder="e.g., TOOL-001"
-              className="input text-lg font-mono"
-              autoFocus
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              placeholder="AST-2024-001"
+              style={inputStyle}
             />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || !tagId.trim()}
-            className="btn-primary w-full disabled:opacity-50"
-          >
-            {loading ? 'Looking up...' : 'Look Up Asset'}
-          </button>
-        </form>
-      </div>
-
-      {/* QR Scanner Placeholder */}
-      <div className="card mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Scan QR Code</h2>
-        <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center border-2 border-dashed border-gray-300">
-          <div className="text-center text-gray-500">
-            <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-            </svg>
-            <p className="text-sm">Camera scanner not available in demo</p>
-            <p className="text-xs mt-1">Use manual entry or sample tags below</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Sample Tags */}
-      <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Sample Tags (Demo)</h2>
-        <p className="text-sm text-gray-500 mb-4">Click a tag to look it up:</p>
-        
-        <div className="space-y-2">
-          {sampleTags.map(tag => (
             <button
-              key={tag.id}
-              onClick={() => {
-                setTagId(tag.id);
-                navigate(`/app/employee/assets/${tag.id === 'TOOL-001' ? 1 : tag.id === 'EQUIP-001' ? 3 : 5}`);
+              type="submit"
+              onMouseEnter={() => setManualHovered(true)}
+              onMouseLeave={() => setManualHovered(false)}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: manualHovered ? '#d4ff5a' : 'var(--accent)',
+                border: 'none',
+                borderRadius: 'var(--radius-1)',
+                color: '#0b0d10',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+                whiteSpace: 'nowrap',
+                fontFamily: 'var(--font-ui)',
               }}
-              className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="flex items-center gap-3">
-                <span className="font-mono text-primary-600">{tag.id}</span>
-                <span className="text-gray-900">{tag.name}</span>
-              </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                tag.sensitivity === 'HIGH' ? 'bg-red-100 text-red-700' :
-                tag.sensitivity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-gray-100 text-gray-700'
-              }`}>
-                {tag.sensitivity}
-              </span>
+              Look Up
             </button>
-          ))}
+          </form>
+        </div>
+
+        {/* Tips */}
+        <div style={{ marginTop: '32px' }}>
+          <h4 style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fg-1)', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tips</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <TipItem text="Hold your device steady about 6 inches from the code" />
+            <TipItem text="Ensure the barcode or QR code is well-lit" />
+            <TipItem text="The code should be fully visible within the scan area" />
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function TipItem({ text }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+      <svg style={{ width: 16, height: 16, color: 'var(--accent)', flexShrink: 0, marginTop: '2px' }} fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+      </svg>
+      <span style={{ color: 'var(--fg-1)', fontSize: '14px' }}>{text}</span>
     </div>
   );
 }

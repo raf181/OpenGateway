@@ -37,14 +37,19 @@ export default function Approvals() {
     return action.replace(/_/g, ' ').toLowerCase();
   };
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      PENDING: 'bg-yellow-100 text-yellow-700',
-      APPROVED: 'bg-green-100 text-green-700',
-      REJECTED: 'bg-red-100 text-red-700',
-      EXPIRED: 'bg-gray-100 text-gray-700',
-    };
-    return styles[status] || styles.PENDING;
+  const getStatusBadgeStyle = (status) => {
+    const base = { padding: '4px 10px', borderRadius: '9999px', fontSize: '12px', fontWeight: 500 };
+    if (status === 'PENDING') return { ...base, backgroundColor: 'rgba(202, 138, 4, 0.15)', color: '#fbbf24' };
+    if (status === 'APPROVED') return { ...base, backgroundColor: 'rgba(22, 163, 74, 0.15)', color: '#4ade80' };
+    if (status === 'REJECTED') return { ...base, backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#f87171' };
+    return { ...base, backgroundColor: 'rgba(107, 114, 128, 0.15)', color: 'var(--fg-1)' };
+  };
+
+  const cardStyle = {
+    backgroundColor: 'var(--bg-1)',
+    borderRadius: 'var(--radius-2)',
+    border: '1px solid var(--border)',
+    padding: '20px',
   };
 
   const pendingApprovals = approvals.filter(a => a.status === 'PENDING');
@@ -52,99 +57,112 @@ export default function Approvals() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
+          border: '2px solid rgba(242, 245, 247, 0.3)',
+          borderTopColor: 'var(--accent)',
+          animation: 'spin 0.6s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Approval Requests</h1>
-        <p className="text-gray-500">Review and process custody requests from your team</p>
+    <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--bg-0)', minHeight: '100vh', maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--fg-0)', margin: 0, fontFamily: 'var(--font-display)' }}>Approval Requests</h1>
+        <p style={{ color: 'var(--fg-1)', fontSize: '14px', marginTop: '4px' }}>Review and process custody requests from your team</p>
       </div>
 
       {/* Pending Approvals */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--fg-0)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-display)' }}>
           Pending Requests
           {pendingApprovals.length > 0 && (
-            <span className="bg-yellow-100 text-yellow-700 text-sm px-2 py-0.5 rounded-full">
+            <span style={{
+              backgroundColor: 'rgba(202, 138, 4, 0.15)',
+              color: '#fbbf24',
+              fontSize: '13px',
+              padding: '2px 8px',
+              borderRadius: '9999px',
+            }}>
               {pendingApprovals.length}
             </span>
           )}
         </h2>
 
         {pendingApprovals.length === 0 ? (
-          <div className="card text-center py-8 text-gray-500">
-            <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div style={{ ...cardStyle, textAlign: 'center', padding: '32px' }}>
+            <svg style={{ width: '48px', height: '48px', margin: '0 auto 12px', color: 'var(--fg-1)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p>No pending approvals</p>
-            <p className="text-sm">All requests have been processed</p>
+            <p style={{ color: 'var(--fg-1)', margin: 0 }}>No pending approvals</p>
+            <p style={{ color: 'var(--fg-1)', fontSize: '14px', opacity: 0.7, marginTop: '4px' }}>All requests have been processed</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {pendingApprovals.map(approval => (
-              <div key={approval.id} className="card border-l-4 border-l-yellow-400">
-                <div className="flex justify-between items-start mb-4">
+              <div key={approval.id} style={{ ...cardStyle, borderLeft: '4px solid #fbbf24' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                   <div>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 style={{ fontWeight: 600, color: 'var(--fg-0)', margin: 0, fontSize: '16px' }}>
                       {approval.asset?.name || 'Unknown Asset'}
                     </h3>
-                    <p className="text-sm text-gray-500">
+                    <p style={{ fontSize: '13px', color: 'var(--fg-1)', marginTop: '4px' }}>
                       Tag: {approval.asset?.tag_id || 'N/A'}
                     </p>
                   </div>
-                  <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(approval.status)}`}>
-                    {approval.status}
-                  </span>
+                  <span style={getStatusBadgeStyle(approval.status)}>{approval.status}</span>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px', fontSize: '14px', marginBottom: '16px' }}>
                   <div>
-                    <p className="text-gray-500">Requested By</p>
-                    <p className="font-medium">{approval.requester?.full_name || 'Unknown'}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--fg-1)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Requested By</p>
+                    <p style={{ fontWeight: 500, color: 'var(--fg-0)', margin: 0 }}>{approval.requester?.full_name || 'Unknown'}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Action</p>
-                    <p className="font-medium capitalize">{formatAction(approval.requested_action)}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--fg-1)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Action</p>
+                    <p style={{ fontWeight: 500, color: 'var(--fg-0)', margin: 0, textTransform: 'capitalize' }}>{formatAction(approval.requested_action)}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Sensitivity</p>
-                    <p className="font-medium">{approval.asset?.sensitivity_level || 'N/A'}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--fg-1)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sensitivity</p>
+                    <p style={{ fontWeight: 500, color: 'var(--fg-0)', margin: 0 }}>{approval.asset?.sensitivity_level || 'N/A'}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Requested</p>
-                    <p className="font-medium">
+                    <p style={{ fontSize: '12px', color: 'var(--fg-1)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Requested</p>
+                    <p style={{ fontWeight: 500, color: 'var(--fg-0)', margin: 0 }}>
                       {new Date(approval.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
 
                 {approval.justification && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm">
-                    <p className="text-gray-500 mb-1">Justification:</p>
-                    <p className="text-gray-900">{approval.justification}</p>
+                  <div style={{
+                    marginBottom: '16px',
+                    padding: '12px',
+                    backgroundColor: 'var(--bg-0)',
+                    borderRadius: 'var(--radius-1)',
+                    border: '1px solid var(--border)',
+                  }}>
+                    <p style={{ fontSize: '12px', color: 'var(--fg-1)', marginBottom: '4px' }}>Justification:</p>
+                    <p style={{ color: 'var(--fg-0)', margin: 0, fontSize: '14px' }}>{approval.justification}</p>
                   </div>
                 )}
 
-                <div className="flex gap-3">
-                  <button
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <ApproveButton
                     onClick={() => handleAction(approval.id, 'APPROVED')}
                     disabled={processing === approval.id}
-                    className="btn-primary flex-1 disabled:opacity-50"
-                  >
-                    {processing === approval.id ? 'Processing...' : 'Approve'}
-                  </button>
-                  <button
+                    processing={processing === approval.id}
+                  />
+                  <RejectButton
                     onClick={() => handleAction(approval.id, 'REJECTED')}
                     disabled={processing === approval.id}
-                    className="btn-secondary flex-1 disabled:opacity-50 border-red-300 text-red-600 hover:bg-red-50"
-                  >
-                    Reject
-                  </button>
+                  />
                 </div>
               </div>
             ))}
@@ -154,43 +172,41 @@ export default function Approvals() {
 
       {/* History */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">History</h2>
+        <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--fg-0)', marginBottom: '16px', fontFamily: 'var(--font-display)' }}>History</h2>
 
         {historyApprovals.length === 0 ? (
-          <div className="card text-center py-8 text-gray-500">
-            <p>No approval history yet</p>
+          <div style={{ ...cardStyle, textAlign: 'center', padding: '32px' }}>
+            <p style={{ color: 'var(--fg-1)', margin: 0 }}>No approval history yet</p>
           </div>
         ) : (
-          <div className="card overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Asset</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Requester</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+          <div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: 'var(--bg-0)' }}>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Asset</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Requester</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Action</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 500, color: 'var(--fg-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {historyApprovals.map(approval => (
-                  <tr key={approval.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{approval.asset?.name || 'Unknown'}</div>
-                      <div className="text-sm text-gray-500">{approval.asset?.tag_id}</div>
+              <tbody>
+                {historyApprovals.map((approval, index) => (
+                  <tr key={approval.id} style={{ borderTop: index > 0 ? '1px solid var(--border)' : 'none' }}>
+                    <td style={{ padding: '12px 16px' }}>
+                      <div style={{ fontWeight: 500, color: 'var(--fg-0)', fontSize: '14px' }}>{approval.asset?.name || 'Unknown'}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--fg-1)' }}>{approval.asset?.tag_id}</div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--fg-0)' }}>
                       {approval.requester?.full_name || 'Unknown'}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 capitalize">
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--fg-0)', textTransform: 'capitalize' }}>
                       {formatAction(approval.requested_action)}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(approval.status)}`}>
-                        {approval.status}
-                      </span>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={getStatusBadgeStyle(approval.status)}>{approval.status}</span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: 'var(--fg-1)' }}>
                       {new Date(approval.resolved_at || approval.created_at).toLocaleDateString()}
                     </td>
                   </tr>
@@ -201,5 +217,63 @@ export default function Approvals() {
         )}
       </div>
     </div>
+  );
+}
+
+function ApproveButton({ onClick, disabled, processing }) {
+  const [hovered, setHovered] = useState(false);
+  
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        flex: 1,
+        padding: '10px 16px',
+        backgroundColor: disabled ? 'rgba(198, 255, 58, 0.3)' : (hovered ? '#d4ff5a' : 'var(--accent)'),
+        border: 'none',
+        borderRadius: 'var(--radius-1)',
+        color: '#0b0d10',
+        fontSize: '14px',
+        fontWeight: 600,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        transition: 'background-color 0.2s',
+        fontFamily: 'var(--font-ui)',
+      }}
+    >
+      {processing ? 'Processing...' : 'Approve'}
+    </button>
+  );
+}
+
+function RejectButton({ onClick, disabled }) {
+  const [hovered, setHovered] = useState(false);
+  
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        flex: 1,
+        padding: '10px 16px',
+        backgroundColor: hovered && !disabled ? 'rgba(239, 68, 68, 0.15)' : 'transparent',
+        border: '1px solid rgba(239, 68, 68, 0.4)',
+        borderRadius: 'var(--radius-1)',
+        color: '#f87171',
+        fontSize: '14px',
+        fontWeight: 500,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        transition: 'background-color 0.2s',
+        fontFamily: 'var(--font-ui)',
+      }}
+    >
+      Reject
+    </button>
   );
 }

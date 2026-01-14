@@ -1,189 +1,330 @@
+import { useState, useEffect } from 'react';
+
 export default function AdminPolicies() {
-  const policies = [
+  const [policies, setPolicies] = useState([
     {
       id: 1,
-      name: 'Low Sensitivity Checkout',
-      sensitivity: 'LOW',
-      checks: ['User authenticated'],
-      decision: 'ALLOW',
-      description: 'Allows direct checkout without additional verification'
+      name: 'Sensitive Asset Checkout',
+      description: 'Verification requirements for sensitive assets',
+      enabled: true,
+      checks: {
+        number_verification: true,
+        sim_swap_check: true,
+        device_swap_check: true,
+        location_verification: true,
+      },
     },
     {
       id: 2,
-      name: 'Medium Sensitivity Checkout',
-      sensitivity: 'MEDIUM',
-      checks: ['User authenticated', 'Number Verification'],
-      decision: 'ALLOW if verified',
-      description: 'Requires phone number verification via Open Gateway'
+      name: 'Standard Asset Checkout',
+      description: 'Default verification for regular assets',
+      enabled: true,
+      checks: {
+        number_verification: true,
+        sim_swap_check: false,
+        device_swap_check: false,
+        location_verification: false,
+      },
     },
     {
       id: 3,
-      name: 'High Sensitivity Checkout',
-      sensitivity: 'HIGH',
-      checks: ['User authenticated', 'Number Verification', 'SIM Swap Check', 'Device Location'],
-      decision: 'ALLOW if all pass',
-      description: 'Full verification suite including location and device checks'
+      name: 'Off-Site Checkout',
+      description: 'Policy for assets leaving the facility',
+      enabled: false,
+      checks: {
+        number_verification: true,
+        sim_swap_check: true,
+        device_swap_check: true,
+        location_verification: false,
+      },
     },
-    {
-      id: 4,
-      name: 'High Sensitivity - Location Fail',
-      sensitivity: 'HIGH',
-      checks: ['Number verified', 'Location outside geofence'],
-      decision: 'STEP_UP',
-      description: 'Requires manager approval when device is outside site boundary'
+  ]);
+
+  const [expandedPolicy, setExpandedPolicy] = useState(null);
+
+  const togglePolicy = (id) => {
+    setPolicies(policies.map(p => 
+      p.id === id ? { ...p, enabled: !p.enabled } : p
+    ));
+  };
+
+  const toggleCheck = (policyId, checkKey) => {
+    setPolicies(policies.map(p => 
+      p.id === policyId 
+        ? { ...p, checks: { ...p.checks, [checkKey]: !p.checks[checkKey] } }
+        : p
+    ));
+  };
+
+  const cardStyle = {
+    backgroundColor: 'var(--bg-1)',
+    borderRadius: 'var(--radius-2)',
+    border: '1px solid var(--border)',
+    overflow: 'hidden',
+    marginBottom: '16px',
+  };
+
+  const PhoneIcon = () => (
+    <svg style={{ width: 16, height: 16 }} fill="currentColor" viewBox="0 0 20 20">
+      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+    </svg>
+  );
+
+  const LockIcon = () => (
+    <svg style={{ width: 16, height: 16 }} fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+    </svg>
+  );
+
+  const DeviceIcon = () => (
+    <svg style={{ width: 16, height: 16 }} fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zm3 14a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"/>
+    </svg>
+  );
+
+  const LocationIcon = () => (
+    <svg style={{ width: 16, height: 16 }} fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+    </svg>
+  );
+
+  const checkLabels = {
+    number_verification: {
+      name: 'Number Verification',
+      description: 'Verify user\'s phone number matches registration',
+      icon: <PhoneIcon />,
     },
-    {
-      id: 5,
-      name: 'SIM Swap Detected',
-      sensitivity: 'ANY',
-      checks: ['SIM swap within 48 hours'],
-      decision: 'DENY',
-      description: 'Blocks all checkouts when recent SIM swap is detected'
+    sim_swap_check: {
+      name: 'SIM Swap Detection',
+      description: 'Check for recent SIM changes (fraud indicator)',
+      icon: <LockIcon />,
     },
-  ];
+    device_swap_check: {
+      name: 'Device Swap Detection',
+      description: 'Check for recent device changes (security flag)',
+      icon: <DeviceIcon />,
+    },
+    location_verification: {
+      name: 'Location Verification',
+      description: 'Confirm user is within site geofence',
+      icon: <LocationIcon />,
+    },
+  };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Policy Configuration</h1>
-        <p className="text-gray-500">View the policy rules that govern custody decisions</p>
+    <div style={{ padding: 'var(--space-6)', backgroundColor: 'var(--bg-0)', minHeight: '100vh' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--fg-0)', margin: 0, fontFamily: 'var(--font-display)' }}>Policy Configuration</h1>
+        <p style={{ color: 'var(--fg-1)', fontSize: '14px', marginTop: '4px' }}>Configure Open Gateway verification policies</p>
       </div>
 
       {/* Info Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div>
-            <h3 className="font-medium text-blue-900">About Policy Engine</h3>
-            <p className="text-sm text-blue-700 mt-1">
-              The policy engine evaluates each custody request based on asset sensitivity and 
-              verification results from Telefónica Open Gateway APIs. In this demo, policies 
-              are read-only and demonstrate the decision flow.
-            </p>
-          </div>
+      <div style={{
+        backgroundColor: 'rgba(122, 226, 255, 0.1)',
+        border: '1px solid rgba(122, 226, 255, 0.3)',
+        borderRadius: 'var(--radius-2)',
+        padding: '16px',
+        marginBottom: '24px',
+        display: 'flex',
+        gap: '12px',
+      }}>
+        <svg style={{ width: 20, height: 20, color: 'var(--accent2)', flexShrink: 0, marginTop: '2px' }} fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+        </svg>
+        <div>
+          <p style={{ color: 'var(--fg-0)', fontSize: '14px', margin: 0, fontWeight: 500 }}>Telefónica Open Gateway Integration</p>
+          <p style={{ color: 'var(--fg-1)', fontSize: '13px', margin: '4px 0 0' }}>
+            Policies define which Open Gateway API checks are performed during asset checkout.
+            Each check adds a layer of verification to prevent unauthorized access.
+          </p>
         </div>
       </div>
 
-      {/* Policy Rules */}
-      <div className="space-y-4">
-        {policies.map(policy => (
-          <div key={policy.id} className="card border-l-4" style={{
-            borderLeftColor: policy.decision === 'ALLOW' || policy.decision.includes('ALLOW') ? '#22c55e' :
-                            policy.decision === 'STEP_UP' ? '#eab308' : '#ef4444'
-          }}>
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h3 className="font-semibold text-gray-900">{policy.name}</h3>
-                <p className="text-sm text-gray-500">{policy.description}</p>
+      {/* Policies */}
+      {policies.map(policy => (
+        <PolicyCard
+          key={policy.id}
+          policy={policy}
+          cardStyle={cardStyle}
+          checkLabels={checkLabels}
+          expanded={expandedPolicy === policy.id}
+          onToggleExpand={() => setExpandedPolicy(expandedPolicy === policy.id ? null : policy.id)}
+          onTogglePolicy={() => togglePolicy(policy.id)}
+          onToggleCheck={(checkKey) => toggleCheck(policy.id, checkKey)}
+        />
+      ))}
+
+      {/* API Status */}
+      <div style={{ ...cardStyle, padding: '20px', marginTop: '32px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--fg-0)', margin: 0, marginBottom: '16px' }}>API Endpoints</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {Object.entries(checkLabels).map(([key, check]) => (
+            <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ color: 'var(--accent)', display: 'flex', alignItems: 'center' }}>{check.icon}</span>
+                <span style={{ color: 'var(--fg-0)', fontSize: '14px' }}>{check.name}</span>
               </div>
-              <span className={`px-3 py-1 text-sm rounded-full font-medium ${
-                policy.decision === 'ALLOW' || policy.decision.includes('ALLOW') ? 'bg-green-100 text-green-700' :
-                policy.decision === 'STEP_UP' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-red-100 text-red-700'
-              }`}>
-                {policy.decision}
+              <span style={{
+                padding: '4px 10px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontWeight: 500,
+                backgroundColor: 'rgba(22, 163, 74, 0.15)',
+                color: '#4ade80',
+              }}>
+                Connected
               </span>
             </div>
-
-            <div className="flex flex-wrap gap-4">
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Sensitivity</p>
-                <span className={`px-2 py-0.5 text-xs rounded ${
-                  policy.sensitivity === 'HIGH' ? 'bg-red-100 text-red-700' :
-                  policy.sensitivity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                  policy.sensitivity === 'ANY' ? 'bg-gray-100 text-gray-700' :
-                  'bg-gray-100 text-gray-700'
-                }`}>
-                  {policy.sensitivity}
-                </span>
-              </div>
-              
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Required Checks</p>
-                <div className="flex flex-wrap gap-1">
-                  {policy.checks.map((check, idx) => (
-                    <span key={idx} className="px-2 py-0.5 text-xs bg-primary-50 text-primary-700 rounded">
-                      {check}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Open Gateway APIs */}
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Open Gateway APIs Used</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="card">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Number Verification</h3>
-                <p className="text-sm text-gray-500">
-                  Validates that the user's registered phone number matches their device's SIM
-                </p>
-              </div>
-            </div>
-          </div>
+function PolicyCard({ policy, cardStyle, checkLabels, expanded, onToggleExpand, onTogglePolicy, onToggleCheck }) {
+  const [toggleHovered, setToggleHovered] = useState(false);
 
-          <div className="card">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Device Location Verification</h3>
-                <p className="text-sm text-gray-500">
-                  Checks if the device is within the site's geofence boundary
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">SIM Swap Detection</h3>
-                <p className="text-sm text-gray-500">
-                  Detects if the SIM card was recently changed (fraud indicator)
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Device Swap Detection</h3>
-                <p className="text-sm text-gray-500">
-                  Identifies if the phone device (IMEI) was recently changed
-                </p>
-              </div>
-            </div>
+  return (
+    <div style={cardStyle}>
+      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, cursor: 'pointer' }} onClick={onToggleExpand}>
+          <div style={{
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            backgroundColor: policy.enabled ? '#4ade80' : 'rgba(107, 114, 128, 0.5)',
+          }} />
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--fg-0)', margin: 0 }}>{policy.name}</h3>
+            <p style={{ fontSize: '13px', color: 'var(--fg-1)', margin: '2px 0 0' }}>{policy.description}</p>
           </div>
         </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {Object.entries(policy.checks).filter(([, v]) => v).map(([key]) => (
+              <span key={key} style={{ fontSize: '14px' }} title={checkLabels[key]?.name}>
+                {checkLabels[key]?.icon}
+              </span>
+            ))}
+          </div>
+
+          <button
+            onClick={onTogglePolicy}
+            onMouseEnter={() => setToggleHovered(true)}
+            onMouseLeave={() => setToggleHovered(false)}
+            style={{
+              padding: '6px 14px',
+              backgroundColor: policy.enabled 
+                ? (toggleHovered ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)')
+                : (toggleHovered ? 'rgba(22, 163, 74, 0.2)' : 'rgba(22, 163, 74, 0.1)'),
+              border: 'none',
+              borderRadius: 'var(--radius-1)',
+              color: policy.enabled ? '#f87171' : '#4ade80',
+              fontSize: '13px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+              fontFamily: 'var(--font-ui)',
+            }}
+          >
+            {policy.enabled ? 'Disable' : 'Enable'}
+          </button>
+
+          <button
+            onClick={onToggleExpand}
+            style={{
+              width: '32px',
+              height: '32px',
+              backgroundColor: 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-1)',
+              color: 'var(--fg-1)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'transform 0.2s',
+              transform: expanded ? 'rotate(180deg)' : 'none',
+            }}
+          >
+            <svg style={{ width: 14, height: 14 }} fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ 
+          padding: '16px 20px', 
+          borderTop: '1px solid var(--border)', 
+          backgroundColor: 'var(--bg-0)',
+        }}>
+          <h4 style={{ fontSize: '13px', fontWeight: 500, color: 'var(--fg-1)', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Verification Checks
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+            {Object.entries(checkLabels).map(([key, check]) => (
+              <CheckToggle
+                key={key}
+                checkKey={key}
+                check={check}
+                enabled={policy.checks[key]}
+                onToggle={() => onToggleCheck(key)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CheckToggle({ check, enabled, onToggle }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      onClick={onToggle}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '12px',
+        padding: '12px',
+        backgroundColor: hovered ? 'var(--bg-1)' : 'transparent',
+        borderRadius: 'var(--radius-1)',
+        cursor: 'pointer',
+        transition: 'background-color 0.2s',
+      }}
+    >
+      <div style={{
+        width: '20px',
+        height: '20px',
+        borderRadius: '4px',
+        backgroundColor: enabled ? 'var(--accent)' : 'transparent',
+        border: enabled ? 'none' : '2px solid var(--border)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        marginTop: '2px',
+      }}>
+        {enabled && (
+          <svg style={{ width: 12, height: 12, color: '#0b0d10' }} fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+        )}
+      </div>
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '14px' }}>{check.icon}</span>
+          <span style={{ fontSize: '14px', color: 'var(--fg-0)', fontWeight: 500 }}>{check.name}</span>
+        </div>
+        <p style={{ fontSize: '12px', color: 'var(--fg-1)', margin: '4px 0 0' }}>{check.description}</p>
       </div>
     </div>
   );

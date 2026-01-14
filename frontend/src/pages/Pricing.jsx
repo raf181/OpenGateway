@@ -114,7 +114,7 @@ export function Pricing() {
                   <ul className="space-y-space-3 mb-space-8">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-space-3">
-                        <span className="text-[var(--accent)] mt-space-1">✓</span>
+                        <svg className="text-[var(--accent)] mt-space-1" style={{ width: 16, height: 16, flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                         <span className="text-small text-[var(--fg-0)]">{feature}</span>
                       </li>
                     ))}
@@ -163,8 +163,8 @@ export function Pricing() {
                   { name: 'Team Members', startup: '5', pro: '20', enterprise: 'Unlimited' },
                   { name: 'Events/Day', startup: '100K', pro: 'Unlimited', enterprise: 'Unlimited' },
                   { name: 'Data Retention', startup: '30 days', pro: '1 year', enterprise: 'Unlimited' },
-                  { name: 'AI Detection', startup: '❌', pro: '✓', enterprise: '✓' },
-                  { name: 'Custom Playbooks', startup: '❌', pro: '✓', enterprise: '✓' },
+                  { name: 'AI Detection', startup: 'no', pro: 'yes', enterprise: 'yes' },
+                  { name: 'Custom Playbooks', startup: 'no', pro: 'yes', enterprise: 'yes' },
                   { name: 'API Access', startup: 'Limited', pro: 'Full', enterprise: 'Full' },
                   { name: 'Support', startup: 'Email', pro: '24/7 Phone', enterprise: 'Dedicated' },
                 ].map((row, i) => (
@@ -172,15 +172,17 @@ export function Pricing() {
                     <td className="py-space-4 px-space-4 font-600 text-[var(--fg-0)] bg-[var(--bg-0)] sticky left-0 z-10">
                       {row.name}
                     </td>
-                    <td className="text-center py-space-4 px-space-4 text-[var(--fg-0)]">
-                      {row.startup}
-                    </td>
-                    <td className="text-center py-space-4 px-space-4 text-[var(--fg-0)]">
-                      {row.pro}
-                    </td>
-                    <td className="text-center py-space-4 px-space-4 text-[var(--fg-0)]">
-                      {row.enterprise}
-                    </td>
+                    {['startup', 'pro', 'enterprise'].map((plan) => (
+                      <td key={plan} className="text-center py-space-4 px-space-4 text-[var(--fg-0)]">
+                        {row[plan] === 'yes' ? (
+                          <svg className="inline text-[var(--accent)]" style={{ width: 16, height: 16 }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                        ) : row[plan] === 'no' ? (
+                          <svg className="inline text-[var(--fg-1)] opacity-50" style={{ width: 16, height: 16 }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/></svg>
+                        ) : (
+                          row[plan]
+                        )}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
