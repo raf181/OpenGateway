@@ -110,18 +110,32 @@ export default function AdminAssets() {
 
   const inputStyle = {
     width: '100%',
-    padding: '10px 14px',
+    padding: '12px 16px',
     backgroundColor: 'var(--bg-0)',
     border: '1px solid var(--border)',
     borderRadius: 'var(--radius-1)',
     color: 'var(--fg-0)',
-    fontSize: '14px',
+    fontSize: '15px',
     fontFamily: 'var(--font-ui)',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+    outline: 'none',
+  };
+
+  const inputFocusHandlers = {
+    onFocus: (e) => {
+      e.target.style.borderColor = 'var(--accent)';
+      e.target.style.boxShadow = 'var(--shadow-focus)';
+    },
+    onBlur: (e) => {
+      e.target.style.borderColor = 'var(--border)';
+      e.target.style.boxShadow = 'none';
+    },
   };
 
   const checkboxStyle = {
-    width: '18px',
-    height: '18px',
+    width: '20px',
+    height: '20px',
     accentColor: 'var(--accent)',
     cursor: 'pointer',
   };
@@ -232,9 +246,9 @@ export default function AdminAssets() {
         onClose={() => setShowModal(false)}
         title={editingAsset ? 'Edit Asset' : 'Add New Asset'}
       >
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Asset Name</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Asset Name</label>
             <input
               type="text"
               value={formData.name}
@@ -242,39 +256,43 @@ export default function AdminAssets() {
               style={inputStyle}
               placeholder="MacBook Pro 16-inch"
               required
+              {...inputFocusHandlers}
             />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Barcode</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Barcode</label>
               <input
                 type="text"
                 value={formData.barcode}
                 onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
                 style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }}
                 placeholder="AST-2024-001"
+                {...inputFocusHandlers}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Category</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Category</label>
               <input
                 type="text"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 style={inputStyle}
                 placeholder="Electronics"
+                {...inputFocusHandlers}
               />
             </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Assigned Site</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Assigned Site</label>
             <select
               value={formData.site_id}
               onChange={(e) => setFormData({ ...formData, site_id: parseInt(e.target.value) })}
               style={inputStyle}
               required
+              {...inputFocusHandlers}
             >
               {sites.map(site => (
                 <option key={site.id} value={site.id}>{site.name}</option>
@@ -282,8 +300,8 @@ export default function AdminAssets() {
             </select>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-0)', borderRadius: 'var(--radius-1)', padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+          <div style={{ backgroundColor: 'var(--bg-0)', borderRadius: 'var(--radius-1)', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={formData.is_sensitive}
@@ -291,12 +309,12 @@ export default function AdminAssets() {
                 style={checkboxStyle}
               />
               <div>
-                <span style={{ fontSize: '14px', color: 'var(--fg-0)' }}>Sensitive Asset</span>
-                <p style={{ fontSize: '12px', color: 'var(--fg-1)', margin: '2px 0 0' }}>Requires additional Open Gateway verification</p>
+                <span style={{ fontSize: '15px', fontWeight: 500, color: 'var(--fg-0)' }}>Sensitive Asset</span>
+                <p style={{ fontSize: '13px', color: 'var(--fg-1)', margin: '2px 0 0' }}>Requires additional Open Gateway verification</p>
               </div>
             </label>
 
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={formData.requires_manager_approval}
@@ -304,23 +322,23 @@ export default function AdminAssets() {
                 style={checkboxStyle}
               />
               <div>
-                <span style={{ fontSize: '14px', color: 'var(--fg-0)' }}>Requires Manager Approval</span>
-                <p style={{ fontSize: '12px', color: 'var(--fg-1)', margin: '2px 0 0' }}>Checkout requires explicit manager sign-off</p>
+                <span style={{ fontSize: '15px', fontWeight: 500, color: 'var(--fg-0)' }}>Requires Manager Approval</span>
+                <p style={{ fontSize: '13px', color: 'var(--fg-1)', margin: '2px 0 0' }}>Checkout requires explicit manager sign-off</p>
               </div>
             </label>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
+          <div style={{ display: 'flex', gap: '12px', paddingTop: '12px' }}>
             <button
               type="submit"
               style={{
                 flex: 1,
-                padding: '12px 16px',
+                padding: '14px 16px',
                 backgroundColor: 'var(--accent)',
                 border: 'none',
                 borderRadius: 'var(--radius-1)',
                 color: '#0b0d10',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-ui)',
@@ -333,12 +351,12 @@ export default function AdminAssets() {
               onClick={() => setShowModal(false)}
               style={{
                 flex: 1,
-                padding: '12px 16px',
+                padding: '14px 16px',
                 backgroundColor: 'transparent',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-1)',
                 color: 'var(--fg-0)',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 500,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-ui)',

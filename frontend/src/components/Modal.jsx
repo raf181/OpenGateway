@@ -31,17 +31,21 @@ export default function Modal({ open, onClose, title, children }) {
         />
         
         {/* Modal */}
-        <div style={{
-          position: 'relative',
-          backgroundColor: 'var(--bg-1)',
-          borderRadius: 'var(--radius-2)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-          border: '1px solid var(--border)',
-          maxWidth: '448px',
-          width: '100%',
-          padding: '24px',
-          zIndex: 10,
-        }}>
+        <div 
+          className="modal-content"
+          style={{
+            position: 'relative',
+            backgroundColor: 'var(--bg-1)',
+            borderRadius: 'var(--radius-2)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '1px solid var(--border)',
+            maxWidth: '448px',
+            width: '100%',
+            padding: '24px',
+            zIndex: 10,
+            maxHeight: 'calc(100vh - 32px)',
+            overflowY: 'auto',
+          }}>
           {/* Header */}
           <div style={{
             display: 'flex',

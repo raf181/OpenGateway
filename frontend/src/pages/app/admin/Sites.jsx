@@ -94,13 +94,27 @@ export default function AdminSites() {
 
   const inputStyle = {
     width: '100%',
-    padding: '10px 14px',
+    padding: '12px 16px',
     backgroundColor: 'var(--bg-0)',
     border: '1px solid var(--border)',
     borderRadius: 'var(--radius-1)',
     color: 'var(--fg-0)',
-    fontSize: '14px',
+    fontSize: '15px',
     fontFamily: 'var(--font-ui)',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+    outline: 'none',
+  };
+
+  const inputFocusHandlers = {
+    onFocus: (e) => {
+      e.target.style.borderColor = 'var(--accent)';
+      e.target.style.boxShadow = 'var(--shadow-focus)';
+    },
+    onBlur: (e) => {
+      e.target.style.borderColor = 'var(--border)';
+      e.target.style.boxShadow = 'none';
+    },
   };
 
   if (loading) {
@@ -166,9 +180,9 @@ export default function AdminSites() {
         onClose={() => setShowModal(false)}
         title={editingSite ? 'Edit Site' : 'Add New Site'}
       >
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Site Name</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Site Name</label>
             <input
               type="text"
               value={formData.name}
@@ -176,12 +190,13 @@ export default function AdminSites() {
               style={inputStyle}
               placeholder="Main Warehouse"
               required
+              {...inputFocusHandlers}
             />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Latitude</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Latitude</label>
               <input
                 type="number"
                 step="any"
@@ -189,10 +204,11 @@ export default function AdminSites() {
                 onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
                 style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }}
                 placeholder="40.7128"
+                {...inputFocusHandlers}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Longitude</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Longitude</label>
               <input
                 type="number"
                 step="any"
@@ -200,12 +216,13 @@ export default function AdminSites() {
                 onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
                 style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }}
                 placeholder="-74.0060"
+                {...inputFocusHandlers}
               />
             </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Geofence Radius (meters)</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Geofence Radius (meters)</label>
             <input
               type="number"
               value={formData.geofence_radius_meters}
@@ -214,8 +231,9 @@ export default function AdminSites() {
               placeholder="500"
               min="50"
               max="10000"
+              {...inputFocusHandlers}
             />
-            <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginTop: '4px' }}>Used for Open Gateway location verification</p>
+            <p style={{ fontSize: '12px', color: 'var(--fg-1)', marginTop: '6px' }}>Used for Open Gateway location verification</p>
           </div>
 
           {/* Map Preview Placeholder */}
@@ -236,17 +254,17 @@ export default function AdminSites() {
             Map preview would appear here
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
+          <div style={{ display: 'flex', gap: '12px', paddingTop: '12px' }}>
             <button
               type="submit"
               style={{
                 flex: 1,
-                padding: '12px 16px',
+                padding: '14px 16px',
                 backgroundColor: 'var(--accent)',
                 border: 'none',
                 borderRadius: 'var(--radius-1)',
                 color: '#0b0d10',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-ui)',
@@ -259,12 +277,12 @@ export default function AdminSites() {
               onClick={() => setShowModal(false)}
               style={{
                 flex: 1,
-                padding: '12px 16px',
+                padding: '14px 16px',
                 backgroundColor: 'transparent',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-1)',
                 color: 'var(--fg-0)',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 500,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-ui)',

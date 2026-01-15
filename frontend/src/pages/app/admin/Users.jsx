@@ -105,13 +105,27 @@ export default function AdminUsers() {
 
   const inputStyle = {
     width: '100%',
-    padding: '10px 14px',
+    padding: '12px 16px',
     backgroundColor: 'var(--bg-0)',
     border: '1px solid var(--border)',
     borderRadius: 'var(--radius-1)',
     color: 'var(--fg-0)',
-    fontSize: '14px',
+    fontSize: '15px',
     fontFamily: 'var(--font-ui)',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+    outline: 'none',
+  };
+
+  const inputFocusHandlers = {
+    onFocus: (e) => {
+      e.target.style.borderColor = 'var(--accent)';
+      e.target.style.boxShadow = 'var(--shadow-focus)';
+    },
+    onBlur: (e) => {
+      e.target.style.borderColor = 'var(--border)';
+      e.target.style.boxShadow = 'none';
+    },
   };
 
   if (loading) {
@@ -192,9 +206,9 @@ export default function AdminUsers() {
         onClose={() => setShowModal(false)}
         title={editingUser ? 'Edit User' : 'Add New User'}
       >
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Full Name</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Full Name</label>
             <input
               type="text"
               value={formData.full_name}
@@ -202,11 +216,12 @@ export default function AdminUsers() {
               style={inputStyle}
               placeholder="John Doe"
               required
+              {...inputFocusHandlers}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Email</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Email</label>
             <input
               type="email"
               value={formData.email}
@@ -214,11 +229,12 @@ export default function AdminUsers() {
               style={inputStyle}
               placeholder="john@example.com"
               required
+              {...inputFocusHandlers}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Phone Number</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Phone Number</label>
             <input
               type="tel"
               value={formData.phone_number}
@@ -226,16 +242,18 @@ export default function AdminUsers() {
               style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }}
               placeholder="+1234567890"
               required
+              {...inputFocusHandlers}
             />
-            <p style={{ fontSize: '11px', color: 'var(--fg-1)', marginTop: '4px' }}>Used for Open Gateway number verification</p>
+            <p style={{ fontSize: '12px', color: 'var(--fg-1)', marginTop: '6px' }}>Used for Open Gateway number verification</p>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Role</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
               style={inputStyle}
+              {...inputFocusHandlers}
             >
               <option value="EMPLOYEE">Employee - Basic checkout access</option>
               <option value="MANAGER">Manager - Can approve step-up requests</option>
@@ -244,12 +262,13 @@ export default function AdminUsers() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>Home Site</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>Home Site</label>
             <select
               value={formData.home_site_id}
               onChange={(e) => setFormData({ ...formData, home_site_id: parseInt(e.target.value) })}
               style={inputStyle}
               required
+              {...inputFocusHandlers}
             >
               {sites.map(site => (
                 <option key={site.id} value={site.id}>{site.name}</option>
@@ -258,7 +277,7 @@ export default function AdminUsers() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--fg-1)', marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--fg-0)', marginBottom: '8px' }}>
               {editingUser ? 'New Password (leave blank to keep current)' : 'Password'}
             </label>
             <input
@@ -268,20 +287,21 @@ export default function AdminUsers() {
               style={inputStyle}
               placeholder="••••••••"
               required={!editingUser}
+              {...inputFocusHandlers}
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
+          <div style={{ display: 'flex', gap: '12px', paddingTop: '12px' }}>
             <button
               type="submit"
               style={{
                 flex: 1,
-                padding: '12px 16px',
+                padding: '14px 16px',
                 backgroundColor: 'var(--accent)',
                 border: 'none',
                 borderRadius: 'var(--radius-1)',
                 color: '#0b0d10',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-ui)',
@@ -294,12 +314,12 @@ export default function AdminUsers() {
               onClick={() => setShowModal(false)}
               style={{
                 flex: 1,
-                padding: '12px 16px',
+                padding: '14px 16px',
                 backgroundColor: 'transparent',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-1)',
                 color: 'var(--fg-0)',
-                fontSize: '14px',
+                fontSize: '15px',
                 fontWeight: 500,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-ui)',
