@@ -1,6 +1,26 @@
 version: "3.8"
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Network topology
+# ───────────────────────────────────────────────────────────────────────────────
+#
+#  app-net  (internal=true)
+#    • Isolated bridge — no outbound internet from this network alone.
+#    • Used for: frontend ↔ backend, monitoring scraping.
+#    • If an attacker gets a shell inside frontend or monitoring containers,
+#      they CANNOT reach the internet or the host LAN through this network.
+#
+#  edge-net  (regular bridge, internet-capable)
+#    • Used only by: backend (Telefónica API calls) and cloudflared (Cloudflare
+#      edge connectivity).
+#    • Both containers also sit on app-net, so their default route goes through
+#      edge-net while container-to-container traffic stays on app-net.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
 services:
+
+  # ── Backend (FastAPI / Python) ───────────────────────────────────────────────
   backend:
     build:
       context: ..
@@ -8,24 +28,37 @@ services:
     container_name: geocustody-backend
     restart: unless-stopped
     environment:
-      - GATEWAY_MODE=${GATEWAY_MODE:-sandbox}
+      - GATEWAY_MODE=${GATEWAY_MODE:-mock}
       - GATEWAY_CLIENT_ID=${GATEWAY_CLIENT_ID}
       - GATEWAY_CLIENT_SECRET=${GATEWAY_CLIENT_SECRET}
       - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
       - DATABASE_URL=sqlite:///./data/geocustody.db
       - CORS_ORIGINS=["http://localhost:8080","http://127.0.0.1:8080","https://${TUNNEL_HOSTNAME:-localhost}"]
+      - DEBUG=${DEBUG:-false}
     volumes:
-      # Persistent data stored in deploy/data directory
-      # :Z flag for SELinux relabeling in rootless Podman
+      # Persistent SQLite data  (:Z = SELinux relabel for rootless Podman)
       - ./data:/app/data:Z
     networks:
-      - geocustody-net
+      # edge-net listed first → becomes the default route (internet access)
+      - edge-net
+      # app-net for internal frontend ↔ backend communication
+      - app-net
+    # ── Container hardening ──────────────────────────────────────────────────
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=64m
+    mem_limit: 512m
+    cpus: "1.0"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 15s
 
+  # ── Frontend (React → nginx) ─────────────────────────────────────────────────
   frontend:
     build:
       context: ..
@@ -33,23 +66,149 @@ services:
     container_name: geocustody-frontend
     restart: unless-stopped
     ports:
-      # Only bind to localhost - not accessible from LAN
+      # Only bind to localhost — not accessible from LAN / internet directly
       - "127.0.0.1:8080:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
-      - geocustody-net
+      # app-net ONLY — frontend has no direct internet access
+      - app-net
+    # ── Container hardening ──────────────────────────────────────────────────
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      # nginx needs writable dirs at runtime; tmpfs keeps the root FS read-only
+      - /var/cache/nginx:mode=755,size=32m
+      - /var/run:mode=755,size=1m
+      - /var/log/nginx:mode=755,size=32m
+      - /tmp:mode=1777,size=16m
+    mem_limit: 128m
+    cpus: "0.5"
 
+  # ── Cloudflare Tunnel (optional — for public HTTPS without port forwarding) ──
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: geocustody-tunnel
     restart: unless-stopped
-    # Use host network so cloudflared can reach localhost:8080
-    network_mode: host
+    # NOTE: configure your Cloudflare Zero Trust tunnel origin as:
+    #   http://geocustody-frontend:80
+    # (not localhost — cloudflared reaches the frontend via the app-net network)
     command: tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
       - frontend
+    networks:
+      # edge-net for outbound connection to Cloudflare's edge servers
+      - edge-net
+      # app-net to reach the frontend container by name
+      - app-net
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=16m
+    mem_limit: 128m
+    cpus: "0.25"
 
+  # ════════════════════════════════════════════════════════════════════════════
+  # Optional Monitoring Profile
+  # Enable with:  podman-compose --profile monitoring up -d
+  # Or add:       COMPOSE_PROFILES=monitoring  to your .env
+  # ════════════════════════════════════════════════════════════════════════════
+
+  # Prometheus — time-series metric collection
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: geocustody-prometheus
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    user: "65534:65534"   # nobody — Prometheus ships pre-configured for this UID
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro,Z
+      - prometheus-data:/prometheus:Z
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    ports:
+      # Localhost only — never expose metrics to the internet
+      - "127.0.0.1:9090:9090"
+    networks:
+      - app-net
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=16m
+    mem_limit: 512m
+    cpus: "0.5"
+
+  # nginx-prometheus-exporter — translates nginx stub_status into Prometheus metrics
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.1.0
+    container_name: geocustody-nginx-exporter
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    command:
+      - "--nginx.scrape-uri=http://geocustody-frontend/nginx_status"
+    networks:
+      - app-net
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    mem_limit: 64m
+    cpus: "0.1"
+    depends_on:
+      - frontend
+
+  # Grafana — dashboards for Prometheus metrics and nginx access logs
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: geocustody-grafana
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    user: "472:472"   # grafana — official image default UID
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-changeme}
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    volumes:
+      - grafana-data:/var/lib/grafana:Z
+    ports:
+      # Localhost only
+      - "127.0.0.1:3000:3000"
+    networks:
+      - app-net
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=32m
+    mem_limit: 256m
+    cpus: "0.5"
+    depends_on:
+      - prometheus
+
+# ═══════════════════════════════════════════════════════════════════════════════
 networks:
-  geocustody-net:
+  app-net:
     driver: bridge
+    internal: true   # No outbound internet — containers communicate with each
+                     # other only.  Limits blast radius if a container is
+                     # compromised (reverse-shell cannot reach external hosts).
+  edge-net:
+    driver: bridge   # Outbound internet for backend (Telefónica API) and
+                     # cloudflared (Cloudflare edge).
+
+volumes:
+  prometheus-data:
+  grafana-data:

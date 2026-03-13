@@ -17,8 +17,11 @@ app = FastAPI(
     title=settings.APP_NAME,
     description="GeoCustody - Personnel and inventory tracking with Telefónica Open Gateway verification",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    # Disable interactive API docs in production (DEBUG=False) to reduce
+    # the attack surface.  Set DEBUG=true in .env for local development.
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
+    openapi_url="/openapi.json" if settings.DEBUG else None,
 )
 
 # CORS middleware
