@@ -1,6 +1,6 @@
 #!/bin/bash
 # GeoCustody Podman Deployment Script
-# Usage: ./deploy.sh [start|stop|restart|logs|build|mode|status]
+# Usage: ./deploy.sh [start|stop|restart|logs|build|mode|status|monitoring]
 
 set -e
 
@@ -22,9 +22,17 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-# Ensure data directory exists with proper permissions
+# ── Ensure the data directory exists with correct ownership ───────────────────
+# In rootless Podman the container's UID 1001 (appuser) maps to a host subuid.
+# `podman unshare chown` sets ownership via the user namespace so the container
+# can write to the volume without world-writable permissions (chmod 777).
 mkdir -p "$SCRIPT_DIR/data"
-chmod 777 "$SCRIPT_DIR/data" 2>/dev/null || true
+if command -v podman &>/dev/null; then
+    podman unshare chown 1001:1001 "$SCRIPT_DIR/data" 2>/dev/null \
+        || chmod 755 "$SCRIPT_DIR/data"
+else
+    chmod 755 "$SCRIPT_DIR/data"
+fi
 
 # Load environment variables
 set -a
@@ -216,6 +224,42 @@ case "${1:-help}" in
             echo "Cancelled."
         fi
         ;;
+    monitoring)
+        case "${2:-help}" in
+            start)
+                echo -e "${BLUE}📊 Starting monitoring stack (Prometheus + Grafana + nginx-exporter)...${NC}"
+                COMPOSE_PROFILES=monitoring podman-compose up -d
+                echo ""
+                echo -e "${GREEN}✅ Monitoring is running!${NC}"
+                echo "   Prometheus: http://localhost:9090"
+                echo "   Grafana:    http://localhost:3000"
+                ADMIN_USER="${GRAFANA_ADMIN_USER:-admin}"
+                echo "   Grafana login: ${ADMIN_USER} / (see GRAFANA_ADMIN_PASSWORD in .env)"
+                echo ""
+                echo -e "${YELLOW}💡 Add Prometheus as a data source in Grafana:${NC}"
+                echo "   URL: http://geocustody-prometheus:9090"
+                ;;
+            stop)
+                echo -e "${YELLOW}🛑 Stopping monitoring stack...${NC}"
+                COMPOSE_PROFILES=monitoring podman-compose --profile monitoring stop prometheus grafana nginx-exporter 2>/dev/null || \
+                    podman stop geocustody-prometheus geocustody-grafana geocustody-nginx-exporter 2>/dev/null || true
+                echo -e "${GREEN}✅ Monitoring stopped${NC}"
+                ;;
+            logs)
+                COMPOSE_PROFILES=monitoring podman-compose logs -f prometheus grafana nginx-exporter
+                ;;
+            *)
+                echo -e "${BLUE}Monitoring commands:${NC}"
+                echo "  ./deploy.sh monitoring start  - Start Prometheus + Grafana + nginx-exporter"
+                echo "  ./deploy.sh monitoring stop   - Stop monitoring containers"
+                echo "  ./deploy.sh monitoring logs   - Tail monitoring logs"
+                echo ""
+                echo "Endpoints (localhost only):"
+                echo "  Prometheus: http://localhost:9090"
+                echo "  Grafana:    http://localhost:3000"
+                ;;
+        esac
+        ;;
     *)
         echo -e "${BLUE}GeoCustody Deployment Script${NC}"
         echo ""
@@ -229,6 +273,7 @@ case "${1:-help}" in
         echo "  build     - Rebuild containers without cache"
         echo "  status    - Show status and container info"
         echo "  mode      - Show or change gateway mode (mock/sandbox/production)"
+        echo "  monitoring start|stop|logs - Control the optional monitoring stack"
         echo "  enable-autorestart  - Generate and enable systemd --user units for running Podman containers"
         echo "  disable-autorestart - Disable and remove generated systemd --user units"
         echo "  reset-db  - Delete database and start fresh"
@@ -238,5 +283,6 @@ case "${1:-help}" in
         echo "  ./deploy.sh mode mock      # Switch to demo mode"
         echo "  ./deploy.sh mode sandbox   # Switch to Telefónica sandbox"
         echo "  ./deploy.sh logs backend   # View backend logs"
+        echo "  ./deploy.sh monitoring start  # Start Prometheus + Grafana"
         ;;
 esac

@@ -1,0 +1,26 @@
+# GeoCustody — Prometheus scrape configuration
+# Used by the optional "monitoring" Compose profile.
+# Start monitoring with: podman-compose --profile monitoring up -d
+
+global:
+  scrape_interval:     15s   # How often to scrape targets
+  evaluation_interval: 15s   # How often to evaluate alerting rules
+  external_labels:
+    service: geocustody
+
+scrape_configs:
+
+  # ── Prometheus self-monitoring ───────────────────────────────────────────────
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ── nginx request metrics (via nginx-prometheus-exporter) ───────────────────
+  # Exposes: nginx_connections_*, nginx_http_requests_total, etc.
+  # Requires: stub_status enabled in nginx.conf (already configured).
+  - job_name: nginx
+    static_configs:
+      - targets: ['geocustody-nginx-exporter:9113']
+    relabel_configs:
+      - target_label: instance
+        replacement: geocustody-frontend

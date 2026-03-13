@@ -2,13 +2,46 @@
 
 Deploy GeoCustody with **Docker**, **Podman**, or **manually**. Choose the method that best fits your infrastructure.
 
-## What's Included
+## Services Overview
 
-| Service | Description | Port |
-|---------|-------------|------|
-| **Backend** | Python FastAPI with SQLite | 8000 |
-| **Frontend** | React app (Vite dev server or built Nginx) | 5173 / 8080 |
-| **Cloudflare Tunnel** | Secure HTTPS access (optional) | — |
+| Service | Container name | Image | Port (host) | Purpose |
+|---------|---------------|-------|-------------|---------|
+| **Backend** | `geocustody-backend` | Python 3.12-slim (built) | — | FastAPI app, SQLite, Telefónica API |
+| **Frontend** | `geocustody-frontend` | nginx:alpine (built) | `127.0.0.1:8080` | React SPA + reverse proxy to backend |
+| **Cloudflare Tunnel** | `geocustody-tunnel` | `cloudflare/cloudflared` | — | Optional secure HTTPS without port-forwarding |
+| **Prometheus** *(monitoring)* | `geocustody-prometheus` | `prom/prometheus:v2.51.2` | `127.0.0.1:9090` | Metric collection |
+| **Grafana** *(monitoring)* | `geocustody-grafana` | `grafana/grafana:10.4.2` | `127.0.0.1:3000` | Dashboards |
+| **nginx-exporter** *(monitoring)* | `geocustody-nginx-exporter` | `nginx/nginx-prometheus-exporter:1.1.0` | — | Translates nginx stub_status → Prometheus |
+
+> Monitoring containers are **optional** — use the `monitoring` Compose profile to enable them.
+
+---
+
+## Network Architecture
+
+```
+                        Internet
+                           │
+              ┌────────────┴────────────┐
+              │         edge-net        │  (regular bridge — internet capable)
+              │   backend   cloudflared │
+              └────────────┬────────────┘
+                           │  app-net (internal bridge — NO internet)
+              ┌────────────┴────────────────────────────────┐
+              │  backend  frontend  prometheus  grafana      │
+              │           nginx-exporter                     │
+              └──────────────────────────────────────────────┘
+                           │
+                    127.0.0.1:8080
+                    (host localhost only)
+```
+
+### Network segmentation rationale
+
+| Network | `internal` | Who uses it | Why |
+|---------|-----------|-------------|-----|
+| `app-net` | **true** | All app + monitoring containers | No outbound internet. If a container is compromised, an attacker cannot reach external hosts or the host LAN through this network. |
+| `edge-net` | false | `backend`, `cloudflared` | Backend needs internet for Telefónica API calls; cloudflared connects to Cloudflare's edge. |
 
 ---
 
@@ -136,11 +169,16 @@ open http://localhost:8080
 ./deploy.sh restart  # Restart all containers
 ./deploy.sh logs     # View all logs
 ./deploy.sh logs backend   # Backend logs only
-./deploy.sh logs frontend  # Frontend logs only
+./deploy.sh logs frontend  # Frontend logs only (JSON access log)
 ./deploy.sh build    # Rebuild containers
 ./deploy.sh status   # Show container status and mode
 ./deploy.sh mode mock       # Switch to demo mode
 ./deploy.sh mode sandbox    # Switch to Telefónica sandbox
+
+# Optional monitoring stack
+./deploy.sh monitoring start  # Start Prometheus + Grafana + nginx-exporter
+./deploy.sh monitoring stop   # Stop monitoring containers
+./deploy.sh monitoring logs   # Tail monitoring logs
 ```
 
 ---
@@ -160,37 +198,80 @@ GATEWAY_MODE=mock              # Demo with simulated responses
 GATEWAY_CLIENT_ID=your-client-id
 GATEWAY_CLIENT_SECRET=your-client-secret
 
-# Application Security
+# Application Security — generate with:
+# python3 -c "import secrets; print(secrets.token_hex(32))"
 SECRET_KEY=your-secure-random-string-here
+
+# Disable Swagger UI in production (default: false)
+DEBUG=false
 
 # Cloudflare Tunnel (optional - for public HTTPS access)
 CLOUDFLARE_TUNNEL_TOKEN=your-tunnel-token
 TUNNEL_HOSTNAME=geocustody.example.com
+
+# Optional monitoring stack credentials
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=your-grafana-password
 ```
 
 ---
 
-## 🏗️ Architecture
+## 📊 Connection Monitoring (optional)
 
+The monitoring Compose profile adds:
+
+| Tool | URL | What it shows |
+|------|-----|---------------|
+| **Prometheus** | `http://localhost:9090` | Raw time-series metrics, query interface |
+| **Grafana** | `http://localhost:3000` | Dashboards for nginx traffic, request rates, error rates |
+| **nginx-exporter** | *(internal)* | nginx active connections, accepted/handled requests, reading/writing/waiting states |
+
+### Enable monitoring
+
+```bash
+# Start everything including monitoring
+./deploy.sh monitoring start
+
+# Or set in .env and use normal start:
+# COMPOSE_PROFILES=monitoring
+./deploy.sh start
 ```
-┌─────────────────────────────────────────────────────────┐
-│              Cloudflare Tunnel (optional)                │
-│               Secure HTTPS without port forwarding       │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                   Frontend (nginx)                       │
-│                    Port 8080 → 80                        │
-│         Serves React app + proxies /api to backend       │
-└─────────────────────────┬───────────────────────────────┘
-                          │ /api/*
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                   Backend (FastAPI)                      │
-│                      Port 8000                           │
-│              SQLite database + API logic                 │
-└─────────────────────────────────────────────────────────┘
+
+### Add Prometheus as Grafana data source
+
+1. Open `http://localhost:3000` → login with `GRAFANA_ADMIN_USER` / `GRAFANA_ADMIN_PASSWORD`
+2. **Connections → Data sources → Add data source → Prometheus**
+3. URL: `http://geocustody-prometheus:9090`
+4. Click **Save & test**
+
+Useful Prometheus queries:
+```promql
+# Total HTTP requests to nginx
+nginx_http_requests_total
+
+# Active connections
+nginx_connections_active
+
+# Request rate (per second, 5-min window)
+rate(nginx_http_requests_total[5m])
+```
+
+### nginx JSON access logs
+
+Every request is logged in structured JSON to stdout:
+
+```bash
+# Live tail of all nginx access logs
+podman logs -f geocustody-frontend
+
+# Pretty-print with jq
+podman logs geocustody-frontend 2>/dev/null | jq .
+
+# Filter only 4xx/5xx errors
+podman logs geocustody-frontend 2>/dev/null | jq 'select(.status >= 400)'
+
+# Show requests by source IP
+podman logs geocustody-frontend 2>/dev/null | jq -r .remote_addr | sort | uniq -c | sort -rn
 ```
 
 ---
@@ -210,7 +291,9 @@ For secure public HTTPS access without opening ports:
    ```
 7. Configure public hostname:
    - **Type:** HTTP
-   - **URL:** `frontend:80`
+   - **URL:** `geocustody-frontend:80`  ← use the container name, **not** `localhost`
+
+> **Important:** The `cloudflared` container connects to the `geocustody-frontend` container directly via the internal `app-net` network.  The origin must be `geocustody-frontend:80` (not `localhost:8080`).
 
 ---
 
@@ -225,20 +308,51 @@ deploy/
 ├── deploy.sh              # Helper script for Podman
 ├── backend.Containerfile  # Backend container definition
 ├── frontend.Containerfile # Frontend container definition
-├── nginx.conf             # Nginx configuration for frontend
+├── nginx.conf             # Hardened nginx config (security headers, rate limiting)
+├── prometheus.yml         # Prometheus scrape config (monitoring profile)
 ├── data/                  # SQLite database (created automatically)
 └── README.md              # This file
 ```
 
 ---
 
-## 🔒 Security Notes
+## 🔒 Security Hardening Summary
 
-- Never commit `.env` files with real credentials
-- The `.env` file is in `.gitignore`
-- SQLite database is stored in a Docker/Podman volume
-- Cloudflare Tunnel provides HTTPS automatically
-- Backend is not directly exposed to the internet
+| Layer | Measure | Details |
+|-------|---------|---------|
+| **Container user** | Non-root | Backend runs as `appuser` (UID 1001) |
+| **Filesystem** | Read-only root FS | `read_only: true` + tmpfs for writable dirs |
+| **Privileges** | No privilege escalation | `no-new-privileges: true` on all containers |
+| **Resources** | CPU + memory limits | Prevents resource exhaustion / DoS |
+| **Network** | Dual-network segmentation | `app-net` (internal, no internet) + `edge-net` (internet for backend/cloudflared only) |
+| **Port binding** | Localhost only | Frontend bound to `127.0.0.1:8080` (not `0.0.0.0`) |
+| **nginx** | Security headers | `X-Frame-Options: DENY`, `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` |
+| **nginx** | Rate limiting | API: 30 req/min; Auth: 5 req/min (brute-force protection) |
+| **nginx** | Server version hidden | `server_tokens off` |
+| **API** | Swagger disabled in prod | `/docs`, `/redoc`, `/openapi.json` only available when `DEBUG=true` |
+| **JWT** | Strong secret required | `SECRET_KEY` must be set to a random 64-char hex string |
+
+### Post-deployment recommendations
+
+```bash
+# 1. Verify no container is running as root
+podman ps -q | xargs -I{} podman inspect {} --format '{{.Name}}: User={{.Config.User}}'
+
+# 2. Check open ports (should only see 127.0.0.1:8080)
+ss -tlnp | grep podman
+
+# 3. Confirm read-only root filesystems
+podman inspect geocustody-backend --format '{{.HostConfig.ReadonlyRootfs}}'
+podman inspect geocustody-frontend --format '{{.HostConfig.ReadonlyRootfs}}'
+
+# 4. Test rate limiting (expect 429 after 5 rapid login requests)
+for i in $(seq 1 7); do
+  curl -s -o /dev/null -w "%{http_code}\n" \
+    -X POST http://localhost:8080/api/auth/login \
+    -H 'Content-Type: application/json' \
+    -d '{"username":"test","password":"test"}'
+done
+```
 
 ---
 
@@ -258,38 +372,18 @@ docker compose logs frontend
 
 ### Permission issues (Podman/SELinux)
 
-The compose file uses `:Z` suffix for proper SELinux labeling. If you still have issues:
+The compose file uses `:Z` suffix for proper SELinux labeling.  `deploy.sh`
+uses `podman unshare chown` to set the correct UID mapping for the data
+directory without making it world-writable.
+
+If you still have issues:
 
 ```bash
-# Check if data directory exists and is writable
-ls -la deploy/data/
-
-# Recreate with proper permissions
-rm -rf deploy/data/
+# Re-run the script — it re-applies the correct ownership automatically
 ./deploy.sh start
-```
 
-### Port already in use
-
-```bash
-# Check what's using port 8080
-sudo lsof -i :8080
-
-# Use a different port (edit podman-compose.yml)
-# Change "8080:80" to "3000:80" or another available port
-```
-
-### Reset everything
-
-```bash
-# Docker
-docker compose down -v
-docker compose up -d --build
-
-# Podman
-./deploy.sh stop
-podman volume rm deploy_geocustody-data
-./deploy.sh start
+# Or manually fix ownership in the Podman user namespace
+podman unshare chown 1001:1001 deploy/data
 ```
 
 ### Frontend shows blank page
@@ -303,6 +397,28 @@ docker compose logs frontend | grep -i error
 # Rebuild frontend
 docker compose build frontend --no-cache
 docker compose up -d
+```
+
+### Port already in use
+
+```bash
+# Check what's using port 8080
+sudo lsof -i :8080
+
+# Use a different port (edit podman-compose.yml)
+# Change "127.0.0.1:8080:80" to "127.0.0.1:3000:80" or another available port
+```
+
+### Reset everything
+
+```bash
+# Docker
+docker compose down -v
+docker compose up -d --build
+
+# Podman
+./deploy.sh reset-db
+./deploy.sh start
 ```
 
 ---

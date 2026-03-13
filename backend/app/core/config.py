@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     """Application settings."""
     
     APP_NAME: str = "GeoCustody"
-    DEBUG: bool = True
+    DEBUG: bool = False
     
     # Database
     DATABASE_URL: str = "sqlite:///./data/geocustody.db"
