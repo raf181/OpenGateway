@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import MockNetworkPanel from '../MockNetworkPanel';
+import { useI18n } from '../../i18n';
 
 export default function AppLayout() {
   const { user, logout, isAdmin, isManager } = useAuth();
+  const { lang, setLang } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,16 +17,16 @@ export default function AppLayout() {
   };
 
   const navItems = [
-    { href: '/app/employee', label: 'Dashboard', icon: 'home', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/app/employee/assets', label: 'Assets', icon: 'box', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/app/employee/scan', label: 'Scan', icon: 'scan', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/app/manager/approvals', label: 'Approvals', icon: 'check', roles: ['MANAGER', 'ADMIN'] },
-    { href: '/app/admin', label: 'Admin Dashboard', icon: 'chart', roles: ['ADMIN'] },
-    { href: '/app/admin/assets', label: 'Manage Assets', icon: 'settings', roles: ['ADMIN'] },
-    { href: '/app/admin/sites', label: 'Sites', icon: 'map', roles: ['ADMIN'] },
-    { href: '/app/admin/users', label: 'Users', icon: 'users', roles: ['ADMIN'] },
-    { href: '/app/admin/policies', label: 'Policies', icon: 'shield', roles: ['ADMIN'] },
-    { href: '/app/audit', label: 'Audit Trail', icon: 'list', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
+    { href: '/app/employee', label: 'Panel', icon: 'home', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
+    { href: '/app/employee/assets', label: 'Activos', icon: 'box', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
+    { href: '/app/employee/scan', label: 'Escanear', icon: 'scan', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
+    { href: '/app/manager/approvals', label: 'Aprobaciones', icon: 'check', roles: ['MANAGER', 'ADMIN'] },
+    { href: '/app/admin', label: 'Panel admin', icon: 'chart', roles: ['ADMIN'] },
+    { href: '/app/admin/assets', label: 'Gestion de activos', icon: 'settings', roles: ['ADMIN'] },
+    { href: '/app/admin/sites', label: 'Sitios', icon: 'map', roles: ['ADMIN'] },
+    { href: '/app/admin/users', label: 'Usuarios', icon: 'users', roles: ['ADMIN'] },
+    { href: '/app/admin/policies', label: 'Politicas', icon: 'shield', roles: ['ADMIN'] },
+    { href: '/app/audit', label: 'Auditoria', icon: 'list', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
   ];
 
   const filteredNav = navItems.filter(item => item.roles.includes(user?.role));
@@ -60,7 +62,7 @@ export default function AppLayout() {
               </div>
               <div>
                 <span className="text-sm font-semibold text-gray-900">GeoCustody</span>
-                <p className="text-xs text-gray-500">Asset Management</p>
+                <p className="text-xs text-gray-500">Gestion de activos</p>
               </div>
             </Link>
           </div>
@@ -107,7 +109,7 @@ export default function AppLayout() {
               <button
                 onClick={handleLogout}
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-apple transition-colors"
-                title="Logout"
+                title="Cerrar sesion"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -139,6 +141,12 @@ export default function AppLayout() {
             </svg>
           </button>
           <div className="flex-1" />
+          <button
+            onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+            className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-600 hover:text-primary-600"
+          >
+            {lang === 'es' ? 'ES' : 'EN'}
+          </button>
           <span className="text-sm text-gray-600 hidden sm:block font-medium">
             {user?.email}
           </span>

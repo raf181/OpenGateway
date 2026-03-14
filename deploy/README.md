@@ -101,6 +101,7 @@ open http://localhost:8080
 ./deploy.sh start    # Start all containers
 ./deploy.sh stop     # Stop all containers
 ./deploy.sh restart  # Restart all containers
+./deploy.sh test     # Run deployment test and auto-restart failed services
 ./deploy.sh logs     # View all logs
 ./deploy.sh logs backend   # Backend logs only
 ./deploy.sh logs frontend  # Frontend logs only (JSON access log)
@@ -114,6 +115,10 @@ open http://localhost:8080
 ./deploy.sh monitoring stop   # Stop monitoring containers
 ./deploy.sh monitoring logs   # Tail monitoring logs
 ```
+
+`./deploy.sh start` and `./deploy.sh restart` now run the same deployment test automatically after containers come up. The test validates container health and key HTTP endpoints, and attempts to restart failed services once before reporting failure.
+
+When Cloudflare tunnel is enabled, the test also verifies `https://${TUNNEL_HOSTNAME}` and attempts to restart the `cloudflared` service if the public endpoint fails.
 
 ---
 
@@ -255,6 +260,35 @@ Then restart the stack:
 ```bash
 ./deploy.sh restart
 ```
+
+### QUIC UDP Buffer Tuning (recommended)
+
+If host UDP buffers are too small, cloudflared can log degraded QUIC performance or unstable tunnel behavior.
+
+Check current values:
+
+```bash
+sysctl net.core.rmem_max net.core.wmem_max
+```
+
+Apply recommended values immediately:
+
+```bash
+sudo sysctl -w net.core.rmem_max=7500000
+sudo sysctl -w net.core.wmem_max=7500000
+```
+
+Persist across reboots:
+
+```bash
+sudo tee /etc/sysctl.d/99-cloudflared.conf >/dev/null <<'EOF'
+net.core.rmem_max=7500000
+net.core.wmem_max=7500000
+EOF
+sudo sysctl --system
+```
+
+`./deploy.sh status`, `./deploy.sh start`, `./deploy.sh restart`, and `./deploy.sh test` now warn if these values are below the recommended threshold while Cloudflare tunnel is enabled.
 
 ---
 

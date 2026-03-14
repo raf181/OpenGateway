@@ -76,7 +76,7 @@ export default function AdminSites() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this site?')) return;
+    if (!confirm('Seguro que deseas eliminar este sitio?')) return;
     try {
       await deleteSite(id);
       await loadSites();
@@ -97,11 +97,11 @@ export default function AdminSites() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Site Management</h1>
-          <p className="text-gray-500">Configure sites and geofence boundaries</p>
+          <h1 className="text-2xl font-bold text-gray-900">Gestion de sitios</h1>
+          <p className="text-gray-500">Configura sitios y limites de geocerca</p>
         </div>
         <button onClick={openCreateModal} className="btn-primary">
-          Add Site
+          Agregar sitio
         </button>
       </div>
 
@@ -119,13 +119,13 @@ export default function AdminSites() {
                   onClick={() => openEditModal(site)}
                   className="text-primary-600 hover:text-primary-800 text-sm"
                 >
-                  Edit
+                  Editar
                 </button>
                 <button
                   onClick={() => handleDelete(site.id)}
                   className="text-red-600 hover:text-red-800 text-sm"
                 >
-                  Delete
+                  Eliminar
                 </button>
               </div>
             </div>
@@ -165,19 +165,19 @@ export default function AdminSites() {
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-500">Latitude</p>
+                <p className="text-gray-500">Latitud</p>
                 <p className="font-mono">{site.latitude.toFixed(6)}</p>
               </div>
               <div>
-                <p className="text-gray-500">Longitude</p>
+                <p className="text-gray-500">Longitud</p>
                 <p className="font-mono">{site.longitude.toFixed(6)}</p>
               </div>
               <div>
-                <p className="text-gray-500">Geofence Radius</p>
-                <p className="font-semibold">{site.geofence_radius_m} meters</p>
+                <p className="text-gray-500">Radio de geocerca</p>
+                <p className="font-semibold">{site.geofence_radius_m} metros</p>
               </div>
               <div>
-                <p className="text-gray-500">Assets</p>
+                <p className="text-gray-500">Activos</p>
                 <p className="font-semibold">{site.asset_count || 0}</p>
               </div>
             </div>
@@ -190,9 +190,9 @@ export default function AdminSites() {
           <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
           </svg>
-          <p className="text-gray-500">No sites configured yet</p>
+          <p className="text-gray-500">Aun no hay sitios configurados</p>
           <button onClick={openCreateModal} className="btn-primary mt-4">
-            Add Your First Site
+            Agregar primer sitio
           </button>
         </div>
       )}
@@ -201,35 +201,35 @@ export default function AdminSites() {
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={editingSite ? 'Edit Site' : 'Add New Site'}
+        title={editingSite ? 'Editar sitio' : 'Agregar sitio'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del sitio</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="input"
-              placeholder="e.g., Main Warehouse"
+              placeholder="ej.: Almacen principal"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Direccion</label>
             <input
               type="text"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               className="input"
-              placeholder="123 Main St, City, State"
+              placeholder="Calle 123, Ciudad, Region"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Latitud</label>
               <input
                 type="number"
                 step="any"
@@ -241,7 +241,7 @@ export default function AdminSites() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Longitud</label>
               <input
                 type="number"
                 step="any"
@@ -256,7 +256,7 @@ export default function AdminSites() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Geofence Radius (meters)
+              Radio de geocerca (metros)
             </label>
             <input
               type="number"
@@ -268,20 +268,20 @@ export default function AdminSites() {
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              Device must be within this radius for location verification to pass
+              El dispositivo debe estar dentro de este radio para validar ubicacion
             </p>
           </div>
 
           <div className="flex gap-3 pt-4">
             <button type="submit" className="btn-primary flex-1">
-              {editingSite ? 'Save Changes' : 'Create Site'}
+              {editingSite ? 'Guardar cambios' : 'Crear sitio'}
             </button>
             <button
               type="button"
               onClick={() => setShowModal(false)}
               className="btn-secondary flex-1"
             >
-              Cancel
+              Cancelar
             </button>
           </div>
         </form>

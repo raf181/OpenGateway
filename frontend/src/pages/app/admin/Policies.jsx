@@ -2,51 +2,51 @@ export default function AdminPolicies() {
   const policies = [
     {
       id: 1,
-      name: 'Low Sensitivity Checkout',
+      name: 'Retiro de baja sensibilidad',
       sensitivity: 'LOW',
-      checks: ['User authenticated'],
+      checks: ['Usuario autenticado'],
       decision: 'ALLOW',
-      description: 'Allows direct checkout without additional verification'
+      description: 'Permite retiro directo sin verificacion adicional'
     },
     {
       id: 2,
-      name: 'Medium Sensitivity Checkout',
+      name: 'Retiro de sensibilidad media',
       sensitivity: 'MEDIUM',
-      checks: ['User authenticated', 'Number Verification'],
+      checks: ['Usuario autenticado', 'Verificacion de numero'],
       decision: 'ALLOW if verified',
-      description: 'Requires phone number verification via Open Gateway'
+      description: 'Requiere verificacion del numero por Open Gateway'
     },
     {
       id: 3,
-      name: 'High Sensitivity Checkout',
+      name: 'Retiro de alta sensibilidad',
       sensitivity: 'HIGH',
-      checks: ['User authenticated', 'Number Verification', 'SIM Swap Check', 'Device Location'],
+      checks: ['Usuario autenticado', 'Verificacion de numero', 'Revision SIM swap', 'Ubicacion del dispositivo'],
       decision: 'ALLOW if all pass',
-      description: 'Full verification suite including location and device checks'
+      description: 'Suite completa de verificacion con ubicacion y dispositivo'
     },
     {
       id: 4,
-      name: 'High Sensitivity - Location Fail',
+      name: 'Alta sensibilidad - falla de ubicacion',
       sensitivity: 'HIGH',
-      checks: ['Number verified', 'Location outside geofence'],
+      checks: ['Numero verificado', 'Ubicacion fuera de geocerca'],
       decision: 'STEP_UP',
-      description: 'Requires manager approval when device is outside site boundary'
+      description: 'Requiere aprobacion gerencial cuando el dispositivo esta fuera del sitio'
     },
     {
       id: 5,
-      name: 'SIM Swap Detected',
+      name: 'SIM swap detectado',
       sensitivity: 'ANY',
-      checks: ['SIM swap within 48 hours'],
+      checks: ['SIM swap en las ultimas 48 horas'],
       decision: 'DENY',
-      description: 'Blocks all checkouts when recent SIM swap is detected'
+      description: 'Bloquea retiros cuando se detecta un SIM swap reciente'
     },
   ];
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Policy Configuration</h1>
-        <p className="text-gray-500">View the policy rules that govern custody decisions</p>
+        <h1 className="text-2xl font-bold text-gray-900">Configuracion de politicas</h1>
+        <p className="text-gray-500">Consulta reglas que gobiernan decisiones de custodia</p>
       </div>
 
       {/* Info Banner */}
@@ -56,11 +56,11 @@ export default function AdminPolicies() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <h3 className="font-medium text-blue-900">About Policy Engine</h3>
+            <h3 className="font-medium text-blue-900">Sobre el motor de politicas</h3>
             <p className="text-sm text-blue-700 mt-1">
-              The policy engine evaluates each custody request based on asset sensitivity and 
-              verification results from Telefónica Open Gateway APIs. In this demo, policies 
-              are read-only and demonstrate the decision flow.
+              El motor de politicas evalua cada solicitud de custodia segun la sensibilidad del activo y
+              los resultados de verificacion de las APIs de Telefonica Open Gateway. En esta demo,
+              las politicas son de solo lectura y muestran el flujo de decision.
             </p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function AdminPolicies() {
 
             <div className="flex flex-wrap gap-4">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Sensitivity</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Sensibilidad</p>
                 <span className={`px-2 py-0.5 text-xs rounded ${
                   policy.sensitivity === 'HIGH' ? 'bg-red-100 text-red-700' :
                   policy.sensitivity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
@@ -101,7 +101,7 @@ export default function AdminPolicies() {
               </div>
               
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Required Checks</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Controles requeridos</p>
                 <div className="flex flex-wrap gap-1">
                   {policy.checks.map((check, idx) => (
                     <span key={idx} className="px-2 py-0.5 text-xs bg-primary-50 text-primary-700 rounded">
@@ -117,7 +117,7 @@ export default function AdminPolicies() {
 
       {/* Open Gateway APIs */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Open Gateway APIs Used</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">APIs de Open Gateway usadas</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="card">
             <div className="flex items-start gap-3">
@@ -127,9 +127,9 @@ export default function AdminPolicies() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Number Verification</h3>
+                <h3 className="font-medium text-gray-900">Verificacion de numero</h3>
                 <p className="text-sm text-gray-500">
-                  Validates that the user's registered phone number matches their device's SIM
+                  Valida que el numero registrado del usuario coincide con la SIM del dispositivo
                 </p>
               </div>
             </div>
@@ -144,9 +144,9 @@ export default function AdminPolicies() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Device Location Verification</h3>
+                <h3 className="font-medium text-gray-900">Verificacion de ubicacion del dispositivo</h3>
                 <p className="text-sm text-gray-500">
-                  Checks if the device is within the site's geofence boundary
+                  Comprueba si el dispositivo esta dentro de la geocerca del sitio
                 </p>
               </div>
             </div>
@@ -160,9 +160,9 @@ export default function AdminPolicies() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">SIM Swap Detection</h3>
+                <h3 className="font-medium text-gray-900">Deteccion de SIM swap</h3>
                 <p className="text-sm text-gray-500">
-                  Detects if the SIM card was recently changed (fraud indicator)
+                  Detecta si la tarjeta SIM fue cambiada recientemente (indicador de fraude)
                 </p>
               </div>
             </div>
@@ -176,9 +176,9 @@ export default function AdminPolicies() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Device Swap Detection</h3>
+                <h3 className="font-medium text-gray-900">Deteccion de cambio de dispositivo</h3>
                 <p className="text-sm text-gray-500">
-                  Identifies if the phone device (IMEI) was recently changed
+                  Identifica si el dispositivo telefonico (IMEI) cambio recientemente
                 </p>
               </div>
             </div>

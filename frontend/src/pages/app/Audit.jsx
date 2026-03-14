@@ -112,8 +112,8 @@ export default function Audit() {
     <div>
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Audit Trail</h1>
-          <p className="text-gray-500">Complete custody history with tamper-evident chain</p>
+          <h1 className="text-2xl font-bold text-gray-900">Auditoria</h1>
+          <p className="text-gray-500">Historial completo de custodia con cadena inviolable</p>
         </div>
         <div className="flex items-center gap-4">
           {chainValid !== null && (
@@ -125,14 +125,14 @@ export default function Audit() {
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="text-sm font-medium">Chain Valid</span>
+                  <span className="text-sm font-medium">Cadena valida</span>
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="text-sm font-medium">Chain Invalid</span>
+                  <span className="text-sm font-medium">Cadena invalida</span>
                 </>
               )}
             </div>
@@ -142,27 +142,27 @@ export default function Audit() {
             disabled={verifying}
             className="btn-secondary"
           >
-            {verifying ? 'Verifying...' : 'Verify Chain'}
+            {verifying ? 'Verificando...' : 'Verificar cadena'}
           </button>
         </div>
       </div>
 
       {/* Filters */}
       <div className="card mb-6">
-        <h2 className="text-sm font-medium text-gray-700 mb-3">Filters</h2>
+        <h2 className="text-sm font-medium text-gray-700 mb-3">Filtros</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Event Type</label>
+            <label className="block text-xs text-gray-500 mb-1">Tipo de evento</label>
             <select
               value={filters.event_type}
               onChange={(e) => setFilters({ ...filters, event_type: e.target.value })}
               className="input text-sm"
             >
-              <option value="">All Types</option>
-              <option value="CHECKOUT">Checkout</option>
-              <option value="RETURN">Return</option>
-              <option value="TRANSFER">Transfer</option>
-              <option value="INVENTORY_CLOSE">Inventory Close</option>
+              <option value="">Todos</option>
+              <option value="CHECKOUT">Retiro</option>
+              <option value="RETURN">Devolucion</option>
+              <option value="TRANSFER">Transferencia</option>
+              <option value="INVENTORY_CLOSE">Cierre de inventario</option>
             </select>
           </div>
           <div>
@@ -172,15 +172,15 @@ export default function Audit() {
               onChange={(e) => setFilters({ ...filters, decision: e.target.value })}
               className="input text-sm"
             >
-              <option value="">All Decisions</option>
-              <option value="ALLOW">Allow</option>
-              <option value="DENY">Deny</option>
-              <option value="STEP_UP">Step Up</option>
+              <option value="">Todas</option>
+              <option value="ALLOW">Permitir</option>
+              <option value="DENY">Denegar</option>
+              <option value="STEP_UP">Escalado</option>
             </select>
           </div>
           <div className="md:col-span-2 flex items-end">
             <button onClick={loadEvents} className="btn-primary text-sm">
-              Apply Filters
+              Aplicar filtros
             </button>
           </div>
         </div>
@@ -193,11 +193,11 @@ export default function Audit() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
           </svg>
           <div>
-            <h3 className="font-medium text-purple-900">Tamper-Evident Hash Chain</h3>
+            <h3 className="font-medium text-purple-900">Cadena hash inviolable</h3>
             <p className="text-sm text-purple-700 mt-1">
-              Each audit event contains a hash of the previous event, creating an immutable chain. 
-              If any historical record is modified, the chain verification will fail, ensuring 
-              complete audit integrity for compliance and legal purposes.
+              Cada evento contiene el hash del evento anterior, creando una cadena inmutable.
+              Si se modifica un registro historico, la verificacion falla, garantizando
+              integridad completa para cumplimiento y fines legales.
             </p>
           </div>
         </div>
@@ -209,7 +209,7 @@ export default function Audit() {
           <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <p className="text-gray-500">No audit events found</p>
+          <p className="text-gray-500">No se encontraron eventos de auditoria</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -227,7 +227,7 @@ export default function Audit() {
                     <div>
                       <span className="font-semibold text-gray-900">{event.event_type}</span>
                       <span className="text-gray-500 mx-2">•</span>
-                      <span className="text-gray-700">{event.asset?.name || 'Unknown Asset'}</span>
+                      <span className="text-gray-700">{event.asset?.name || 'Activo desconocido'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 text-xs rounded-full ${getDecisionColor(event.decision)}`}>
@@ -240,20 +240,20 @@ export default function Audit() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
                     <div>
                       <p className="text-xs text-gray-500">Actor</p>
-                      <p className="text-gray-900">{event.actor?.full_name || 'System'}</p>
+                      <p className="text-gray-900">{event.actor?.full_name || 'Sistema'}</p>
                     </div>
                     {event.target_user && (
                       <div>
-                        <p className="text-xs text-gray-500">Target User</p>
+                        <p className="text-xs text-gray-500">Usuario destino</p>
                         <p className="text-gray-900">{event.target_user.full_name}</p>
                       </div>
                     )}
                     <div>
-                      <p className="text-xs text-gray-500">Site</p>
-                      <p className="text-gray-900">{event.site?.name || 'N/A'}</p>
+                      <p className="text-xs text-gray-500">Sitio</p>
+                      <p className="text-gray-900">{event.site?.name || 'N/D'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Timestamp</p>
+                      <p className="text-xs text-gray-500">Fecha y hora</p>
                       <p className="text-gray-900">{new Date(event.timestamp).toLocaleString()}</p>
                     </div>
                   </div>
@@ -261,7 +261,7 @@ export default function Audit() {
                   {/* Verification Results */}
                   {event.verification_results && Object.keys(event.verification_results).length > 0 && (
                     <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                      <p className="text-xs text-gray-500 mb-2">Verification Results</p>
+                      <p className="text-xs text-gray-500 mb-2">Resultados de verificacion</p>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(event.verification_results).map(([key, value]) => (
                           <span

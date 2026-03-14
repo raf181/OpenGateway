@@ -81,6 +81,7 @@ detect_compose
 
 # Get current mode
 CURRENT_MODE="${GATEWAY_MODE:-mock}"
+MIN_UDP_BUFFER=7500000
 
 show_status() {
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -123,6 +124,37 @@ show_status() {
     fi
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+
+check_udp_buffer_size_hint() {
+    # QUIC tunnels benefit from larger UDP socket buffers.
+    if [ -z "$CLOUDFLARE_TUNNEL_TOKEN" ]; then
+        return 0
+    fi
+
+    if [ ! -r "/proc/sys/net/core/rmem_max" ] || [ ! -r "/proc/sys/net/core/wmem_max" ]; then
+        return 0
+    fi
+
+    local rmem_max
+    local wmem_max
+    rmem_max="$(cat /proc/sys/net/core/rmem_max 2>/dev/null || echo 0)"
+    wmem_max="$(cat /proc/sys/net/core/wmem_max 2>/dev/null || echo 0)"
+
+    if [ "$rmem_max" -lt "$MIN_UDP_BUFFER" ] || [ "$wmem_max" -lt "$MIN_UDP_BUFFER" ]; then
+        echo ""
+        echo -e "${YELLOW}⚠ UDP buffer sizes are low for Cloudflare QUIC tunnels${NC}"
+        echo "   Current: net.core.rmem_max=${rmem_max}, net.core.wmem_max=${wmem_max}"
+        echo "   Recommended minimum: ${MIN_UDP_BUFFER}"
+        echo ""
+        echo "   Apply now:" 
+        echo "     sudo sysctl -w net.core.rmem_max=${MIN_UDP_BUFFER}"
+        echo "     sudo sysctl -w net.core.wmem_max=${MIN_UDP_BUFFER}"
+        echo ""
+        echo "   Persist (example): /etc/sysctl.d/99-cloudflared.conf"
+        echo "     net.core.rmem_max=${MIN_UDP_BUFFER}"
+        echo "     net.core.wmem_max=${MIN_UDP_BUFFER}"
+    fi
 }
 
 check_tunnel_ingress_hint() {
@@ -171,14 +203,225 @@ validate_for_api() {
     fi
 }
 
+get_container_id_for_service() {
+    local service="$1"
+    local cid
+
+    # podman compose supports `ps -q <service>`, while some podman-compose
+    # versions reject service arguments. Try compose first, then fallback to
+    # label-based lookup directly via Podman.
+    cid="$(compose_cmd ps -q "$service" 2>/dev/null | head -n 1 || true)"
+    if [ -n "$cid" ]; then
+        echo "$cid"
+        return 0
+    fi
+
+    if command -v podman >/dev/null 2>&1; then
+        cid="$(podman ps -a --filter "label=io.podman.compose.service=${service}" --format '{{.ID}}' | head -n 1)"
+        if [ -z "$cid" ]; then
+            cid="$(podman ps -a --filter "label=com.docker.compose.service=${service}" --format '{{.ID}}' | head -n 1)"
+        fi
+    fi
+
+    echo "$cid"
+}
+
+wait_for_service_ready() {
+    local service="$1"
+    local timeout_seconds="${2:-60}"
+    local elapsed=0
+
+    while [ "$elapsed" -lt "$timeout_seconds" ]; do
+        local cid
+        cid="$(get_container_id_for_service "$service")"
+
+        if [ -n "$cid" ]; then
+            local state
+            local health
+            state="$(podman inspect -f '{{.State.Status}}' "$cid" 2>/dev/null || true)"
+            health="$(podman inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$cid" 2>/dev/null || true)"
+
+            if [ "$state" = "running" ] && { [ "$health" = "none" ] || [ "$health" = "healthy" ]; }; then
+                return 0
+            fi
+        fi
+
+        sleep 2
+        elapsed=$((elapsed + 2))
+    done
+
+    return 1
+}
+
+heal_service() {
+    local service="$1"
+
+    echo -e "${YELLOW}Attempting self-heal for ${service}...${NC}"
+
+    if [ -n "$(get_container_id_for_service "$service")" ]; then
+        compose_cmd restart "$service" >/dev/null
+    else
+        compose_cmd up -d "$service" >/dev/null
+    fi
+
+    if wait_for_service_ready "$service" 90; then
+        echo -e "${GREEN}Self-heal succeeded for ${service}.${NC}"
+        return 0
+    fi
+
+    echo -e "${RED}Self-heal failed for ${service}.${NC}"
+    return 1
+}
+
+check_http_endpoint() {
+    local url="$1"
+    local service_to_heal="$2"
+    local label="$3"
+
+    if ! command -v curl >/dev/null 2>&1; then
+        echo -e "${YELLOW}curl not found; skipping HTTP check for ${label}.${NC}"
+        return 0
+    fi
+
+    local status
+    status="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 8 "$url" 2>/dev/null || true)"
+
+    if [[ "$status" =~ ^[23] ]]; then
+        echo -e "${GREEN}✓ ${label} is reachable (${status})${NC}"
+        return 0
+    fi
+
+    echo -e "${YELLOW}${label} check failed (HTTP ${status:-n/a}). Restarting ${service_to_heal}...${NC}"
+    if ! heal_service "$service_to_heal"; then
+        return 1
+    fi
+
+    status="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 8 "$url" 2>/dev/null || true)"
+    if [[ "$status" =~ ^[23] ]]; then
+        echo -e "${GREEN}✓ ${label} recovered (${status})${NC}"
+        return 0
+    fi
+
+    echo -e "${RED}✗ ${label} still failing after restart (HTTP ${status:-n/a}).${NC}"
+    return 1
+}
+
+check_backend_internal_health() {
+    local backend_cid
+    backend_cid="$(get_container_id_for_service backend)"
+
+    if [ -z "$backend_cid" ]; then
+        echo -e "${RED}✗ Backend container is missing.${NC}"
+        return 1
+    fi
+
+    if podman exec "$backend_cid" python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health', timeout=5).getcode()==200 else 1)" >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ Backend internal health endpoint is healthy${NC}"
+        return 0
+    fi
+
+    echo -e "${YELLOW}Backend internal health failed. Restarting backend...${NC}"
+    if ! heal_service backend; then
+        return 1
+    fi
+
+    backend_cid="$(get_container_id_for_service backend)"
+    if podman exec "$backend_cid" python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health', timeout=5).getcode()==200 else 1)" >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ Backend internal health recovered${NC}"
+        return 0
+    fi
+
+    echo -e "${RED}✗ Backend internal health still failing after restart.${NC}"
+    return 1
+}
+
+deployment_test() {
+    local failed=0
+    local services=(backend frontend)
+
+    if [ -n "$CLOUDFLARE_TUNNEL_TOKEN" ]; then
+        services+=(cloudflared)
+    fi
+
+    echo ""
+    echo -e "${BLUE}Running deployment test (health + self-heal)...${NC}"
+
+    for service in "${services[@]}"; do
+        local cid
+        local state
+        local health
+
+        cid="$(get_container_id_for_service "$service")"
+
+        if [ -z "$cid" ]; then
+            echo -e "${YELLOW}${service} is not running. Attempting start...${NC}"
+            if ! heal_service "$service"; then
+                failed=1
+                continue
+            fi
+            cid="$(get_container_id_for_service "$service")"
+        fi
+
+        state="$(podman inspect -f '{{.State.Status}}' "$cid" 2>/dev/null || true)"
+        health="$(podman inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$cid" 2>/dev/null || true)"
+
+        if [ "$state" != "running" ] || [ "$health" = "unhealthy" ]; then
+            echo -e "${YELLOW}${service} state=${state:-unknown}, health=${health:-unknown}. Restarting...${NC}"
+            if ! heal_service "$service"; then
+                failed=1
+            fi
+        else
+            echo -e "${GREEN}✓ ${service} state=${state}, health=${health}${NC}"
+        fi
+    done
+
+    if ! wait_for_service_ready backend 90; then
+        echo -e "${RED}✗ Backend did not become ready in time.${NC}"
+        failed=1
+    fi
+
+    if ! wait_for_service_ready frontend 90; then
+        echo -e "${RED}✗ Frontend did not become ready in time.${NC}"
+        failed=1
+    fi
+
+    if ! check_backend_internal_health; then
+        failed=1
+    fi
+
+    if ! check_http_endpoint "http://localhost:8080/" frontend "Frontend UI"; then
+        failed=1
+    fi
+
+    if ! check_http_endpoint "http://localhost:8080/api/opengateway/status" backend "Backend API via frontend proxy"; then
+        failed=1
+    fi
+
+    if [ -n "$CLOUDFLARE_TUNNEL_TOKEN" ] && [ -n "$TUNNEL_HOSTNAME" ]; then
+        if ! check_http_endpoint "https://${TUNNEL_HOSTNAME}" cloudflared "Cloudflare tunnel public endpoint"; then
+            failed=1
+        fi
+    fi
+
+    if [ "$failed" -eq 0 ]; then
+        echo -e "${GREEN}✅ Deployment test passed. Services are healthy.${NC}"
+        return 0
+    fi
+
+    echo -e "${RED}❌ Deployment test failed. Check logs with: ./deploy.sh logs${NC}"
+    return 1
+}
+
 case "${1:-help}" in
     start)
         show_status
+        check_udp_buffer_size_hint
         validate_for_api
         echo ""
         echo -e "${GREEN}🚀 Starting GeoCustody containers...${NC}"
         compose_cmd up -d
         check_tunnel_ingress_hint
+        deployment_test
         echo ""
         echo -e "${GREEN}✅ GeoCustody is running!${NC}"
         echo "   Local: http://localhost:8080"
@@ -236,12 +479,14 @@ case "${1:-help}" in
         ;;
     restart)
         show_status
+        check_udp_buffer_size_hint
         validate_for_api
         echo ""
         echo -e "${BLUE}🔄 Restarting GeoCustody containers...${NC}"
         compose_cmd down
         compose_cmd up -d
         check_tunnel_ingress_hint
+        deployment_test
         echo -e "${GREEN}✅ Containers restarted${NC}"
         ;;
     logs)
@@ -254,9 +499,14 @@ case "${1:-help}" in
         ;;
     status)
         show_status
+        check_udp_buffer_size_hint
         echo ""
         compose_cmd ps
         check_tunnel_ingress_hint
+        ;;
+    test)
+        check_udp_buffer_size_hint
+        deployment_test
         ;;
     mode)
         case "${2:-}" in
@@ -351,6 +601,7 @@ case "${1:-help}" in
         echo "  logs      - Show container logs (optional: service name)"
         echo "  build     - Rebuild containers without cache"
         echo "  status    - Show status and container info"
+        echo "  test      - Run deployment health test and self-heal failed services"
         echo "  mode      - Show or change gateway mode (mock/sandbox/production)"
         echo "  monitoring start|stop|logs - Control the optional monitoring stack"
         echo "  enable-autorestart  - Generate and enable systemd --user units for running Podman containers"

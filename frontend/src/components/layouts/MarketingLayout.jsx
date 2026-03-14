@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import Modal from '../Modal';
+import { useI18n } from '../../i18n';
 
 export default function MarketingLayout() {
+  const { lang, setLang } = useI18n();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [pricingModalOpen, setPricingModalOpen] = useState(false);
   const location = useLocation();
 
   const navLinks = [
-    { href: '/product', label: 'Product' },
-    { href: '/#how-it-works', label: 'How it works' },
-    { href: '/#use-cases', label: 'Use cases' },
-    { href: '/#security', label: 'Security' },
-    { href: '/#integrations', label: 'Integrations' },
-    { href: '/#pricing', label: 'Pricing' },
+    { href: '/product', label: 'Producto' },
+    { href: '/#how-it-works', label: 'Como funciona' },
+    { href: '/#use-cases', label: 'Casos de uso' },
+    { href: '/#security', label: 'Seguridad' },
+    { href: '/#integrations', label: 'Integraciones' },
+    { href: '/#pricing', label: 'Precios' },
     { href: '/#faq', label: 'FAQ' },
   ];
 
@@ -49,14 +51,20 @@ export default function MarketingLayout() {
 
             {/* CTA buttons */}
             <div className="hidden lg:flex items-center gap-4">
+              <button
+                onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+                className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-600 hover:text-primary-600"
+              >
+                {lang === 'es' ? 'ES' : 'EN'}
+              </button>
               <Link to="/app/login" className="text-sm text-gray-600 hover:text-primary-600">
-                Sign in
+                Iniciar sesion
               </Link>
               <button
                 onClick={() => setDemoModalOpen(true)}
                 className="btn-primary btn-sm"
               >
-                Book a demo
+                Solicitar demo
               </button>
             </div>
 
@@ -90,7 +98,7 @@ export default function MarketingLayout() {
               ))}
               <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
                 <Link to="/app/login" className="block py-2 text-gray-600">
-                  Sign in
+                  Iniciar sesion
                 </Link>
                 <button
                   onClick={() => {
@@ -99,7 +107,7 @@ export default function MarketingLayout() {
                   }}
                   className="btn-primary btn-sm w-full"
                 >
-                  Book a demo
+                  Solicitar demo
                 </button>
               </div>
             </div>
@@ -126,29 +134,29 @@ export default function MarketingLayout() {
                 <span className="text-xl font-bold">GeoCustody</span>
               </div>
               <p className="text-gray-400 text-sm">
-                Chain-of-custody verification powered by Telefónica Open Gateway.
+                Verificacion de cadena de custodia impulsada por Telefonica Open Gateway.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
+              <h4 className="font-semibold mb-4">Producto</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="/product" className="hover:text-white">Overview</a></li>
-                <li><a href="/#how-it-works" className="hover:text-white">How it works</a></li>
-                <li><a href="/#use-cases" className="hover:text-white">Use cases</a></li>
-                <li><a href="/#pricing" className="hover:text-white">Pricing</a></li>
+                <li><a href="/product" className="hover:text-white">Resumen</a></li>
+                <li><a href="/#how-it-works" className="hover:text-white">Como funciona</a></li>
+                <li><a href="/#use-cases" className="hover:text-white">Casos de uso</a></li>
+                <li><a href="/#pricing" className="hover:text-white">Precios</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
+              <h4 className="font-semibold mb-4">Empresa</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-white">Privacy</a></li>
-                <li><a href="#" className="hover:text-white">Security</a></li>
-                <li><a href="#" className="hover:text-white">Compliance</a></li>
-                <li><a href="#" className="hover:text-white">Status</a></li>
+                <li><a href="#" className="hover:text-white">Privacidad</a></li>
+                <li><a href="#" className="hover:text-white">Seguridad</a></li>
+                <li><a href="#" className="hover:text-white">Cumplimiento</a></li>
+                <li><a href="#" className="hover:text-white">Estado</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
+              <h4 className="font-semibold mb-4">Contacto</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li><a href="mailto:sales@placeholder" className="hover:text-white">sales@placeholder</a></li>
                 <li><a href="mailto:support@placeholder" className="hover:text-white">support@placeholder</a></li>
@@ -156,73 +164,73 @@ export default function MarketingLayout() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
-            © {new Date().getFullYear()} GeoCustody. All rights reserved.
+            © {new Date().getFullYear()} GeoCustody. Todos los derechos reservados.
           </div>
         </div>
       </footer>
 
       {/* Demo Modal */}
-      <Modal open={demoModalOpen} onClose={() => setDemoModalOpen(false)} title="Book a Demo">
+      <Modal open={demoModalOpen} onClose={() => setDemoModalOpen(false)} title="Solicitar demo">
         <form className="space-y-4">
           <div>
-            <label className="label">Name</label>
-            <input type="text" className="input" placeholder="Your name" />
+            <label className="label">Nombre</label>
+            <input type="text" className="input" placeholder="Tu nombre" />
           </div>
           <div>
             <label className="label">Email</label>
             <input type="email" className="input" placeholder="work@company.com" />
           </div>
           <div>
-            <label className="label">Company</label>
-            <input type="text" className="input" placeholder="Company name" />
+            <label className="label">Empresa</label>
+            <input type="text" className="input" placeholder="Nombre de la empresa" />
           </div>
           <div>
-            <label className="label">Message</label>
-            <textarea className="input" rows="3" placeholder="Tell us about your use case" />
+            <label className="label">Mensaje</label>
+            <textarea className="input" rows="3" placeholder="Cuentanos tu caso de uso" />
           </div>
           <button type="button" className="btn-primary w-full" onClick={() => setDemoModalOpen(false)}>
-            Request Demo
+            Enviar solicitud
           </button>
           <p className="text-xs text-gray-500 text-center">
-            This is a demo form. No data is submitted.
+            Este es un formulario de demostracion. No se envian datos.
           </p>
         </form>
       </Modal>
 
       {/* Pricing Modal */}
-      <Modal open={pricingModalOpen} onClose={() => setPricingModalOpen(false)} title="Request Pricing">
+      <Modal open={pricingModalOpen} onClose={() => setPricingModalOpen(false)} title="Solicitar precios">
         <form className="space-y-4">
           <div>
-            <label className="label">Name</label>
-            <input type="text" className="input" placeholder="Your name" />
+            <label className="label">Nombre</label>
+            <input type="text" className="input" placeholder="Tu nombre" />
           </div>
           <div>
             <label className="label">Email</label>
             <input type="email" className="input" placeholder="work@company.com" />
           </div>
           <div>
-            <label className="label">Company Size</label>
+            <label className="label">Tamano de empresa</label>
             <select className="input">
-              <option>1-50 employees</option>
-              <option>51-200 employees</option>
-              <option>201-1000 employees</option>
-              <option>1000+ employees</option>
+              <option>1-50 empleados</option>
+              <option>51-200 empleados</option>
+              <option>201-1000 empleados</option>
+              <option>1000+ empleados</option>
             </select>
           </div>
           <div>
-            <label className="label">Estimated Assets</label>
+            <label className="label">Activos estimados</label>
             <select className="input">
-              <option>Less than 100</option>
+              <option>Menos de 100</option>
               <option>100-500</option>
               <option>500-2000</option>
               <option>2000+</option>
             </select>
           </div>
           <button type="button" className="btn-primary w-full" onClick={() => setPricingModalOpen(false)}>
-            Request Pricing
+            Enviar solicitud
           </button>
           <p className="text-xs text-gray-500 text-center">
-            This is a demo form. No data is submitted.
+            Este es un formulario de demostracion. No se envian datos.
           </p>
         </form>
       </Modal>

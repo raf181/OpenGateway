@@ -42,7 +42,7 @@ export default function MockNetworkPanel() {
       <button
         onClick={() => setPanelOpen(!panelOpen)}
         className={`fixed bottom-4 right-4 z-40 text-white p-3 rounded-full shadow-lg transition-colors ${getButtonStyle()}`}
-        title={isRealApi ? `Telefónica API (${status.mode})` : 'Mock Network Panel'}
+        title={isRealApi ? `Telefonica API (${status.mode})` : 'Panel de red simulada'}
       >
         {getModeIcon()}
       </button>
@@ -51,7 +51,7 @@ export default function MockNetworkPanel() {
       <div className={`fixed right-0 top-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform ${panelOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           <h3 className="font-semibold text-gray-900">
-            {isRealApi ? 'Telefónica Open Gateway' : 'Mock Network Panel'}
+            {isRealApi ? 'Telefonica Open Gateway' : 'Panel de red simulada'}
           </h3>
           <button
             onClick={() => setPanelOpen(false)}
@@ -70,26 +70,26 @@ export default function MockNetworkPanel() {
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="font-medium text-green-800">Live API Connected</span>
+                  <span className="font-medium text-green-800">API en vivo conectada</span>
                 </div>
                 <p className="text-sm text-green-700">
-                  Using real Telefónica Open Gateway APIs in <strong>{status.mode}</strong> mode.
+                  Usando APIs reales de Telefonica Open Gateway en modo <strong>{status.mode}</strong>.
                 </p>
               </div>
 
               <div>
-                <h4 className="font-medium text-gray-700 mb-2 text-sm">Connection Details</h4>
+                <h4 className="font-medium text-gray-700 mb-2 text-sm">Detalles de conexion</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Mode:</span>
+                    <span className="text-gray-500">Modo:</span>
                     <span className={`font-medium ${status.mode === 'production' ? 'text-red-600' : 'text-blue-600'}`}>
                       {status.mode.charAt(0).toUpperCase() + status.mode.slice(1)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Credentials:</span>
+                    <span className="text-gray-500">Credenciales:</span>
                     <span className={status.has_credentials ? 'text-green-600' : 'text-red-600'}>
-                      {status.has_credentials ? '✓ Configured' : '✗ Missing'}
+                      {status.has_credentials ? '✓ Configuradas' : '✗ Faltantes'}
                     </span>
                   </div>
                 </div>
@@ -97,7 +97,7 @@ export default function MockNetworkPanel() {
 
               {status.available_apis && status.available_apis.length > 0 && (
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-2 text-sm">Available APIs</h4>
+                  <h4 className="font-medium text-gray-700 mb-2 text-sm">APIs disponibles</h4>
                   <div className="flex flex-wrap gap-1">
                     {status.available_apis.map((api) => (
                       <span key={api} className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
@@ -109,25 +109,25 @@ export default function MockNetworkPanel() {
               )}
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <h4 className="font-medium text-blue-800 text-sm mb-1">How It Works</h4>
+                <h4 className="font-medium text-blue-800 text-sm mb-1">Como funciona</h4>
                 <p className="text-xs text-blue-700">
-                  All custody verifications use real Telefónica network APIs:
+                  Todas las verificaciones de custodia usan APIs reales de Telefonica:
                 </p>
                 <ul className="text-xs text-blue-700 mt-2 space-y-1">
-                  <li>• <strong>SIM Swap:</strong> Detects recent SIM changes</li>
-                  <li>• <strong>Device Swap:</strong> Detects device changes</li>
-                  <li>• <strong>Location:</strong> Verifies user position</li>
-                  <li>• <strong>Number Verify:</strong> Confirms phone ownership</li>
+                  <li>• <strong>SIM Swap:</strong> Detecta cambios recientes de SIM</li>
+                  <li>• <strong>Device Swap:</strong> Detecta cambios de dispositivo</li>
+                  <li>• <strong>Location:</strong> Verifica posicion del usuario</li>
+                  <li>• <strong>Number Verify:</strong> Confirma titularidad del telefono</li>
                 </ul>
               </div>
 
               {status.mode === 'sandbox' && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                  <h4 className="font-medium text-yellow-800 text-sm mb-1">⚠️ Sandbox Limitations</h4>
+                  <h4 className="font-medium text-yellow-800 text-sm mb-1">Limitaciones del sandbox</h4>
                   <ul className="text-xs text-yellow-700 space-y-1">
-                    <li>• Location accuracy limited to 200m</li>
-                    <li>• Number Verification needs mobile network</li>
-                    <li>• Test phone numbers may be required</li>
+                    <li>• Precision de ubicacion limitada a 200m</li>
+                    <li>• Number Verification requiere red movil</li>
+                    <li>• Puede requerir numeros de prueba</li>
                   </ul>
                 </div>
               )}
@@ -138,15 +138,15 @@ export default function MockNetworkPanel() {
           {isMockMode && (
             <><div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
             <p className="text-sm text-orange-800">
-              Configure mock Telefónica Open Gateway responses for testing.
+              Configura respuestas simuladas de Telefonica Open Gateway para pruebas.
             </p>
           </div>
 
           <div>
-            <h4 className="font-medium text-gray-700 mb-2 text-sm">Number Verification</h4>
+            <h4 className="font-medium text-gray-700 mb-2 text-sm">Verificacion de numero</h4>
             <div className="space-y-2">
               <div>
-                <label className="label text-xs">Claimed Phone</label>
+                <label className="label text-xs">Telefono declarado</label>
                 <input
                   type="text"
                   className="input text-sm"
@@ -156,7 +156,7 @@ export default function MockNetworkPanel() {
                 />
               </div>
               <div>
-                <label className="label text-xs">Network Phone (simulated)</label>
+                <label className="label text-xs">Telefono de red (simulado)</label>
                 <input
                   type="text"
                   className="input text-sm"
@@ -166,16 +166,16 @@ export default function MockNetworkPanel() {
                 />
               </div>
               <div className={`text-xs px-2 py-1 rounded ${mockContext.claimed_phone === mockContext.network_phone ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {mockContext.claimed_phone === mockContext.network_phone ? '✓ Numbers match' : '✗ Numbers mismatch - will DENY'}
+                {mockContext.claimed_phone === mockContext.network_phone ? '✓ Los numeros coinciden' : '✗ Los numeros no coinciden - se DENEGARA'}
               </div>
             </div>
           </div>
 
           <div>
-            <h4 className="font-medium text-gray-700 mb-2 text-sm">Location Verification</h4>
+            <h4 className="font-medium text-gray-700 mb-2 text-sm">Verificacion de ubicacion</h4>
             <div className="space-y-2">
               <div>
-                <label className="label text-xs">Network Latitude</label>
+                <label className="label text-xs">Latitud de red</label>
                 <input
                   type="number"
                   step="0.0001"
@@ -185,7 +185,7 @@ export default function MockNetworkPanel() {
                 />
               </div>
               <div>
-                <label className="label text-xs">Network Longitude</label>
+                <label className="label text-xs">Longitud de red</label>
                 <input
                   type="number"
                   step="0.0001"
@@ -195,14 +195,14 @@ export default function MockNetworkPanel() {
                 />
               </div>
               <div className="text-xs text-gray-500">
-                Main Warehouse: 40.4168, -3.7038 (r=200m)<br/>
-                Field Office: 40.4500, -3.6800 (r=150m)
+                Almacen principal: 40.4168, -3.7038 (r=200m)<br/>
+                Oficina de campo: 40.4500, -3.6800 (r=150m)
               </div>
             </div>
           </div>
 
           <div>
-            <h4 className="font-medium text-gray-700 mb-2 text-sm">Risk Signals</h4>
+            <h4 className="font-medium text-gray-700 mb-2 text-sm">Senales de riesgo</h4>
             <div className="space-y-2">
               <label className="flex items-center gap-2">
                 <input
@@ -211,7 +211,7 @@ export default function MockNetworkPanel() {
                   onChange={(e) => updateMockContext({ sim_swap_recent: e.target.checked })}
                   className="rounded text-primary-600"
                 />
-                <span className="text-sm text-gray-700">Recent SIM Swap</span>
+                <span className="text-sm text-gray-700">SIM swap reciente</span>
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -220,11 +220,11 @@ export default function MockNetworkPanel() {
                   onChange={(e) => updateMockContext({ device_swap_recent: e.target.checked })}
                   className="rounded text-primary-600"
                 />
-                <span className="text-sm text-gray-700">Recent Device Swap</span>
+                <span className="text-sm text-gray-700">Cambio reciente de dispositivo</span>
               </label>
               {(mockContext.sim_swap_recent || mockContext.device_swap_recent) && (
                 <div className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-700">
-                  ⚠ Risk signals may trigger STEP_UP for sensitive assets
+                  Las senales de riesgo pueden activar STEP_UP para activos sensibles
                 </div>
               )}
             </div>
@@ -235,12 +235,12 @@ export default function MockNetworkPanel() {
               onClick={resetMockContext}
               className="w-full btn-secondary btn-sm text-sm"
             >
-              Reset to Defaults
+              Restablecer valores
             </button>
           </div>
 
           <div className="text-xs text-gray-500 space-y-1">
-            <p><strong>Presets:</strong></p>
+            <p><strong>Preajustes:</strong></p>
             <button
               onClick={() => updateMockContext({
                 claimed_phone: '+34600000003',
@@ -252,7 +252,7 @@ export default function MockNetworkPanel() {
               })}
               className="text-primary-600 hover:underline block"
             >
-              → Inside Main Warehouse (all OK)
+              → Dentro del almacen principal (todo OK)
             </button>
             <button
               onClick={() => updateMockContext({
@@ -265,7 +265,7 @@ export default function MockNetworkPanel() {
               })}
               className="text-primary-600 hover:underline block"
             >
-              → Outside geofence
+              → Fuera de geocerca
             </button>
             <button
               onClick={() => updateMockContext({
@@ -278,7 +278,7 @@ export default function MockNetworkPanel() {
               })}
               className="text-primary-600 hover:underline block"
             >
-              → Phone mismatch
+              → Telefono no coincide
             </button>
             <button
               onClick={() => updateMockContext({
@@ -291,7 +291,7 @@ export default function MockNetworkPanel() {
               })}
               className="text-primary-600 hover:underline block"
             >
-              → SIM swap detected
+              → SIM swap detectado
             </button>
           </div>
             </>

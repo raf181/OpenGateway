@@ -49,8 +49,8 @@ export default function AdminDashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-500">System overview and management</p>
+        <h1 className="text-2xl font-bold text-gray-900">Panel de administracion</h1>
+        <p className="text-gray-500">Resumen y gestion del sistema</p>
       </div>
 
       {/* Stats Grid */}
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Total Assets</p>
+              <p className="text-sm text-gray-500">Activos totales</p>
               <p className="text-3xl font-bold text-gray-900">{stats?.totalAssets || 0}</p>
             </div>
             <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -68,16 +68,16 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="mt-2 flex items-center text-sm">
-            <span className="text-green-600">{stats?.available || 0} available</span>
+            <span className="text-green-600">{stats?.available || 0} disponibles</span>
             <span className="mx-2 text-gray-300">|</span>
-            <span className="text-yellow-600">{stats?.checkedOut || 0} out</span>
+            <span className="text-yellow-600">{stats?.checkedOut || 0} en uso</span>
           </div>
         </div>
 
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Total Users</p>
+              <p className="text-sm text-gray-500">Usuarios totales</p>
               <p className="text-3xl font-bold text-gray-900">{stats?.totalUsers || 0}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Sites</p>
+              <p className="text-sm text-gray-500">Sitios</p>
               <p className="text-3xl font-bold text-gray-900">{stats?.totalSites || 0}</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">High Sensitivity</p>
+              <p className="text-sm text-gray-500">Alta sensibilidad</p>
               <p className="text-3xl font-bold text-gray-900">{stats?.highSensitivity || 0}</p>
             </div>
             <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones rapidas</h2>
           <div className="space-y-3">
             <a href="/app/admin/assets" className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
               <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
@@ -130,8 +130,8 @@ export default function AdminDashboard() {
                 </svg>
               </div>
               <div>
-                <p className="font-medium text-gray-900">Add New Asset</p>
-                <p className="text-sm text-gray-500">Register equipment to track</p>
+                <p className="font-medium text-gray-900">Agregar activo</p>
+                <p className="text-sm text-gray-500">Registrar equipo para seguimiento</p>
               </div>
             </a>
             <a href="/app/admin/users" className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
@@ -141,8 +141,8 @@ export default function AdminDashboard() {
                 </svg>
               </div>
               <div>
-                <p className="font-medium text-gray-900">Add New User</p>
-                <p className="text-sm text-gray-500">Invite team members</p>
+                <p className="font-medium text-gray-900">Agregar usuario</p>
+                <p className="text-sm text-gray-500">Invitar miembros del equipo</p>
               </div>
             </a>
             <a href="/app/admin/sites" className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
@@ -152,8 +152,8 @@ export default function AdminDashboard() {
                 </svg>
               </div>
               <div>
-                <p className="font-medium text-gray-900">Configure Site</p>
-                <p className="text-sm text-gray-500">Set up geofences</p>
+                <p className="font-medium text-gray-900">Configurar sitio</p>
+                <p className="text-sm text-gray-500">Definir geocercas</p>
               </div>
             </a>
             <a href="/app/audit" className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
@@ -163,8 +163,8 @@ export default function AdminDashboard() {
                 </svg>
               </div>
               <div>
-                <p className="font-medium text-gray-900">View Audit Log</p>
-                <p className="text-sm text-gray-500">Full custody history</p>
+                <p className="font-medium text-gray-900">Ver auditoria</p>
+                <p className="text-sm text-gray-500">Historial completo de custodia</p>
               </div>
             </a>
           </div>
@@ -172,39 +172,39 @@ export default function AdminDashboard() {
 
         {/* System Health */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">System Health</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Estado del sistema</h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span className="text-sm text-gray-600">Database</span>
+                <span className="text-sm text-gray-600">Base de datos</span>
               </div>
-              <span className="text-sm text-green-600">Healthy</span>
+              <span className="text-sm text-green-600">Saludable</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span className="text-sm text-gray-600">Open Gateway Mock</span>
+                <span className="text-sm text-gray-600">Simulador Open Gateway</span>
               </div>
-              <span className="text-sm text-green-600">Connected</span>
+              <span className="text-sm text-green-600">Conectado</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span className="text-sm text-gray-600">Policy Engine</span>
+                <span className="text-sm text-gray-600">Motor de politicas</span>
               </div>
-              <span className="text-sm text-green-600">Active</span>
+              <span className="text-sm text-green-600">Activo</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span className="text-sm text-gray-600">Audit Chain</span>
+                <span className="text-sm text-gray-600">Cadena de auditoria</span>
               </div>
-              <span className="text-sm text-green-600">Valid</span>
+              <span className="text-sm text-green-600">Valida</span>
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500">Last verified: {new Date().toLocaleTimeString()}</p>
+            <p className="text-xs text-gray-500">Ultima verificacion: {new Date().toLocaleTimeString()}</p>
           </div>
         </div>
       </div>
@@ -212,11 +212,11 @@ export default function AdminDashboard() {
       {/* Recent Audit Events */}
       <div className="card">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-          <a href="/app/audit" className="text-sm text-primary-600 hover:underline">View all</a>
+          <h2 className="text-lg font-semibold text-gray-900">Actividad reciente</h2>
+          <a href="/app/audit" className="text-sm text-primary-600 hover:underline">Ver todo</a>
         </div>
         {recentEvents.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No recent activity</p>
+          <p className="text-gray-500 text-center py-8">No hay actividad reciente</p>
         ) : (
           <div className="space-y-3">
             {recentEvents.map(event => (

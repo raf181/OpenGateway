@@ -5,6 +5,8 @@
 
 GeoCustody is a personnel and inventory tracking + authorization system that enforces chain-of-custody and verified on-site actions using **Telefónica Open Gateway** network APIs.
 
+For a codebase-specific product and usage guide, see [PRODUCT_GUIDE.md](PRODUCT_GUIDE.md).
+
 ## Process Overview
 ```mermaid
 graph TD

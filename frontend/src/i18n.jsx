@@ -174,14 +174,24 @@ const translations = {
 const I18nContext = createContext();
 
 export function I18nProvider({ children }) {
-  const [lang, setLang] = useState('en');
+  const [lang, setLang] = useState('es');
 
   useEffect(() => {
-    // Auto-detect browser language
+    const savedLang = localStorage.getItem('lang');
+    if (savedLang === 'es' || savedLang === 'en') {
+      setLang(savedLang);
+      return;
+    }
+
+    // Auto-detect browser language, defaulting to Spanish.
     const browserLang = navigator.language?.slice(0, 2);
     if (browserLang === 'es') setLang('es');
-    else setLang('en');
+    else setLang('es');
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('lang', lang);
+  }, [lang]);
 
   const t = (key) => translations[lang][key] || key;
 

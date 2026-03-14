@@ -84,21 +84,21 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-              Prove who handled an asset. Prove where it happened.
+              Demuestra quien manipulo un activo. Demuestra donde ocurrio.
             </h1>
             <p className="mt-6 text-xl text-gray-600">
-              GeoCustody is an enterprise custody and inventory platform that authorizes asset actions using Telefónica Open Gateway network verification. Reduce losses, fix inventory accuracy, and stop "off-site" transactions.
+              GeoCustody es una plataforma empresarial de custodia e inventario que autoriza acciones sobre activos usando verificacion de red de Telefonica Open Gateway. Reduce perdidas, mejora el inventario y evita transacciones fuera de sitio.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <button onClick={() => setDemoModalOpen(true)} className="btn-primary">
-                Book a demo
+                Solicitar demo
               </button>
               <button onClick={() => setPricingModalOpen(true)} className="btn-secondary">
-                Request pricing
+                Solicitar precios
               </button>
             </div>
             <p className="mt-8 text-sm text-gray-500">
-              Designed for warehouses, field teams, and regulated operations.
+              Disenado para almacenes, equipos de campo y operaciones reguladas.
             </p>
           </div>
         </div>
@@ -108,7 +108,7 @@ export default function Landing() {
       <section className="py-12 bg-gray-50 border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-gray-500 mb-8">
-            Trusted by teams that manage high-value equipment and regulated inventory.
+            Confiado por equipos que gestionan equipamiento de alto valor e inventario regulado.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 opacity-50">
             {['Company A', 'Company B', 'Company C', 'Company D', 'Company E'].map((name, i) => (
@@ -125,19 +125,19 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Chain-of-custody meets network-grade verification
+              Cadena de custodia con verificacion de grado operador
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              GeoCustody turns asset handling into verified transactions. Every check-out, transfer, return, and inventory closure can require proof that the employee is on site and using the expected mobile identity.
+              GeoCustody convierte la gestion de activos en transacciones verificadas. Cada retiro, transferencia, devolucion y cierre de inventario puede exigir prueba de presencia en sitio e identidad movil esperada.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: 'Verified on-site actions', icon: 'location', desc: 'Network-based location verification confirms physical presence at authorized sites.' },
-              { title: 'Employee-to-number binding', icon: 'phone', desc: 'Bind employee sessions to verified mobile numbers for identity assurance.' },
-              { title: 'Fraud-aware approvals', icon: 'shield', desc: 'Detect SIM swaps and device changes to prevent unauthorized access.' },
-              { title: 'Immutable audit trail', icon: 'clipboard', desc: 'Tamper-evident logging of all custody events with hash-chain verification.' },
+              { title: 'Acciones verificadas en sitio', icon: 'location', desc: 'La verificacion de ubicacion por red confirma presencia fisica en sitios autorizados.' },
+              { title: 'Vinculacion empleado-numero', icon: 'phone', desc: 'Asocia sesiones de empleados a numeros moviles verificados para mayor identidad.' },
+              { title: 'Aprobaciones antifraude', icon: 'shield', desc: 'Detecta SIM swap y cambios de dispositivo para evitar accesos no autorizados.' },
+              { title: 'Auditoria inmutable', icon: 'clipboard', desc: 'Registro inviolable de eventos de custodia con verificacion por cadena hash.' },
             ].map((feature, i) => (
               <div key={i} className="card text-center">
                 <div className="flex items-center justify-center mb-4">
@@ -156,17 +156,17 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Authorize actions in real time
+              Autoriza acciones en tiempo real
             </h2>
           </div>
 
           <div className="grid md:grid-cols-5 gap-6 mb-12">
             {[
-              { step: '1', title: 'Scan the asset', desc: 'QR code or NFC tag identification' },
-              { step: '2', title: 'Verify identity', desc: 'Number verification via Open Gateway' },
-              { step: '3', title: 'Verify location', desc: 'Network-based geofence check' },
-              { step: '4', title: 'Apply policy', desc: 'Evaluate rules and risk signals' },
-              { step: '5', title: 'Record custody', desc: 'Immutable audit trail entry' },
+              { step: '1', title: 'Escanear activo', desc: 'Identificacion por QR o etiqueta NFC' },
+              { step: '2', title: 'Verificar identidad', desc: 'Verificacion de numero con Open Gateway' },
+              { step: '3', title: 'Verificar ubicacion', desc: 'Comprobacion de geocerca por red' },
+              { step: '4', title: 'Aplicar politica', desc: 'Evaluar reglas y senales de riesgo' },
+              { step: '5', title: 'Registrar custodia', desc: 'Entrada de auditoria inmutable' },
             ].map((item, i) => (
               <div key={i} className="text-center">
                 <div className="w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
@@ -180,7 +180,7 @@ export default function Landing() {
 
           <div className="max-w-2xl mx-auto bg-primary-50 border border-primary-200 rounded-xl p-6">
             <p className="text-primary-800 text-center">
-              <strong>Not GPS. Not guesswork.</strong> Location checks are network-based to reduce spoofing. Telefónica Open Gateway provides carrier-grade verification that cannot be faked by apps.
+              <strong>No es GPS. No es suposicion.</strong> Las comprobaciones de ubicacion se basan en red para reducir suplantacion. Telefonica Open Gateway ofrece verificacion de grado operador que no puede falsificarse con apps.
             </p>
           </div>
         </div>
@@ -191,36 +191,36 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Built for operational control
+              Diseñado para control operativo
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Inventory & Custody</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Inventario y custodia</h3>
               <ul className="space-y-2 text-gray-600">
-                <li>• Asset catalog with QR/NFC tagging</li>
-                <li>• Full custody lifecycle tracking</li>
-                <li>• Exception handling and alerts</li>
-                <li>• Multi-site support</li>
+                <li>• Catalogo de activos con etiquetas QR/NFC</li>
+                <li>• Seguimiento completo del ciclo de custodia</li>
+                <li>• Gestion de excepciones y alertas</li>
+                <li>• Soporte para multiples sitios</li>
               </ul>
             </div>
             <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Authorization & Policy</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Autorizacion y politicas</h3>
               <ul className="space-y-2 text-gray-600">
-                <li>• Role-based access control</li>
-                <li>• Configurable geofences</li>
-                <li>• Manager approval workflows</li>
-                <li>• Sensitivity-based policy rules</li>
+                <li>• Control de acceso por roles</li>
+                <li>• Geocercas configurables</li>
+                <li>• Flujos de aprobacion gerencial</li>
+                <li>• Reglas segun sensibilidad del activo</li>
               </ul>
             </div>
             <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Audit & Reporting</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Auditoria e informes</h3>
               <ul className="space-y-2 text-gray-600">
-                <li>• Complete event timeline</li>
-                <li>• Compliance reports</li>
-                <li>• CSV export capability</li>
-                <li>• Real-time alerts</li>
+                <li>• Linea temporal completa de eventos</li>
+                <li>• Informes de cumplimiento</li>
+                <li>• Exportacion CSV</li>
+                <li>• Alertas en tiempo real</li>
               </ul>
             </div>
           </div>
@@ -232,18 +232,18 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Where GeoCustody fits
+              Donde encaja GeoCustody
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { title: 'Warehouse Tools', desc: 'Track high-value tools and ensure they are checked out and returned on-site.' },
-              { title: 'Field Service Kits', desc: 'Verify technicians have the right equipment when arriving at customer sites.' },
-              { title: 'Datacenter Hardware', desc: 'Secure chain-of-custody for servers, drives, and networking equipment.' },
-              { title: 'Medical Devices', desc: 'Comply with regulations requiring verified handling of medical equipment.' },
-              { title: 'Construction Equipment', desc: 'Prevent off-site use of expensive machinery and tools.' },
-              { title: 'Regulated Inventory', desc: 'Meet audit requirements for controlled substances and materials.' },
+              { title: 'Herramientas de almacen', desc: 'Rastrea herramientas de alto valor y asegura retiros y devoluciones en sitio.' },
+              { title: 'Kits de servicio en campo', desc: 'Verifica que los tecnicos tengan el equipo correcto al llegar al cliente.' },
+              { title: 'Hardware de datacenter', desc: 'Asegura cadena de custodia para servidores, discos y red.' },
+              { title: 'Dispositivos medicos', desc: 'Cumple normativa con manejo verificado de equipamiento medico.' },
+              { title: 'Equipos de construccion', desc: 'Evita el uso fuera de sitio de maquinaria y herramientas costosas.' },
+              { title: 'Inventario regulado', desc: 'Cumple auditorias para sustancias y materiales controlados.' },
             ].map((useCase, i) => (
               <div key={i} className="card">
                 <h3 className="font-semibold text-gray-900 mb-2">{useCase.title}</h3>
@@ -259,16 +259,16 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Integrations
+              Integraciones
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: 'Telefónica Open Gateway', icon: 'antenna', desc: 'Number Verification, Device Location, SIM Swap, Device Swap' },
-              { title: 'SSO Providers', icon: 'lock', desc: 'Azure AD, Okta, Google Workspace, Keycloak' },
-              { title: 'Webhooks & API', icon: 'link', desc: 'REST API, Webhook notifications' },
-              { title: 'Enterprise Systems', icon: 'chart', desc: 'ServiceNow, SAP, Intune (optional)' },
+              { title: 'Telefonica Open Gateway', icon: 'antenna', desc: 'Verificacion de numero, ubicacion, SIM swap y cambio de dispositivo' },
+              { title: 'Proveedores SSO', icon: 'lock', desc: 'Azure AD, Okta, Google Workspace, Keycloak' },
+              { title: 'Webhooks y API', icon: 'link', desc: 'API REST y notificaciones webhook' },
+              { title: 'Sistemas empresariales', icon: 'chart', desc: 'ServiceNow, SAP, Intune (opcional)' },
             ].map((item, i) => (
               <div key={i} className="card text-center">
                 <div className="flex items-center justify-center mb-2">
@@ -287,23 +287,23 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold">
-              Security and privacy by design
+              Seguridad y privacidad por diseno
             </h2>
             <p className="mt-4 text-lg text-gray-300">
-              GeoCustody performs transaction-based verification. It does not run continuous tracking. You control retention and access to logs.
+              GeoCustody realiza verificacion por transaccion. No hace rastreo continuo. Tu controlas la retencion y el acceso a los registros.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-xl font-semibold mb-4">Security</h3>
+              <h3 className="text-xl font-semibold mb-4">Seguridad</h3>
               <ul className="space-y-2 text-gray-300">
                 {[
-                  'End-to-end encryption',
-                  'SOC 2 Type II compliant infrastructure',
-                  'Role-based access control',
-                  'Audit logging with tamper detection',
-                  'Regular penetration testing'
+                  'Cifrado de extremo a extremo',
+                  'Infraestructura conforme SOC 2 Tipo II',
+                  'Control de acceso por roles',
+                  'Auditoria con deteccion de manipulacion',
+                  'Pruebas de penetracion regulares'
                 ].map(item => (
                   <li key={item} className="flex items-center gap-2">
                     <Icon type="check" className="w-4 h-4 text-primary-200" />
@@ -313,14 +313,14 @@ export default function Landing() {
               </ul>
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-4">Privacy</h3>
+              <h3 className="text-xl font-semibold mb-4">Privacidad</h3>
               <ul className="space-y-2 text-gray-300">
                 {[
-                  'No continuous location tracking',
-                  'Transaction-based verification only',
-                  'Configurable data retention',
-                  'GDPR compliant',
-                  'Data processing agreements available'
+                  'Sin rastreo continuo de ubicacion',
+                  'Verificacion solo por transaccion',
+                  'Retencion de datos configurable',
+                  'Cumplimiento RGPD',
+                  'Acuerdos de tratamiento de datos disponibles'
                 ].map(item => (
                   <li key={item} className="flex items-center gap-2">
                     <Icon type="check" className="w-4 h-4 text-primary-200" />
@@ -338,20 +338,20 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              See it in action
+              Ve la plataforma en accion
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {[
-              { title: 'Asset Dashboard', desc: 'View all assets, their status, and current custody assignments.' },
-              { title: 'Verification Flow', desc: 'Real-time feedback on number and location verification.' },
-              { title: 'Manager Approvals', desc: 'Review and approve step-up requests from employees.' },
-              { title: 'Audit Timeline', desc: 'Complete history of all custody events with verification details.' },
+              { title: 'Panel de activos', desc: 'Visualiza todos los activos, su estado y custodias actuales.' },
+              { title: 'Flujo de verificacion', desc: 'Feedback en tiempo real sobre verificacion de numero y ubicacion.' },
+              { title: 'Aprobaciones gerenciales', desc: 'Revisa y aprueba solicitudes STEP_UP de empleados.' },
+              { title: 'Linea de auditoria', desc: 'Historial completo de eventos con detalle de verificacion.' },
             ].map((item, i) => (
               <div key={i} className="card">
                 <div className="bg-gray-100 rounded-lg h-48 flex items-center justify-center mb-4">
-                  <span className="text-gray-400">Screenshot placeholder</span>
+                  <span className="text-gray-400">Captura de ejemplo</span>
                 </div>
                 <h3 className="font-semibold text-gray-900">{item.title}</h3>
                 <p className="text-sm text-gray-600">{item.desc}</p>
@@ -366,7 +366,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Pricing
+              Precios
             </h2>
           </div>
 
@@ -374,24 +374,24 @@ export default function Landing() {
             {[
               { 
                 name: 'Starter', 
-                price: 'Contact us', 
-                features: ['Up to 100 assets', 'Up to 10 users', 'Basic reporting', 'Email support'] 
+                price: 'Contactar', 
+                features: ['Hasta 100 activos', 'Hasta 10 usuarios', 'Informes basicos', 'Soporte por email'] 
               },
               { 
                 name: 'Business', 
-                price: 'Contact us', 
-                features: ['Up to 1,000 assets', 'Up to 50 users', 'Advanced reporting', 'SSO integration', 'Priority support'],
+                price: 'Contactar', 
+                features: ['Hasta 1.000 activos', 'Hasta 50 usuarios', 'Informes avanzados', 'Integracion SSO', 'Soporte prioritario'],
                 popular: true
               },
               { 
                 name: 'Enterprise', 
-                price: 'Contact us', 
-                features: ['Unlimited assets', 'Unlimited users', 'Custom integrations', 'Dedicated support', 'SLA guarantees', 'On-premise option'] 
+                price: 'Contactar', 
+                features: ['Activos ilimitados', 'Usuarios ilimitados', 'Integraciones a medida', 'Soporte dedicado', 'Garantias SLA', 'Opcion on-premise'] 
               },
             ].map((tier, i) => (
               <div key={i} className={`card ${tier.popular ? 'ring-2 ring-primary-600' : ''}`}>
                 {tier.popular && (
-                  <div className="text-xs font-semibold text-primary-600 mb-2">MOST POPULAR</div>
+                  <div className="text-xs font-semibold text-primary-600 mb-2">MAS POPULAR</div>
                 )}
                 <h3 className="text-xl font-bold text-gray-900">{tier.name}</h3>
                 <p className="text-2xl font-bold text-gray-900 mt-2">{tier.price}</p>
@@ -407,10 +407,10 @@ export default function Landing() {
                 </ul>
                 <div className="mt-6 space-y-2">
                   <button onClick={() => setDemoModalOpen(true)} className="btn-primary w-full btn-sm">
-                    Book a demo
+                    Solicitar demo
                   </button>
                   <button onClick={() => setPricingModalOpen(true)} className="btn-secondary w-full btn-sm">
-                    Request pricing
+                    Solicitar precios
                   </button>
                 </div>
               </div>
@@ -424,18 +424,18 @@ export default function Landing() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              Frequently asked questions
+              Preguntas frecuentes
             </h2>
           </div>
 
           <div className="space-y-6">
             {[
-              { q: 'What is Telefónica Open Gateway?', a: 'Telefónica Open Gateway is a set of network APIs that provide carrier-grade verification services including number verification, device location verification, and fraud detection signals like SIM swap detection.' },
-              { q: 'Does GeoCustody track employees continuously?', a: 'No. GeoCustody only verifies location at the moment of a custody transaction. There is no continuous tracking or location history stored.' },
-              { q: 'What happens if verification fails?', a: 'Depending on your policy configuration, failed verification can result in denial, or a step-up approval request that requires manager authorization.' },
-              { q: 'Can GeoCustody work offline?', a: 'Basic scanning works offline, but verification requires network connectivity as it uses Telefónica Open Gateway APIs.' },
-              { q: 'Is the audit trail really tamper-proof?', a: 'The audit trail uses a hash chain where each event includes a hash of the previous event. Any modification would break the chain and be immediately detectable.' },
-              { q: 'What mobile networks are supported?', a: 'GeoCustody uses Telefónica Open Gateway, which supports verification on Telefónica and partner networks. Coverage varies by region.' },
+              { q: 'Que es Telefonica Open Gateway?', a: 'Telefonica Open Gateway es un conjunto de APIs de red con servicios de verificacion de grado operador, incluyendo numero, ubicacion y senales antifraude como SIM swap.' },
+              { q: 'GeoCustody rastrea empleados de forma continua?', a: 'No. Solo verifica ubicacion en el momento de la transaccion de custodia. No guarda rastreo continuo ni historico de ubicacion.' },
+              { q: 'Que ocurre si falla la verificacion?', a: 'Segun tu politica, un fallo puede denegar la accion o crear una solicitud STEP_UP para aprobacion de gerencia.' },
+              { q: 'GeoCustody funciona sin conexion?', a: 'El escaneo basico puede funcionar offline, pero la verificacion requiere conectividad porque usa APIs de Telefonica Open Gateway.' },
+              { q: 'La auditoria es realmente inviolable?', a: 'La auditoria usa una cadena hash donde cada evento incluye el hash del anterior. Cualquier cambio rompe la cadena y se detecta al instante.' },
+              { q: 'Que redes moviles son compatibles?', a: 'GeoCustody usa Telefonica Open Gateway, con soporte sobre redes Telefonica y redes asociadas. La cobertura depende de la region.' },
             ].map((item, i) => (
               <div key={i} className="card">
                 <h3 className="font-semibold text-gray-900 mb-2">{item.q}</h3>
@@ -450,21 +450,21 @@ export default function Landing() {
       <section className="py-20 bg-primary-600">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-white">
-            Stop guessing. Start proving custody.
+            Deja de suponer. Empieza a demostrar custodia.
           </h2>
           <p className="mt-4 text-lg text-primary-100">
-            GeoCustody makes asset handling verifiable with network-grade authorization.
+            GeoCustody vuelve verificable la gestion de activos con autorizacion de grado operador.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <button onClick={() => setDemoModalOpen(true)} className="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
-              Book a demo
+              Solicitar demo
             </button>
             <button onClick={() => setPricingModalOpen(true)} className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors">
-              Request pricing
+              Solicitar precios
             </button>
           </div>
           <p className="mt-8 text-sm text-primary-200">
-            Built for enterprise security and operational reality.
+            Diseñado para seguridad empresarial y realidad operativa.
           </p>
         </div>
       </section>

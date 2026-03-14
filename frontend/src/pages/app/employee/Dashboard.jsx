@@ -46,8 +46,8 @@ export default function EmployeeDashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome, {user?.name}</h1>
-        <p className="text-gray-500">Here's what's happening with your assets today.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Bienvenido, {user?.name}</h1>
+        <p className="text-gray-500">Esto es lo que ocurre hoy con tus activos.</p>
       </div>
 
       {/* Quick Stats */}
@@ -61,7 +61,7 @@ export default function EmployeeDashboard() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.assets}</p>
-              <p className="text-sm text-gray-500">Total Assets</p>
+              <p className="text-sm text-gray-500">Activos totales</p>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function EmployeeDashboard() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.myAssets}</p>
-              <p className="text-sm text-gray-500">My Checked Out</p>
+              <p className="text-sm text-gray-500">En mi custodia</p>
             </div>
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function EmployeeDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{stats.pendingApprovals}</p>
-                <p className="text-sm text-gray-500">Pending Approvals</p>
+                <p className="text-sm text-gray-500">Aprobaciones pendientes</p>
               </div>
             </div>
           </div>
@@ -106,8 +106,8 @@ export default function EmployeeDashboard() {
             </svg>
           </div>
           <div>
-            <p className="font-medium text-gray-900">Scan Asset</p>
-            <p className="text-xs text-gray-500">QR or NFC tag</p>
+            <p className="font-medium text-gray-900">Escanear activo</p>
+            <p className="text-xs text-gray-500">Etiqueta QR o NFC</p>
           </div>
         </Link>
 
@@ -118,8 +118,8 @@ export default function EmployeeDashboard() {
             </svg>
           </div>
           <div>
-            <p className="font-medium text-gray-900">View Assets</p>
-            <p className="text-xs text-gray-500">Browse catalog</p>
+            <p className="font-medium text-gray-900">Ver activos</p>
+            <p className="text-xs text-gray-500">Explorar catalogo</p>
           </div>
         </Link>
 
@@ -130,8 +130,8 @@ export default function EmployeeDashboard() {
             </svg>
           </div>
           <div>
-            <p className="font-medium text-gray-900">Audit Trail</p>
-            <p className="text-xs text-gray-500">View history</p>
+            <p className="font-medium text-gray-900">Auditoria</p>
+            <p className="text-xs text-gray-500">Ver historial</p>
           </div>
         </Link>
 
@@ -143,8 +143,8 @@ export default function EmployeeDashboard() {
               </svg>
             </div>
             <div>
-              <p className="font-medium text-gray-900">Approvals</p>
-              <p className="text-xs text-gray-500">{stats.pendingApprovals} pending</p>
+              <p className="font-medium text-gray-900">Aprobaciones</p>
+              <p className="text-xs text-gray-500">{stats.pendingApprovals} pendientes</p>
             </div>
           </Link>
         )}
@@ -153,9 +153,9 @@ export default function EmployeeDashboard() {
       {/* Recent Assets */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Assets</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Activos recientes</h2>
           <Link to="/app/employee/assets" className="text-sm text-primary-600 hover:text-primary-700">
-            View all →
+            Ver todos →
           </Link>
         </div>
 
@@ -163,11 +163,11 @@ export default function EmployeeDashboard() {
           <table className="w-full">
             <thead>
               <tr className="text-left text-sm text-gray-500 border-b">
-                <th className="pb-3 font-medium">Tag ID</th>
-                <th className="pb-3 font-medium">Name</th>
-                <th className="pb-3 font-medium">Status</th>
-                <th className="pb-3 font-medium">Sensitivity</th>
-                <th className="pb-3 font-medium">Site</th>
+                <th className="pb-3 font-medium">ID de etiqueta</th>
+                <th className="pb-3 font-medium">Nombre</th>
+                <th className="pb-3 font-medium">Estado</th>
+                <th className="pb-3 font-medium">Sensibilidad</th>
+                <th className="pb-3 font-medium">Sitio</th>
               </tr>
             </thead>
             <tbody className="divide-y">

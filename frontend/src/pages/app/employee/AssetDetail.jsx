@@ -72,7 +72,7 @@ function RawResponseViewer({ data, title }) {
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
-        {title || 'View Raw Response'}
+        {title || 'Ver respuesta sin procesar'}
       </button>
       {expanded && (
         <pre className="mt-2 p-2 bg-gray-900 text-green-400 rounded text-xs overflow-x-auto max-h-64 overflow-y-auto">
@@ -179,9 +179,9 @@ export default function AssetDetail() {
   if (!asset) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Asset not found</p>
+        <p className="text-gray-500">Activo no encontrado</p>
         <Link to="/app/employee/assets" className="text-primary-600 hover:underline mt-2 inline-block">
-          ← Back to assets
+          ← Volver a activos
         </Link>
       </div>
     );
@@ -195,7 +195,7 @@ export default function AssetDetail() {
     <div>
       <div className="mb-6">
         <Link to="/app/employee/assets" className="text-primary-600 hover:underline text-sm">
-          ← Back to assets
+          ← Volver a activos
         </Link>
       </div>
 
@@ -219,17 +219,17 @@ export default function AssetDetail() {
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">Type</p>
+                <p className="text-sm text-gray-500">Tipo</p>
                 <p className="font-medium">{asset.asset_type}</p>
               </div>
               {asset.serial && (
                 <div>
-                  <p className="text-sm text-gray-500">Serial</p>
+                  <p className="text-sm text-gray-500">Serie</p>
                   <p className="font-medium">{asset.serial}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-gray-500">Sensitivity</p>
+                <p className="text-sm text-gray-500">Sensibilidad</p>
                 <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
                   asset.sensitivity === 'HIGH' ? 'bg-red-100 text-red-700' :
                   asset.sensitivity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
@@ -239,18 +239,18 @@ export default function AssetDetail() {
                 </span>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Current Site</p>
-                <p className="font-medium">{asset.site_name || 'Not assigned'}</p>
+                <p className="text-sm text-gray-500">Sitio actual</p>
+                <p className="font-medium">{asset.site_name || 'Sin asignar'}</p>
               </div>
               {asset.custodian_name && (
                 <div>
-                  <p className="text-sm text-gray-500">Current Custodian</p>
+                  <p className="text-sm text-gray-500">Custodio actual</p>
                   <p className="font-medium">{asset.custodian_name}</p>
                 </div>
               )}
               {asset.description && (
                 <div className="sm:col-span-2">
-                  <p className="text-sm text-gray-500">Description</p>
+                  <p className="text-sm text-gray-500">Descripcion</p>
                   <p className="text-gray-700">{asset.description}</p>
                 </div>
               )}
@@ -259,10 +259,10 @@ export default function AssetDetail() {
 
           {/* Custody Timeline */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Custody History</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Historial de custodia</h2>
             
             {events.length === 0 ? (
-              <p className="text-gray-500 text-sm">No custody events recorded yet.</p>
+              <p className="text-gray-500 text-sm">Aun no hay eventos de custodia.</p>
             ) : (
               <div className="space-y-4">
                 {events.map((event, index) => (
@@ -289,7 +289,7 @@ export default function AssetDetail() {
                         </span>
                       </div>
                       <p className="text-sm text-gray-500">
-                        by {event.actor_name} at {event.site_name || 'Unknown site'}
+                        por {event.actor_name} en {event.site_name || 'Sitio desconocido'}
                         {event.target_user_name && ` → ${event.target_user_name}`}
                       </p>
                       <p className="text-xs text-gray-400">
@@ -302,7 +302,7 @@ export default function AssetDetail() {
             )}
             
             <Link to="/app/audit" className="text-sm text-primary-600 hover:underline mt-4 inline-block">
-              View full audit trail →
+              Ver auditoria completa →
             </Link>
           </div>
         </div>
@@ -310,7 +310,7 @@ export default function AssetDetail() {
         {/* Actions Panel */}
         <div className="space-y-6">
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones</h2>
             
             <div className="space-y-3">
               <button
@@ -318,7 +318,7 @@ export default function AssetDetail() {
                 disabled={!canCheckout}
                 className="w-full btn-primary btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Check Out
+                Retirar
               </button>
               
               <button
@@ -326,7 +326,7 @@ export default function AssetDetail() {
                 disabled={!canReturn}
                 className="w-full btn-secondary btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Return
+                Devolver
               </button>
               
               <button
@@ -334,7 +334,7 @@ export default function AssetDetail() {
                 disabled={!canTransfer}
                 className="w-full btn-secondary btn-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Transfer
+                Transferir
               </button>
             </div>
 
@@ -346,36 +346,36 @@ export default function AssetDetail() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
                 </svg>
-                Configure Mock Network
+                Configurar red simulada
               </button>
             </div>
           </div>
 
           {/* Mock Status */}
           <div className="card bg-orange-50 border-orange-200">
-            <h3 className="text-sm font-semibold text-orange-800 mb-2">Mock Network Status</h3>
+            <h3 className="text-sm font-semibold text-orange-800 mb-2">Estado de red simulada</h3>
             <div className="text-xs text-orange-700 space-y-1">
               <p className="flex items-center gap-2">
                 <StatusIcon
                   type={mockContext.claimed_phone === mockContext.network_phone ? 'success' : 'error'}
                   className={`w-4 h-4 ${mockContext.claimed_phone === mockContext.network_phone ? 'text-green-600' : 'text-red-600'}`}
                 />
-                <span>Phone: {mockContext.claimed_phone === mockContext.network_phone ? 'Match' : 'Mismatch'}</span>
+                <span>Telefono: {mockContext.claimed_phone === mockContext.network_phone ? 'Coincide' : 'No coincide'}</span>
               </p>
-              <p>Location: {mockContext.network_lat.toFixed(4)}, {mockContext.network_lon.toFixed(4)}</p>
+              <p>Ubicacion: {mockContext.network_lat.toFixed(4)}, {mockContext.network_lon.toFixed(4)}</p>
               <p className="flex items-center gap-2">
                 <StatusIcon
                   type={mockContext.sim_swap_recent ? 'warning' : 'success'}
                   className={`w-4 h-4 ${mockContext.sim_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}
                 />
-                <span>SIM Swap: {mockContext.sim_swap_recent ? 'Recent' : 'None'}</span>
+                <span>SIM Swap: {mockContext.sim_swap_recent ? 'Reciente' : 'Ninguno'}</span>
               </p>
               <p className="flex items-center gap-2">
                 <StatusIcon
                   type={mockContext.device_swap_recent ? 'warning' : 'success'}
                   className={`w-4 h-4 ${mockContext.device_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}
                 />
-                <span>Device Swap: {mockContext.device_swap_recent ? 'Recent' : 'None'}</span>
+                <span>Cambio de dispositivo: {mockContext.device_swap_recent ? 'Reciente' : 'Ninguno'}</span>
               </p>
             </div>
           </div>
@@ -428,14 +428,14 @@ export default function AssetDetail() {
               
               {actionResult.approval_id && (
                 <p className="text-sm text-yellow-700 mt-2">
-                  Approval request #{actionResult.approval_id} created for manager review.
+                  Solicitud de aprobacion #{actionResult.approval_id} creada para revision de gerencia.
                 </p>
               )}
             </div>
 
             {actionResult.verification && (
               <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Verification Results</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Resultados de verificacion</h4>
                 
                 {/* Summary Grid */}
                 <div className="grid grid-cols-2 gap-2 text-xs mb-3">
@@ -444,47 +444,47 @@ export default function AssetDetail() {
                       type={actionResult.verification.number_verified ? 'success' : 'error'}
                       className={`w-4 h-4 ${actionResult.verification.number_verified ? 'text-green-600' : 'text-red-600'}`}
                     />
-                    <span>Number Verified</span>
+                    <span>Numero verificado</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <StatusIcon
                       type={actionResult.verification.inside_geofence ? 'success' : 'error'}
                       className={`w-4 h-4 ${actionResult.verification.inside_geofence ? 'text-green-600' : 'text-red-600'}`}
                     />
-                    <span>Inside Geofence</span>
+                    <span>Dentro de geocerca</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <StatusIcon
                       type={!actionResult.verification.sim_swap_detected ? 'success' : 'warning'}
                       className={`w-4 h-4 ${!actionResult.verification.sim_swap_detected ? 'text-green-600' : 'text-yellow-600'}`}
                     />
-                    <span>SIM Swap: {actionResult.verification.sim_swap_detected ? 'Detected' : 'None'}</span>
+                    <span>SIM Swap: {actionResult.verification.sim_swap_detected ? 'Detectado' : 'Ninguno'}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <StatusIcon
                       type={!actionResult.verification.device_swap_detected ? 'success' : 'warning'}
                       className={`w-4 h-4 ${!actionResult.verification.device_swap_detected ? 'text-green-600' : 'text-yellow-600'}`}
                     />
-                    <span>Device Swap: {actionResult.verification.device_swap_detected ? 'Detected' : 'None'}</span>
+                    <span>Cambio de dispositivo: {actionResult.verification.device_swap_detected ? 'Detectado' : 'Ninguno'}</span>
                   </div>
                 </div>
 
                 {/* Detailed API Response */}
                 {actionResult.verification.details && (
                   <div className="space-y-2 text-xs border-t pt-3">
-                    <h5 className="font-medium text-gray-600">API Details</h5>
+                    <h5 className="font-medium text-gray-600">Detalles de API</h5>
                     
                     {/* Location Details */}
                     {actionResult.verification.details.location_verification && (
                       <div className="bg-white rounded p-2 border">
                         <div className="font-medium text-gray-700 mb-1 flex items-center gap-2">
                           <StatusIcon type="location" className="w-4 h-4 text-primary-600" />
-                          <span>Location Verification</span>
+                          <span>Verificacion de ubicacion</span>
                         </div>
                         <div className="text-gray-600 space-y-0.5">
-                          <p>Result: <span className="font-mono">{actionResult.verification.details.location_verification.verification_result}</span></p>
+                          <p>Resultado: <span className="font-mono">{actionResult.verification.details.location_verification.verification_result}</span></p>
                           {actionResult.verification.details.location_verification.match_rate !== null && (
-                            <p>Match Rate: <span className="font-mono">{actionResult.verification.details.location_verification.match_rate}%</span></p>
+                            <p>Tasa de coincidencia: <span className="font-mono">{actionResult.verification.details.location_verification.match_rate}%</span></p>
                           )}
                         </div>
                       </div>
@@ -495,20 +495,20 @@ export default function AssetDetail() {
                       <div className="bg-white rounded p-2 border">
                         <div className="font-medium text-gray-700 mb-1 flex items-center gap-2">
                           <StatusIcon type="lock" className="w-4 h-4 text-primary-600" />
-                          <span>Risk Signals</span>
+                          <span>Senales de riesgo</span>
                         </div>
                         <div className="text-gray-600 space-y-0.5">
                           <p>SIM Swap: <span className={`font-mono ${actionResult.verification.details.risk_signals.sim_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}>
-                            {actionResult.verification.details.risk_signals.sim_swap_recent ? 'Yes' : 'No'}
+                            {actionResult.verification.details.risk_signals.sim_swap_recent ? 'Si' : 'No'}
                           </span></p>
                           {actionResult.verification.details.risk_signals.latest_sim_change && (
-                            <p className="text-gray-500">Last SIM change: {new Date(actionResult.verification.details.risk_signals.latest_sim_change).toLocaleString()}</p>
+                            <p className="text-gray-500">Ultimo cambio SIM: {new Date(actionResult.verification.details.risk_signals.latest_sim_change).toLocaleString()}</p>
                           )}
-                          <p>Device Swap: <span className={`font-mono ${actionResult.verification.details.risk_signals.device_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}>
-                            {actionResult.verification.details.risk_signals.device_swap_recent ? 'Yes' : 'No'}
+                          <p>Cambio de dispositivo: <span className={`font-mono ${actionResult.verification.details.risk_signals.device_swap_recent ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {actionResult.verification.details.risk_signals.device_swap_recent ? 'Si' : 'No'}
                           </span></p>
                           {actionResult.verification.details.risk_signals.latest_device_change && (
-                            <p className="text-gray-500">Last device change: {new Date(actionResult.verification.details.risk_signals.latest_device_change).toLocaleString()}</p>
+                            <p className="text-gray-500">Ultimo cambio de dispositivo: {new Date(actionResult.verification.details.risk_signals.latest_device_change).toLocaleString()}</p>
                           )}
                         </div>
                       </div>
@@ -519,11 +519,11 @@ export default function AssetDetail() {
                       <div className="bg-white rounded p-2 border">
                         <div className="font-medium text-gray-700 mb-1 flex items-center gap-2">
                           <StatusIcon type="phone" className="w-4 h-4 text-primary-600" />
-                          <span>Number Verification</span>
+                          <span>Verificacion de numero</span>
                         </div>
                         <div className="text-gray-600 space-y-0.5">
-                          <p>Match: <span className={`font-mono ${actionResult.verification.details.number_verification.match ? 'text-green-600' : 'text-red-600'}`}>
-                            {actionResult.verification.details.number_verification.match ? 'Yes' : 'No'}
+                          <p>Coincidencia: <span className={`font-mono ${actionResult.verification.details.number_verification.match ? 'text-green-600' : 'text-red-600'}`}>
+                            {actionResult.verification.details.number_verification.match ? 'Si' : 'No'}
                           </span></p>
                           {actionResult.verification.details.number_verification.note && (
                             <p className="text-gray-500 italic">{actionResult.verification.details.number_verification.note}</p>
@@ -537,7 +537,7 @@ export default function AssetDetail() {
                 {/* Raw JSON Response Toggle */}
                 <RawResponseViewer 
                   data={actionResult.verification.details} 
-                  title="View Raw API Response" 
+                  title="Ver respuesta API sin procesar" 
                 />
               </div>
             )}
@@ -549,13 +549,13 @@ export default function AssetDetail() {
               }}
               className="btn-primary w-full"
             >
-              Close
+              Cerrar
             </button>
           </div>
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="label">Site</label>
+              <label className="label">Sitio</label>
               <select
                 value={selectedSite}
                 onChange={(e) => setSelectedSite(e.target.value)}
@@ -571,13 +571,13 @@ export default function AssetDetail() {
 
             {actionModal === 'transfer' && (
               <div>
-                <label className="label">Transfer to</label>
+                <label className="label">Transferir a</label>
                 <select
                   value={selectedUser}
                   onChange={(e) => setSelectedUser(e.target.value)}
                   className="input"
                 >
-                  <option value="">Select user...</option>
+                  <option value="">Selecciona usuario...</option>
                   {users.filter(u => u.id !== user.id).map(u => (
                     <option key={u.id} value={u.id}>
                       {u.name} ({u.role})
@@ -594,7 +594,7 @@ export default function AssetDetail() {
                   onClick={() => setPanelOpen(true)}
                   className="text-orange-600 underline ml-1"
                 >
-                  Configure
+                  Configurar
                 </button>
               </p>
             </div>
@@ -605,14 +605,14 @@ export default function AssetDetail() {
                 className="btn-secondary flex-1"
                 disabled={actionLoading}
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 onClick={() => handleAction(actionModal)}
                 className="btn-primary flex-1"
                 disabled={actionLoading || (actionModal === 'transfer' && !selectedUser)}
               >
-                {actionLoading ? 'Processing...' : 'Confirm'}
+                {actionLoading ? 'Procesando...' : 'Confirmar'}
               </button>
             </div>
           </div>

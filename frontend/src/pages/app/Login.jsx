@@ -31,16 +31,16 @@ export default function Login() {
         navigate('/app/employee');
       }
     } catch (err) {
-      setError(err.message || 'Login failed');
+      setError(err.message || 'Error al iniciar sesion');
     } finally {
       setLoading(false);
     }
   };
 
   const demoCredentials = [
-    { role: 'Admin', email: 'admin@geocustody.com', password: 'admin123' },
-    { role: 'Manager', email: 'manager@geocustody.com', password: 'manager123' },
-    { role: 'Employee', email: 'john@geocustody.com', password: 'employee123' },
+    { role: 'Administrador', email: 'admin@geocustody.com', password: 'admin123' },
+    { role: 'Gerente', email: 'manager@geocustody.com', password: 'manager123' },
+    { role: 'Empleado', email: 'john@geocustody.com', password: 'employee123' },
   ];
 
   return (
@@ -62,10 +62,10 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {t('login') || 'Welcome'}
+            {t('login') || 'Iniciar sesion'}
           </h1>
           <p className="text-base text-gray-600">
-            Sign in to GeoCustody to manage your assets
+            Accede a GeoCustody para gestionar tus activos
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export default function Login() {
 
             {/* Email Field - Apple Style */}
             <div>
-              <label htmlFor="email" className="label">Email address</label>
+              <label htmlFor="email" className="label">Correo electronico</label>
               <input
                 id="email"
                 type="email"
@@ -92,14 +92,14 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="input"
-                placeholder="name@company.com"
+                placeholder="nombre@empresa.com"
                 autoComplete="email"
               />
             </div>
 
             {/* Password Field - Apple Style */}
             <div>
-              <label htmlFor="password" className="label">{t('password') || 'Password'}</label>
+              <label htmlFor="password" className="label">{t('password') || 'Contrasena'}</label>
               <input
                 id="password"
                 type="password"
@@ -121,10 +121,10 @@ export default function Login() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="loading w-4 h-4" />
-                  {t('loading') || 'Signing in...'}
+                  {t('loading') || 'Iniciando sesion...'}
                 </span>
               ) : (
-                t('login') || 'Sign In'
+                t('login') || 'Entrar'
               )}
             </button>
           </form>
@@ -135,7 +135,7 @@ export default function Login() {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white text-gray-500 font-medium">Demo Credentials</span>
+              <span className="px-3 bg-white text-gray-500 font-medium">Credenciales de demostracion</span>
             </div>
           </div>
 
@@ -161,7 +161,7 @@ export default function Login() {
         {/* Footer Link - Apple Style */}
         <p className="mt-8 text-center text-sm text-gray-600">
           <Link to="/" className="text-accent-600 hover:text-accent-700 font-medium transition-colors">
-            ← Back to home
+            ← Volver al inicio
           </Link>
         </p>
       </div>

@@ -61,14 +61,14 @@ export default function Approvals() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Approval Requests</h1>
-        <p className="text-gray-500">Review and process custody requests from your team</p>
+        <h1 className="text-2xl font-bold text-gray-900">Solicitudes de aprobacion</h1>
+        <p className="text-gray-500">Revisa y procesa solicitudes de custodia de tu equipo</p>
       </div>
 
       {/* Pending Approvals */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          Pending Requests
+          Solicitudes pendientes
           {pendingApprovals.length > 0 && (
             <span className="bg-yellow-100 text-yellow-700 text-sm px-2 py-0.5 rounded-full">
               {pendingApprovals.length}
@@ -81,8 +81,8 @@ export default function Approvals() {
             <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p>No pending approvals</p>
-            <p className="text-sm">All requests have been processed</p>
+            <p>No hay aprobaciones pendientes</p>
+            <p className="text-sm">Todas las solicitudes ya fueron procesadas</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -91,10 +91,10 @@ export default function Approvals() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      {approval.asset?.name || 'Unknown Asset'}
+                      {approval.asset?.name || 'Activo desconocido'}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      Tag: {approval.asset?.tag_id || 'N/A'}
+                      Etiqueta: {approval.asset?.tag_id || 'N/D'}
                     </p>
                   </div>
                   <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(approval.status)}`}>
@@ -104,19 +104,19 @@ export default function Approvals() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                   <div>
-                    <p className="text-gray-500">Requested By</p>
-                    <p className="font-medium">{approval.requester?.full_name || 'Unknown'}</p>
+                    <p className="text-gray-500">Solicitado por</p>
+                    <p className="font-medium">{approval.requester?.full_name || 'Desconocido'}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Action</p>
+                    <p className="text-gray-500">Accion</p>
                     <p className="font-medium capitalize">{formatAction(approval.requested_action)}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Sensitivity</p>
-                    <p className="font-medium">{approval.asset?.sensitivity_level || 'N/A'}</p>
+                    <p className="text-gray-500">Sensibilidad</p>
+                    <p className="font-medium">{approval.asset?.sensitivity_level || 'N/D'}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Requested</p>
+                    <p className="text-gray-500">Fecha</p>
                     <p className="font-medium">
                       {new Date(approval.created_at).toLocaleDateString()}
                     </p>
@@ -125,7 +125,7 @@ export default function Approvals() {
 
                 {approval.justification && (
                   <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm">
-                    <p className="text-gray-500 mb-1">Justification:</p>
+                    <p className="text-gray-500 mb-1">Justificacion:</p>
                     <p className="text-gray-900">{approval.justification}</p>
                   </div>
                 )}
@@ -136,14 +136,14 @@ export default function Approvals() {
                     disabled={processing === approval.id}
                     className="btn-primary flex-1 disabled:opacity-50"
                   >
-                    {processing === approval.id ? 'Processing...' : 'Approve'}
+                    {processing === approval.id ? 'Procesando...' : 'Aprobar'}
                   </button>
                   <button
                     onClick={() => handleAction(approval.id, 'REJECTED')}
                     disabled={processing === approval.id}
                     className="btn-secondary flex-1 disabled:opacity-50 border-red-300 text-red-600 hover:bg-red-50"
                   >
-                    Reject
+                    Rechazar
                   </button>
                 </div>
               </div>
@@ -154,33 +154,33 @@ export default function Approvals() {
 
       {/* History */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">History</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Historial</h2>
 
         {historyApprovals.length === 0 ? (
           <div className="card text-center py-8 text-gray-500">
-            <p>No approval history yet</p>
+            <p>No hay historial de aprobaciones</p>
           </div>
         ) : (
           <div className="card overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Asset</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Requester</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Activo</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Solicitante</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Accion</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {historyApprovals.map(approval => (
                   <tr key={approval.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{approval.asset?.name || 'Unknown'}</div>
+                      <div className="font-medium text-gray-900">{approval.asset?.name || 'Desconocido'}</div>
                       <div className="text-sm text-gray-500">{approval.asset?.tag_id}</div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                      {approval.requester?.full_name || 'Unknown'}
+                      {approval.requester?.full_name || 'Desconocido'}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 capitalize">
                       {formatAction(approval.requested_action)}

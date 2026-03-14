@@ -81,7 +81,7 @@ export default function AdminUsers() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!confirm('Seguro que deseas eliminar este usuario?')) return;
     try {
       await deleteUser(id);
       await loadData();
@@ -111,11 +111,11 @@ export default function AdminUsers() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-500">Manage team members and their access</p>
+          <h1 className="text-2xl font-bold text-gray-900">Gestion de usuarios</h1>
+          <p className="text-gray-500">Gestiona miembros del equipo y sus accesos</p>
         </div>
         <button onClick={openCreateModal} className="btn-primary">
-          Add User
+          Agregar usuario
         </button>
       </div>
 
@@ -124,12 +124,12 @@ export default function AdminUsers() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Home Site</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Telefono</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sitio base</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -157,21 +157,21 @@ export default function AdminUsers() {
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                  {user.home_site?.name || 'Unknown'}
+                  {user.home_site?.name || 'Desconocido'}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-right">
                   <button
                     onClick={() => openEditModal(user)}
                     className="text-primary-600 hover:text-primary-800 mr-3"
                   >
-                    Edit
+                    Editar
                   </button>
                   <button
                     onClick={() => handleDelete(user.id)}
                     className="text-red-600 hover:text-red-800"
                     disabled={user.role === 'ADMIN'}
                   >
-                    Delete
+                    Eliminar
                   </button>
                 </td>
               </tr>
@@ -184,17 +184,17 @@ export default function AdminUsers() {
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={editingUser ? 'Edit User' : 'Add New User'}
+        title={editingUser ? 'Editar usuario' : 'Agregar usuario'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
             <input
               type="text"
               value={formData.full_name}
               onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
               className="input"
-              placeholder="John Doe"
+              placeholder="Juan Perez"
               required
             />
           </div>
@@ -212,7 +212,7 @@ export default function AdminUsers() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Numero de telefono</label>
             <input
               type="tel"
               value={formData.phone_number}
@@ -222,25 +222,25 @@ export default function AdminUsers() {
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              Used for Open Gateway number verification
+              Usado para verificacion de numero con Open Gateway
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
               className="input"
             >
-              <option value="EMPLOYEE">Employee - Basic checkout access</option>
-              <option value="MANAGER">Manager - Can approve step-up requests</option>
-              <option value="ADMIN">Admin - Full system access</option>
+              <option value="EMPLOYEE">Empleado - Acceso basico a retiros</option>
+              <option value="MANAGER">Gerente - Puede aprobar solicitudes STEP_UP</option>
+              <option value="ADMIN">Administrador - Acceso completo</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Home Site</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sitio base</label>
             <select
               value={formData.home_site_id}
               onChange={(e) => setFormData({ ...formData, home_site_id: parseInt(e.target.value) })}
@@ -255,7 +255,7 @@ export default function AdminUsers() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {editingUser ? 'New Password (leave blank to keep current)' : 'Password'}
+              {editingUser ? 'Nueva contrasena (dejar vacio para mantener)' : 'Contrasena'}
             </label>
             <input
               type="password"
@@ -269,14 +269,14 @@ export default function AdminUsers() {
 
           <div className="flex gap-3 pt-4">
             <button type="submit" className="btn-primary flex-1">
-              {editingUser ? 'Save Changes' : 'Create User'}
+              {editingUser ? 'Guardar cambios' : 'Crear usuario'}
             </button>
             <button
               type="button"
               onClick={() => setShowModal(false)}
               className="btn-secondary flex-1"
             >
-              Cancel
+              Cancelar
             </button>
           </div>
         </form>
