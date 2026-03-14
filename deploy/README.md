@@ -1,6 +1,8 @@
 # GeoCustody Deployment
 
-Deploy GeoCustody with **Docker**, **Podman**, or **manually**. Choose the method that best fits your infrastructure.
+Deploy GeoCustody with **Podman**.
+
+Note: the `cloudflared` container image is pulled from `docker.io/cloudflare/cloudflared:latest` because the `registry.access.redhat.com/cloudflare/cloudflared` repository is not publicly available.
 
 ## Services Overview
 
@@ -45,80 +47,6 @@ Deploy GeoCustody with **Docker**, **Podman**, or **manually**. Choose the metho
 
 ---
 
-## 🐳 Docker Deployment
-
-> **Note:** This documentation was generated with AI. Please verify details before relying on it for production or critical use.
-
-Deploy GeoCustody with Docker — no Node.js or Python installation required. Everything runs inside containers.
-
-### Docker Prerequisites
-
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt update && sudo apt install docker.io docker-compose-plugin -y
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
-# Log out and back in for group changes
-```
-
-**Linux (Fedora/RHEL):**
-```bash
-sudo dnf install docker docker-compose-plugin -y
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
-```
-
-**macOS:**
-```bash
-# Install Docker Desktop: https://docker.com/products/docker-desktop
-# Or via Homebrew:
-brew install --cask docker
-```
-
-**Windows:**
-- Install [Docker Desktop](https://docker.com/products/docker-desktop)
-- Enable WSL 2 backend for best performance
-
-### Quick Start
-
-```bash
-cd deploy
-
-# 1. Configure environment
-cp .env.example .env
-nano .env  # Edit with your settings
-
-# 2. Build and start
-docker compose up -d --build
-
-# 3. Access the app
-open http://localhost:8080
-```
-
-### Docker Commands
-
-```bash
-# Start/Stop/Restart
-docker compose up -d          # Start all services
-docker compose down           # Stop all services
-docker compose restart        # Restart all services
-
-# Logs
-docker compose logs -f        # Follow all logs
-docker compose logs backend   # Backend logs only
-docker compose logs frontend  # Frontend logs only
-
-# Rebuild after code changes
-docker compose build --no-cache
-docker compose up -d
-
-# Full reset (removes database)
-docker compose down -v
-docker compose up -d --build
-```
-
----
-
 ## 🦭 Podman Deployment
 
 > **Note:** This documentation was generated with AI. Please verify details before relying on it for production or critical use.
@@ -130,6 +58,12 @@ Deploy GeoCustody with Podman — no Node.js or Python installation required. Ev
 **Linux (Fedora/RHEL):**
 ```bash
 sudo dnf install podman podman-compose -y
+```
+
+If `dnf` fails because `docker-ce-stable` metadata returns 404, install with that repo disabled:
+
+```bash
+sudo dnf install --disablerepo=docker-ce-stable podman podman-compose -y
 ```
 
 **Linux (Ubuntu/Debian):**
@@ -226,6 +160,11 @@ The monitoring Compose profile adds:
 | **Grafana** | `http://localhost:3000` | Dashboards for nginx traffic, request rates, error rates |
 | **nginx-exporter** | *(internal)* | nginx active connections, accepted/handled requests, reading/writing/waiting states |
 
+Grafana is pre-provisioned on startup with:
+- A Prometheus datasource (`Prometheus`)
+- A default dashboard folder (`GeoCustody`)
+- Dashboard: `GeoCustody Monitoring Overview`
+
 ### Enable monitoring
 
 ```bash
@@ -295,6 +234,28 @@ For secure public HTTPS access without opening ports:
 
 > **Important:** The `cloudflared` container connects to the `geocustody-frontend` container directly via the internal `app-net` network.  The origin must be `geocustody-frontend:80` (not `localhost:8080`).
 
+### Troubleshooting 502 on public hostname
+
+If `https://your-hostname` returns `502` from Cloudflare while `http://localhost:8080` works locally, your tunnel ingress is usually pointing to the wrong origin.
+
+Check tunnel logs:
+
+```bash
+podman logs geocustody-tunnel | grep -E "Updated to new configuration|service"
+```
+
+If you see `"service":"http://localhost:8080"`, fix the Cloudflare tunnel public hostname origin to:
+
+```text
+http://geocustody-frontend:80
+```
+
+Then restart the stack:
+
+```bash
+./deploy.sh restart
+```
+
 ---
 
 ## 📁 File Structure
@@ -303,8 +264,7 @@ For secure public HTTPS access without opening ports:
 deploy/
 ├── .env.example           # Template environment file
 ├── .env                   # Your local config (not committed)
-├── docker-compose.yml     # Symlink to podman-compose.yml
-├── podman-compose.yml     # Container orchestration (works with both)
+├── podman-compose.yml     # Container orchestration
 ├── deploy.sh              # Helper script for Podman
 ├── backend.Containerfile  # Backend container definition
 ├── frontend.Containerfile # Frontend container definition
@@ -361,11 +321,6 @@ done
 ### Containers won't start
 
 ```bash
-# Docker
-docker compose logs backend
-docker compose logs frontend
-
-# Podman
 ./deploy.sh logs backend
 ./deploy.sh logs frontend
 ```
@@ -391,12 +346,11 @@ podman unshare chown 1001:1001 deploy/data
 Check that the build completed successfully:
 
 ```bash
-# Docker
-docker compose logs frontend | grep -i error
+./deploy.sh logs frontend | grep -i error
 
 # Rebuild frontend
-docker compose build frontend --no-cache
-docker compose up -d
+./deploy.sh build
+./deploy.sh restart
 ```
 
 ### Port already in use
@@ -412,11 +366,6 @@ sudo lsof -i :8080
 ### Reset everything
 
 ```bash
-# Docker
-docker compose down -v
-docker compose up -d --build
-
-# Podman
 ./deploy.sh reset-db
 ./deploy.sh start
 ```
@@ -428,11 +377,6 @@ docker compose up -d --build
 After pulling new code:
 
 ```bash
-# Docker
-docker compose build --no-cache
-docker compose up -d
-
-# Podman
 ./deploy.sh build
 ./deploy.sh restart
 ```

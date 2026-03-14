@@ -239,7 +239,7 @@ pytest
 | passlib + bcrypt | Latest | Password security |
 | httpx | 0.27.0 | Async HTTP client |
 
-## 🐳 Docker & Podman Deployment
+## 🦭 Podman Deployment
 
 The repository includes containerization support via `deploy/` directory.
 

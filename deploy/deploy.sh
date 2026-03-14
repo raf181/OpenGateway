@@ -14,6 +14,37 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+COMPOSE_CMD=()
+COMPOSE_FILE="podman-compose.yml"
+
+detect_compose() {
+    # Podman-only: prefer podman-compose, then podman compose.
+    if command -v podman-compose >/dev/null 2>&1; then
+        COMPOSE_CMD=(podman-compose)
+        return 0
+    fi
+
+    if command -v podman >/dev/null 2>&1; then
+        if podman compose version >/dev/null 2>&1; then
+            COMPOSE_CMD=(podman compose)
+            return 0
+        fi
+    fi
+
+    echo -e "${RED}No Podman compose engine found.${NC}"
+    echo "Install one of the following Podman options:"
+    echo "  - podman-compose"
+    echo "  - podman with compose support"
+    echo ""
+    echo "On RHEL/Fedora, if a broken docker-ce repo causes 404, try:"
+    echo "  sudo dnf install --disablerepo=docker-ce-stable podman podman-compose"
+    exit 1
+}
+
+compose_cmd() {
+    "${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" "$@"
+}
+
 # Check for .env file
 if [ ! -f ".env" ]; then
     echo -e "${YELLOW}⚠️  No .env file found!${NC}"
@@ -28,16 +59,25 @@ fi
 # can write to the volume without world-writable permissions (chmod 777).
 mkdir -p "$SCRIPT_DIR/data"
 if command -v podman &>/dev/null; then
-    podman unshare chown 1001:1001 "$SCRIPT_DIR/data" 2>/dev/null \
-        || chmod 755 "$SCRIPT_DIR/data"
+    if ! podman unshare chown 1001:1001 "$SCRIPT_DIR/data" 2>/dev/null; then
+        if ! chmod 755 "$SCRIPT_DIR/data" 2>/dev/null; then
+            echo -e "${YELLOW}Warning: could not adjust permissions on $SCRIPT_DIR/data.${NC}"
+            echo "         Continuing with existing permissions."
+        fi
+    fi
 else
-    chmod 755 "$SCRIPT_DIR/data"
+    if ! chmod 755 "$SCRIPT_DIR/data" 2>/dev/null; then
+        echo -e "${YELLOW}Warning: could not adjust permissions on $SCRIPT_DIR/data.${NC}"
+        echo "         Continuing with existing permissions."
+    fi
 fi
 
 # Load environment variables
 set -a
 source .env
 set +a
+
+detect_compose
 
 # Get current mode
 CURRENT_MODE="${GATEWAY_MODE:-mock}"
@@ -85,6 +125,40 @@ show_status() {
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
+check_tunnel_ingress_hint() {
+    # Cloudflare-managed ingress is pushed remotely and may point to localhost.
+    # In a containerized cloudflared setup, localhost refers to cloudflared
+    # itself, not the frontend container.
+    if [ -z "$CLOUDFLARE_TUNNEL_TOKEN" ]; then
+        return 0
+    fi
+
+    if ! command -v podman >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if ! podman ps --format '{{.Names}}' | grep -qx "geocustody-tunnel"; then
+        return 0
+    fi
+
+    if ! command -v curl >/dev/null 2>&1; then
+        return 0
+    fi
+
+    status_code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 8 "https://${TUNNEL_HOSTNAME}" 2>/dev/null || true)
+
+    if [ "$status_code" = "502" ]; then
+        echo ""
+        echo -e "${RED}⚠ Public tunnel endpoint returned HTTP 502${NC}"
+        echo "   https://${TUNNEL_HOSTNAME} is reachable but the origin is failing."
+        echo "   Most common cause: Cloudflare tunnel ingress points to localhost."
+        echo ""
+        echo "   Fix in Cloudflare Zero Trust -> Networks -> Tunnels -> Public Hostname:"
+        echo "   Service URL: http://geocustody-frontend:80"
+        echo "   (not http://localhost:8080 when cloudflared runs in a container)"
+    fi
+}
+
 validate_for_api() {
     # Only validate credentials if not in mock mode
     if [ "$CURRENT_MODE" != "mock" ]; then
@@ -103,7 +177,8 @@ case "${1:-help}" in
         validate_for_api
         echo ""
         echo -e "${GREEN}🚀 Starting GeoCustody containers...${NC}"
-        podman-compose up -d
+        compose_cmd up -d
+        check_tunnel_ingress_hint
         echo ""
         echo -e "${GREEN}✅ GeoCustody is running!${NC}"
         echo "   Local: http://localhost:8080"
@@ -156,7 +231,7 @@ case "${1:-help}" in
         ;;
     stop)
         echo -e "${YELLOW}🛑 Stopping GeoCustody containers...${NC}"
-        podman-compose down
+        compose_cmd down
         echo -e "${GREEN}✅ Containers stopped${NC}"
         ;;
     restart)
@@ -164,22 +239,24 @@ case "${1:-help}" in
         validate_for_api
         echo ""
         echo -e "${BLUE}🔄 Restarting GeoCustody containers...${NC}"
-        podman-compose down
-        podman-compose up -d
+        compose_cmd down
+        compose_cmd up -d
+        check_tunnel_ingress_hint
         echo -e "${GREEN}✅ Containers restarted${NC}"
         ;;
     logs)
-        podman-compose logs -f "${2:-}"
+        compose_cmd logs -f "${2:-}"
         ;;
     build)
         echo -e "${BLUE}🔨 Building GeoCustody containers...${NC}"
-        podman-compose build --no-cache
+        compose_cmd build --no-cache
         echo -e "${GREEN}✅ Build complete${NC}"
         ;;
     status)
         show_status
         echo ""
-        podman-compose ps
+        compose_cmd ps
+        check_tunnel_ingress_hint
         ;;
     mode)
         case "${2:-}" in
@@ -217,7 +294,7 @@ case "${1:-help}" in
         read -p "Are you sure? (y/N) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            podman-compose down
+            compose_cmd down
             rm -f "$SCRIPT_DIR/data/geocustody.db"
             echo -e "${GREEN}✅ Database reset. Start to create fresh database.${NC}"
         else
@@ -228,11 +305,13 @@ case "${1:-help}" in
         case "${2:-help}" in
             start)
                 echo -e "${BLUE}📊 Starting monitoring stack (Prometheus + Grafana + nginx-exporter)...${NC}"
-                COMPOSE_PROFILES=monitoring podman-compose up -d
+                compose_cmd --profile monitoring up -d --no-deps prometheus grafana nginx-exporter
                 echo ""
                 echo -e "${GREEN}✅ Monitoring is running!${NC}"
-                echo "   Prometheus: http://localhost:9090"
-                echo "   Grafana:    http://localhost:3000"
+                PROM_PORT="${PROMETHEUS_PORT:-19090}"
+                GRAF_PORT="${GRAFANA_PORT:-13000}"
+                echo "   Prometheus: http://localhost:${PROM_PORT}"
+                echo "   Grafana:    http://localhost:${GRAF_PORT}"
                 ADMIN_USER="${GRAFANA_ADMIN_USER:-admin}"
                 echo "   Grafana login: ${ADMIN_USER} / (see GRAFANA_ADMIN_PASSWORD in .env)"
                 echo ""
@@ -241,12 +320,12 @@ case "${1:-help}" in
                 ;;
             stop)
                 echo -e "${YELLOW}🛑 Stopping monitoring stack...${NC}"
-                COMPOSE_PROFILES=monitoring podman-compose --profile monitoring stop prometheus grafana nginx-exporter 2>/dev/null || \
+                compose_cmd --profile monitoring stop prometheus grafana nginx-exporter 2>/dev/null || \
                     podman stop geocustody-prometheus geocustody-grafana geocustody-nginx-exporter 2>/dev/null || true
                 echo -e "${GREEN}✅ Monitoring stopped${NC}"
                 ;;
             logs)
-                COMPOSE_PROFILES=monitoring podman-compose logs -f prometheus grafana nginx-exporter
+                compose_cmd --profile monitoring logs -f prometheus grafana nginx-exporter
                 ;;
             *)
                 echo -e "${BLUE}Monitoring commands:${NC}"
@@ -255,8 +334,8 @@ case "${1:-help}" in
                 echo "  ./deploy.sh monitoring logs   - Tail monitoring logs"
                 echo ""
                 echo "Endpoints (localhost only):"
-                echo "  Prometheus: http://localhost:9090"
-                echo "  Grafana:    http://localhost:3000"
+                echo "  Prometheus: http://localhost:${PROMETHEUS_PORT:-19090}"
+                echo "  Grafana:    http://localhost:${GRAFANA_PORT:-13000}"
                 ;;
         esac
         ;;
