@@ -95,7 +95,7 @@ services:
     # NOTE: configure your Cloudflare Zero Trust tunnel origin as:
     #   http://geocustody-frontend:80
     # (not localhost — cloudflared reaches the frontend via the app-net network)
-    command: tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --protocol ${CLOUDFLARED_PROTOCOL:-http2} run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
       - frontend
     networks:
@@ -108,8 +108,6 @@ services:
     read_only: true
     tmpfs:
       - /tmp:mode=1777,size=16m
-    mem_limit: 128m
-    cpus: "0.25"
 
   # ════════════════════════════════════════════════════════════════════════════
   # Optional Monitoring Profile

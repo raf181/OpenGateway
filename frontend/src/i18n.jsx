@@ -70,6 +70,21 @@ const translations = {
     mobileApp: 'Mobile App',
     approvals: 'Approvals',
     dashboard: 'Dashboard',
+    assets: 'Assets',
+    scan: 'Scan',
+    adminDashboard: 'Admin dashboard',
+    assetManagement: 'Asset management',
+    sites: 'Sites',
+    users: 'Users',
+    policies: 'Policies',
+    audit: 'Audit',
+    assetManagementTitle: 'Asset management',
+    signIn: 'Sign in',
+    requestDemo: 'Request demo',
+    rightsReserved: 'All rights reserved.',
+    custodyTagline: 'Chain-of-custody verification powered by Telefonica Open Gateway.',
+    logoutTitle: 'Log out',
+    manageAssets: 'Asset management',
     homeSite: 'Home Site',
     actions: 'Actions',
     edit: 'Edit',
@@ -154,6 +169,21 @@ const translations = {
     mobileApp: 'Aplicación móvil',
     approvals: 'Aprobaciones',
     dashboard: 'Panel',
+    assets: 'Activos',
+    scan: 'Escanear',
+    adminDashboard: 'Panel admin',
+    assetManagement: 'Gestion de activos',
+    sites: 'Sitios',
+    users: 'Usuarios',
+    policies: 'Politicas',
+    audit: 'Auditoria',
+    assetManagementTitle: 'Gestion de activos',
+    signIn: 'Iniciar sesion',
+    requestDemo: 'Solicitar demo',
+    rightsReserved: 'Todos los derechos reservados.',
+    custodyTagline: 'Verificacion de cadena de custodia impulsada por Telefonica Open Gateway.',
+    logoutTitle: 'Cerrar sesion',
+    manageAssets: 'Gestion de activos',
     homeSite: 'Sitio base',
     actions: 'Acciones',
     edit: 'Editar',
@@ -186,11 +216,12 @@ export function I18nProvider({ children }) {
     // Auto-detect browser language, defaulting to Spanish.
     const browserLang = navigator.language?.slice(0, 2);
     if (browserLang === 'es') setLang('es');
-    else setLang('es');
+    else setLang('en');
   }, []);
 
   useEffect(() => {
     localStorage.setItem('lang', lang);
+    document.documentElement.lang = lang;
   }, [lang]);
 
   const t = (key) => translations[lang][key] || key;

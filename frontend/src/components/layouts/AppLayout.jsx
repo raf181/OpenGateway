@@ -6,7 +6,7 @@ import { useI18n } from '../../i18n';
 
 export default function AppLayout() {
   const { user, logout, isAdmin, isManager } = useAuth();
-  const { lang, setLang } = useI18n();
+  const { lang, setLang, t } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,16 +17,16 @@ export default function AppLayout() {
   };
 
   const navItems = [
-    { href: '/app/employee', label: 'Panel', icon: 'home', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/app/employee/assets', label: 'Activos', icon: 'box', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/app/employee/scan', label: 'Escanear', icon: 'scan', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
-    { href: '/app/manager/approvals', label: 'Aprobaciones', icon: 'check', roles: ['MANAGER', 'ADMIN'] },
-    { href: '/app/admin', label: 'Panel admin', icon: 'chart', roles: ['ADMIN'] },
-    { href: '/app/admin/assets', label: 'Gestion de activos', icon: 'settings', roles: ['ADMIN'] },
-    { href: '/app/admin/sites', label: 'Sitios', icon: 'map', roles: ['ADMIN'] },
-    { href: '/app/admin/users', label: 'Usuarios', icon: 'users', roles: ['ADMIN'] },
-    { href: '/app/admin/policies', label: 'Politicas', icon: 'shield', roles: ['ADMIN'] },
-    { href: '/app/audit', label: 'Auditoria', icon: 'list', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
+    { href: '/app/employee', label: t('dashboard'), icon: 'home', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
+    { href: '/app/employee/assets', label: t('assets'), icon: 'box', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
+    { href: '/app/employee/scan', label: t('scan'), icon: 'scan', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
+    { href: '/app/manager/approvals', label: t('approvals'), icon: 'check', roles: ['MANAGER', 'ADMIN'] },
+    { href: '/app/admin', label: t('adminDashboard'), icon: 'chart', roles: ['ADMIN'] },
+    { href: '/app/admin/assets', label: t('assetManagement'), icon: 'settings', roles: ['ADMIN'] },
+    { href: '/app/admin/sites', label: t('sites'), icon: 'map', roles: ['ADMIN'] },
+    { href: '/app/admin/users', label: t('users'), icon: 'users', roles: ['ADMIN'] },
+    { href: '/app/admin/policies', label: t('policies'), icon: 'shield', roles: ['ADMIN'] },
+    { href: '/app/audit', label: t('audit'), icon: 'list', roles: ['EMPLOYEE', 'MANAGER', 'ADMIN'] },
   ];
 
   const filteredNav = navItems.filter(item => item.roles.includes(user?.role));
@@ -62,7 +62,7 @@ export default function AppLayout() {
               </div>
               <div>
                 <span className="text-sm font-semibold text-gray-900">GeoCustody</span>
-                <p className="text-xs text-gray-500">Gestion de activos</p>
+                <p className="text-xs text-gray-500">{t('manageAssets')}</p>
               </div>
             </Link>
           </div>
@@ -109,7 +109,7 @@ export default function AppLayout() {
               <button
                 onClick={handleLogout}
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-apple transition-colors"
-                title="Cerrar sesion"
+                title={t('logoutTitle')}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -145,7 +145,7 @@ export default function AppLayout() {
             onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
             className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-600 hover:text-primary-600"
           >
-            {lang === 'es' ? 'ES' : 'EN'}
+            {lang === 'es' ? 'EN' : 'ES'}
           </button>
           <span className="text-sm text-gray-600 hidden sm:block font-medium">
             {user?.email}

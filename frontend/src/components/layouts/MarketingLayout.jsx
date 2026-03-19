@@ -4,20 +4,20 @@ import Modal from '../Modal';
 import { useI18n } from '../../i18n';
 
 export default function MarketingLayout() {
-  const { lang, setLang } = useI18n();
+  const { lang, setLang, t } = useI18n();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [pricingModalOpen, setPricingModalOpen] = useState(false);
   const location = useLocation();
 
   const navLinks = [
-    { href: '/product', label: 'Producto' },
-    { href: '/#how-it-works', label: 'Como funciona' },
-    { href: '/#use-cases', label: 'Casos de uso' },
-    { href: '/#security', label: 'Seguridad' },
-    { href: '/#integrations', label: 'Integraciones' },
-    { href: '/#pricing', label: 'Precios' },
-    { href: '/#faq', label: 'FAQ' },
+    { href: '/product', label: t('product') },
+    { href: '/#how-it-works', label: t('howItWorks') },
+    { href: '/#use-cases', label: t('useCases') },
+    { href: '/#security', label: t('security') },
+    { href: '/#integrations', label: t('integrations') },
+    { href: '/#pricing', label: t('pricing') },
+    { href: '/#faq', label: t('faq') },
   ];
 
   return (
@@ -55,16 +55,16 @@ export default function MarketingLayout() {
                 onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
                 className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-600 hover:text-primary-600"
               >
-                {lang === 'es' ? 'ES' : 'EN'}
+                {lang === 'es' ? 'EN' : 'ES'}
               </button>
               <Link to="/app/login" className="text-sm text-gray-600 hover:text-primary-600">
-                Iniciar sesion
+                {t('signIn')}
               </Link>
               <button
                 onClick={() => setDemoModalOpen(true)}
                 className="btn-primary btn-sm"
               >
-                Solicitar demo
+                {t('requestDemo')}
               </button>
             </div>
 
@@ -98,7 +98,7 @@ export default function MarketingLayout() {
               ))}
               <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
                 <Link to="/app/login" className="block py-2 text-gray-600">
-                  Iniciar sesion
+                  {t('signIn')}
                 </Link>
                 <button
                   onClick={() => {
@@ -107,7 +107,7 @@ export default function MarketingLayout() {
                   }}
                   className="btn-primary btn-sm w-full"
                 >
-                  Solicitar demo
+                  {t('requestDemo')}
                 </button>
               </div>
             </div>
@@ -134,29 +134,29 @@ export default function MarketingLayout() {
                 <span className="text-xl font-bold">GeoCustody</span>
               </div>
               <p className="text-gray-400 text-sm">
-                Verificacion de cadena de custodia impulsada por Telefonica Open Gateway.
+                {t('custodyTagline')}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Producto</h4>
+              <h4 className="font-semibold mb-4">{t('product')}</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="/product" className="hover:text-white">Resumen</a></li>
-                <li><a href="/#how-it-works" className="hover:text-white">Como funciona</a></li>
-                <li><a href="/#use-cases" className="hover:text-white">Casos de uso</a></li>
-                <li><a href="/#pricing" className="hover:text-white">Precios</a></li>
+                <li><a href="/product" className="hover:text-white">{t('platformOverview')}</a></li>
+                <li><a href="/#how-it-works" className="hover:text-white">{t('howItWorks')}</a></li>
+                <li><a href="/#use-cases" className="hover:text-white">{t('useCases')}</a></li>
+                <li><a href="/#pricing" className="hover:text-white">{t('pricing')}</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Empresa</h4>
+              <h4 className="font-semibold mb-4">{t('company')}</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-white">Privacidad</a></li>
-                <li><a href="#" className="hover:text-white">Seguridad</a></li>
-                <li><a href="#" className="hover:text-white">Cumplimiento</a></li>
-                <li><a href="#" className="hover:text-white">Estado</a></li>
+                <li><a href="#" className="hover:text-white">{t('privacy')}</a></li>
+                <li><a href="#" className="hover:text-white">{t('security')}</a></li>
+                <li><a href="#" className="hover:text-white">{t('compliance')}</a></li>
+                <li><a href="#" className="hover:text-white">{t('status')}</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Contacto</h4>
+              <h4 className="font-semibold mb-4">{t('contact')}</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li><a href="mailto:sales@placeholder" className="hover:text-white">sales@placeholder</a></li>
                 <li><a href="mailto:support@placeholder" className="hover:text-white">support@placeholder</a></li>
@@ -164,7 +164,7 @@ export default function MarketingLayout() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
-            © {new Date().getFullYear()} GeoCustody. Todos los derechos reservados.
+            © {new Date().getFullYear()} GeoCustody. {t('rightsReserved')}
           </div>
         </div>
       </footer>
